@@ -1,0 +1,21 @@
+Create table content_raw.sentences (
+    lang varchar(12) not null,
+    id int8 not null, 
+    text varchar(300),
+    source varchar(100),
+    spacy_analysis jsonb,
+    transliteration jsonb,
+    element_tags jsonb,
+    words varchar(100)[] not null,
+    all_words varchar(100)[] not null,
+    propn varchar(100)[] not null,
+    root varchar(100) not null,
+    elements jsonb DEFAULT '[]'::jsonb NOT NULL,
+	verbs varchar(100)[] NULL,
+	auxiliary_verbs varchar(100)[] NULL,
+	nouns varchar(100)[] NULL,
+	adjectives varchar(100)[] NULL,
+    reviewed boolean  default false,
+    review_comments text,
+    primary key (lang, id)
+);
