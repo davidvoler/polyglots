@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import (
     dashboard,
+    review,
 )
 app = FastAPI()
 app.add_middleware(
@@ -17,3 +18,4 @@ app.add_middleware(
 
 
 app.include_router(dashboard.router, prefix="/api/dashboard")
+app.include_router(review.router, prefix="/api/review")

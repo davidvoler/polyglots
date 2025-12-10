@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/corpus.dart';
 import '../models/sentence.dart';
 import '../models/requests.dart';
+import '../models/dashboard.dart';
 
 class ApiService {
   final String baseUrl;
@@ -244,6 +245,21 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error fetching courses: $e');
+    }
+  }
+
+  // Get dashboard data
+  Future<DashboardResponse> getDashboard() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/dashboard'));
+
+      if (response.statusCode == 200) {
+        return DashboardResponse.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to load dashboard: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching dashboard: $e');
     }
   }
 }
