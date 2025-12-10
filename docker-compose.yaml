@@ -45,14 +45,15 @@
       dockerfile: Dockerfile.dev
 
     ports:
-      - 8000:8000
+      - 8001:8000
     volumes:
-      - ./content_server/src:/app
+      - ./content/content_server/src:/app
     environment:
       - POSTGRES_DB=polyglots
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres1
       - POSTGRES_USER=polyglots
       - POSTGRES_PASSWORD=polyglots
-      - POSTGRES_HOST=polyglots
       - AEROSPIKE_HOST=polyglots
       - AEROSPIKE_PORT=3000
   
