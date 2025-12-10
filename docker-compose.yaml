@@ -37,22 +37,22 @@
   #   volumes:
   #     - ./data/aerospike:/var/lib/aerospike
 
-  # content_server:
-  #   container_name: content_server
-  #   image: content_server:polyall
-  #   build:
-  #     context: content_server
-  #     dockerfile: Dockerfile.dev
+  content_server:
+    container_name: content_server
+    image: content_server:polyglots
+    build:
+      context: content/content_server
+      dockerfile: Dockerfile.dev
 
-  #   ports:
-  #     - 8000:8000
-  #   volumes:
-  #     - ./content_server/src:/app
-  #   environment:
-  #     - POSTGRES_DB=polyglots
-  #     - POSTGRES_USER=polyglots
-  #     - POSTGRES_PASSWORD=polyglots
-  #     - POSTGRES_HOST=polyglots
-  #     - AEROSPIKE_HOST=polyglots
-  #     - AEROSPIKE_PORT=3000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./content_server/src:/app
+    environment:
+      - POSTGRES_DB=polyglots
+      - POSTGRES_USER=polyglots
+      - POSTGRES_PASSWORD=polyglots
+      - POSTGRES_HOST=polyglots
+      - AEROSPIKE_HOST=polyglots
+      - AEROSPIKE_PORT=3000
   
