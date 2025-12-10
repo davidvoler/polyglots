@@ -7,6 +7,9 @@ import 'load_csv_screen.dart';
 import 'transliterate_screen.dart';
 import 'generate_content_screen.dart';
 import 'group_sentences_screen.dart';
+import 'dialogues_screen.dart';
+import 'subtitles_screen.dart';
+import 'courses_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -63,6 +66,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title: 'Group Sentences',
       icon: Icons.group_work,
       screenBuilder: () => const GroupSentencesScreen(),
+    ),
+    DashboardMenuItem(
+      title: 'Dialogues',
+      icon: Icons.chat_bubble_outline,
+      screenBuilder: () => const DialoguesScreen(),
+    ),
+    DashboardMenuItem(
+      title: 'Subtitles',
+      icon: Icons.subtitles,
+      screenBuilder: () => const SubtitlesScreen(),
+    ),
+    DashboardMenuItem(
+      title: 'Courses',
+      icon: Icons.school,
+      screenBuilder: () => const CoursesScreen(),
     ),
   ];
 

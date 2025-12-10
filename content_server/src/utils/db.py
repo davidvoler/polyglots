@@ -31,6 +31,16 @@ async def get_pg_con():
         ) 
     return _conn
 
+async def get_pg_con_specific(host:str, port:str, db_name:str, user:str, password:str):
+    connection_string = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
+    new_conn =  await AsyncConnection.connect(
+            connection_string, 
+            row_factory=dict_row, 
+            autocommit=True,
+        ) 
+    return new_conn
+
+
 async def close_pg_con():
     global _conn
     if _conn:
@@ -42,8 +52,9 @@ def get_current_customer():
 
 
 
-async def get_query_results(sql:str, params:tuple)-> list:
-    conn = await get_pg_con()
+async def get_query_results(sql:str, params:tuple, conn:AsyncConnection=None)-> list:
+    if not conn:
+        conn = await get_pg_con()
     cursor = conn.cursor()
     # print(sql)
     # print(params) 
@@ -62,8 +73,9 @@ async def get_query_results(sql:str, params:tuple)-> list:
         return [] 
 
 
-async def run_query(sql:str, params:tuple)-> bool:
-    conn = await get_pg_con()
+async def run_query(sql:str, params:tuple, conn:AsyncConnection=None)-> bool:
+    if not conn:
+        conn = await get_pg_con()
     cursor = conn.cursor()
     # print(sql)
     # print(len(params)) 
@@ -76,10 +88,3 @@ async def run_query(sql:str, params:tuple)-> bool:
         print(f"Error executing SQL: {sql}")
         print(e)
         return False
-
-
-# def get_aerospike_client():
-#     global _aerospike_client
-#     if not _aerospike_client:
-#         _aerospike_client = client.Client(os.getenv("AEROSPIKE_HOST"), os.getenv("AEROSPIKE_PORT"))
-#     return _aerospike_client

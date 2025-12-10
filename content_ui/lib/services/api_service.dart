@@ -185,5 +185,66 @@ class ApiService {
       throw Exception('Error grouping sentences: $e');
     }
   }
+
+  // Process dialogues
+  Future<Map<String, dynamic>> processDialogues(DialoguesRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/dialogues'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to process dialogues: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error processing dialogues: $e');
+    }
+  }
+
+  // Analyze subtitles
+  Future<Map<String, dynamic>> analyzeSubtitles(BatchRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/subtitles'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to analyze subtitles: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error analyzing subtitles: $e');
+    }
+  }
+
+  // Get courses
+  Future<Map<String, dynamic>> getCourses(CoursesRequest request) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/courses').replace(
+          queryParameters: {
+            if (request.corpus != null) 'corpus': request.corpus!,
+            if (request.lang != null) 'lang': request.lang!,
+            if (request.toLang != null) 'to_lang': request.toLang!,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load courses: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching courses: $e');
+    }
+  }
 }
 

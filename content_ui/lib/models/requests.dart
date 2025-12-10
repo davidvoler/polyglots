@@ -227,3 +227,83 @@ class GroupSentencesRequest {
   }
 }
 
+class BatchRequest {
+  final String operation;
+  final String source;
+  final String lang;
+  final bool review;
+  final int limit;
+  final int offset;
+
+  BatchRequest({
+    required this.operation,
+    required this.source,
+    required this.lang,
+    this.review = true,
+    this.limit = -1,
+    this.offset = 0,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'operation': operation,
+      'source': source,
+      'lang': lang,
+      'review': review,
+      'limit': limit,
+      'offset': offset,
+    };
+  }
+}
+
+class DialoguesRequest {
+  final String operation;
+  final String source;
+  final String lang;
+  final bool review;
+  final int limit;
+  final int offset;
+
+  DialoguesRequest({
+    this.operation = 'dialogues',
+    required this.source,
+    required this.lang,
+    this.review = true,
+    this.limit = -1,
+    this.offset = 0,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'operation': operation,
+      'source': source,
+      'lang': lang,
+      'review': review,
+      'limit': limit,
+      'offset': offset,
+    };
+  }
+}
+
+class CoursesRequest {
+  final String? corpus;
+  final String? lang;
+  final String? toLang;
+  final Map<String, dynamic>? filters;
+
+  CoursesRequest({
+    this.corpus,
+    this.lang,
+    this.toLang,
+    this.filters,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (corpus != null) 'corpus': corpus,
+      if (lang != null) 'lang': lang,
+      if (toLang != null) 'to_lang': toLang,
+      if (filters != null) 'filters': filters,
+    };
+  }
+}
