@@ -44,9 +44,11 @@ The has 3 main models
 Raw Content playground
 - [] Make a list of elements that are needed to start generating and editing courses 
     - [] data - prepare the data needed
+    - [] use batch process to prepare the data - like analyze sentences
     - [] api we need on on content side 
-- [] design the ui for course/lesson generation
-- [] start planning auto generated course (with AI)
+- [] design the ui for course/lesson generation - not UI now only the forms and processes
+- [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
+
 
 ### backup data 
 - [] reorder sound files 
