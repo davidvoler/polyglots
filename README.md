@@ -14,13 +14,14 @@ The has 3 main models
 
 ### TASKS
 
+## Step 1 
 
 ### content_server
 
-- [] api code and some logic 
-- [] 
+- [v] api code routes and models  
 
-
+### content ui 
+- [] start adding functionality
 
 ### Content
 - [v] start planning course - router/api 
@@ -29,8 +30,15 @@ The has 3 main models
 - [] create course/lesson UI
 
 
-### Content Raw
+### Content Raw - Existing data transfer
 - [] implement break into elements for Spacy 
 - [] implement break into elements without Spacy
 - [] copy options from tatoeba and polyglot
 
+### backup data 
+
+- [] backup data to desktop
+
+
+
+## Step 2 
