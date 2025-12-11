@@ -27,6 +27,20 @@ async def delete_batch_data(request: BatchRequest):
 
 
 
+"""
+The stages for each batch processing are:
+- run the process on a limited number of records 
+- save to a temporary table
+- review the results
+- optional 
+- accept and run on the entire corpus/language - now saving to the main table
+- optional
+- delete batch data
+Question: Does a batch process overrides data from previous runs or save it to a batch table?
+- options 1 - all batched are saved to a batch table - than copied to the main table 
+- options 2 - save to main table override old batched
+- options 3 - Decide per batch process
+"""
 
 
 
