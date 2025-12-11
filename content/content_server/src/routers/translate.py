@@ -1,17 +1,13 @@
 from fastapi import APIRouter
-from models.batch_request import TranslateRequest
-from batch_tools.translate import translate
+from models.translate import TranslateRequest
 
 router = APIRouter()
- 
 
 @router.post("/")
 async def translate(request: TranslateRequest):
-    return await translate(request)    
+    return {}    
 
-
-@router.get("/")
+@router.get("/review")
 async def review_translation(request: TranslateRequest):
-    return await translate(request)    
-
+    return {}    
 

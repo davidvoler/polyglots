@@ -1,10 +1,9 @@
 from fastapi import APIRouter
-from models.corpus import Corpus
-from batch_tools.corpus import get_corpus
+from models.corpus import FileUploadResponse
 
 router = APIRouter()
  
 
 @router.get("/")
-async def get_corpus(request: Corpus):
-    return await get_corpus(request)
+async def get_corpus(request: FileUploadResponse):
+    return {}

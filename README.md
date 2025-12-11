@@ -15,6 +15,13 @@ The has 3 main models
 ### TASKS
 
 
+### content_server
+
+- [] api code and some logic 
+- [] 
+
+
+
 ### Content
 - [v] start planning course - router/api 
 - [] start planning auto generated course (with AI)

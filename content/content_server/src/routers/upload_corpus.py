@@ -1,3 +1,9 @@
+"""
+Upload corpus file to the server.
+Implement:
+- file processing 
+- preview uploaded data
+"""
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from models.corpus import FileUploadResponse
 import os
