@@ -53,6 +53,7 @@ async def export_all_tatoeba():
 async def export_all_elements():
     # await export_tatoeba('jpn')
     await export_polyglot('ja')
+
 if __name__ == "__main__":
     # asyncio.run(export_all_tatoeba())
     asyncio.run(export_all_elements())

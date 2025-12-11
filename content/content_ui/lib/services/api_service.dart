@@ -8,13 +8,13 @@ import '../models/dashboard.dart';
 class ApiService {
   final String baseUrl;
 
-  ApiService({this.baseUrl = 'http://localhost:8000'});
+  ApiService({this.baseUrl = 'http://localhost:8001'});
 
   // Get list of corpuses
   Future<List<Corpus>> getCorpuses() async {
     try {
       // Note: You'll need to create this endpoint in your FastAPI backend
-      final response = await http.get(Uri.parse('$baseUrl/api/corpus'));
+      final response = await http.get(Uri.parse('$baseUrl/api/v1/corpus'));
       
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -31,7 +31,7 @@ class ApiService {
   Future<Corpus> addCorpus(AddCorpusRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/corpus'),
+        Uri.parse('$baseUrl/api/v1/corpus'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -50,7 +50,7 @@ class ApiService {
   Future<Map<String, dynamic>> translateCorpus(TranslateRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/translate'),
+        Uri.parse('$baseUrl/api/v1/translate'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -69,7 +69,7 @@ class ApiService {
   Future<Map<String, dynamic>> analyzeSentences(AnalyzeRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/analyze_sentence'),
+        Uri.parse('$baseUrl/api/v1/analyze_sentence'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -88,7 +88,7 @@ class ApiService {
   Future<List<Sentence>> getSentencesForReview(ReviewRequest request) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/review').replace(
+        Uri.parse('$baseUrl/api/v1/review').replace(
           queryParameters: {
             'operation': request.operation,
             'source': request.source,
@@ -115,7 +115,7 @@ class ApiService {
   Future<Map<String, dynamic>> transliterateCorpus(TransliterateRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/transliterate'),
+        Uri.parse('$baseUrl/api/v1/transliterate'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -134,7 +134,7 @@ class ApiService {
   Future<Map<String, dynamic>> loadCsv(LoadCsvRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/load_csv'),
+        Uri.parse('$baseUrl/api/v1/load_csv'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -153,7 +153,7 @@ class ApiService {
   Future<Map<String, dynamic>> generateContent(GenerateContentRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/generate_content'),
+        Uri.parse('$baseUrl/api/v1/generate_content'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -172,7 +172,7 @@ class ApiService {
   Future<Map<String, dynamic>> groupSentences(GroupSentencesRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/group_sentences'),
+        Uri.parse('$baseUrl/api/v1/group_sentences'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -191,7 +191,7 @@ class ApiService {
   Future<Map<String, dynamic>> processDialogues(DialoguesRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/dialogues'),
+        Uri.parse('$baseUrl/api/v1/dialogues'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -210,7 +210,7 @@ class ApiService {
   Future<Map<String, dynamic>> analyzeSubtitles(BatchRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/subtitles'),
+        Uri.parse('$baseUrl/api/v1/subtitles'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
@@ -229,7 +229,7 @@ class ApiService {
   Future<Map<String, dynamic>> getCourses(CoursesRequest request) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/courses').replace(
+        Uri.parse('$baseUrl/api/v1/courses').replace(
           queryParameters: {
             if (request.corpus != null) 'corpus': request.corpus!,
             if (request.lang != null) 'lang': request.lang!,
@@ -251,7 +251,7 @@ class ApiService {
   // Get dashboard data
   Future<DashboardResponse> getDashboard() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/dashboard'));
+      final response = await http.get(Uri.parse('$baseUrl/api/v1/dashboard'));
 
       if (response.statusCode == 200) {
         return DashboardResponse.fromJson(json.decode(response.body));

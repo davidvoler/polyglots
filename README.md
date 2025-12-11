@@ -28,9 +28,8 @@ The has 3 main models
 
 
 ### Content Raw - Existing data transfer
-- [] implement break into elements for Spacy 
-- [] implement break into elements without Spacy
-- [] copy options from tatoeba and polyglot
+- [v] implement break into elements for Spacy 
+- [/] implement break into elements without Spacy
 
 ### backup data 
 
