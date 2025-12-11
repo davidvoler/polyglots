@@ -2,7 +2,6 @@ from spacy import load
 
 loaded_models = {}
 
-
 SPACY_MODELS = {
     "ca": "ca_core_news_trf",
     "zh": "zh_core_web_trf",
