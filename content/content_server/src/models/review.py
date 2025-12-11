@@ -7,6 +7,13 @@ class ReviewRequest(BaseModel):
     limit: int = 300
     offset: int = 0
 
+class ReviewSentencesRequest(BaseModel):
+    lang: str
+    limit: int = 300
+    offset: int = 0
+    review: bool = False
+
+
 
 class Sentence(BaseModel):
     text: str = ''

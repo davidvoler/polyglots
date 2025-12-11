@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from models.review import ReviewRequest, ReviewResponse, Sentence
+from models.review import ReviewRequest, ReviewResponse, Sentence, ReviewSentencesRequest
 from utils.db import get_query_results
 
 router = APIRouter()
@@ -20,4 +20,20 @@ async def review(request: ReviewRequest):
     offset %s
     """
     data = await get_query_results(sql, (request.lang, request.to_lang, request.limit, request.offset))
+    return ReviewResponse(sentences=[Sentence(**row) for row in data])
+
+
+@router.post("/sentences", response_model=ReviewResponse)
+async def review_sentences(request: ReviewSentencesRequest):
+    """
+    Review sentences for a given language
+    """
+    sql = """
+      select * from content_raw.sentences_full
+      where lang = %s
+    order by id
+    limit %s
+    offset %s
+    """
+    data = await get_query_results(sql, (request.lang, request.limit, request.offset))
     return ReviewResponse(sentences=[Sentence(**row) for row in data])
