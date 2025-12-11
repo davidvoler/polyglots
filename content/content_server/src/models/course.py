@@ -30,7 +30,7 @@ class Lesson(BaseModel):
     course_id: int
     name: str
     description: str = ''
-    created_by: str
+    created_by: str = ''
     school: str = ''
     public: bool = True
     reviewed: bool = False
@@ -81,3 +81,4 @@ class GenerateLessonsRequest(GenerateRequest):
 class GenerateQuestionRequest(GenerateRequest):
     lesson_id: int
     step_count: int
+
