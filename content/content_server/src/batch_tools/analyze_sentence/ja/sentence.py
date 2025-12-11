@@ -1420,7 +1420,7 @@ def remove_substring_elements(elements):
 analyzer = PureJapaneseAnalyzer()
 
 
-def analyze_sentence(text:str, id:int) -> Dict:
+def analyze_sentence(text:str, id:int, lang:str) -> Dict:
     u =  analyze_sentence_unified(text)
     filtered_elements = remove_substring_elements(u['elements'])
     for f in filtered_elements:
