@@ -1,12 +1,16 @@
 from pydantic import BaseModel
 
 class BatchRequest(BaseModel):
-    operation: str
-    source: str
+    batch_id: str = ''
+    lang: str 
+    to_lang: str
+    operation: str = ''
+    corpus: str =''
     review: bool = True
     limit: int = -1 
     offset: int = 0
-    lang: str
+    stage: str = ''
+    is_preview: bool = False
 
 class TranslateRequest(BatchRequest):
     operation: str = "translate"

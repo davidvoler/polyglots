@@ -13,33 +13,44 @@ The has 3 main models
 ## Step 1 
 
 ### content_server
-
 - [v] api code routes and models  
 
 ### content ui 
-- [] start adding functionality
+- [v] start adding functionality
 
 ### Content
 - [v] import options 
-- [v] start planning course - router/api 
-- [] start planning auto generated course (with AI)
-- [] create course/lesson Tables
-- [] create course/lesson UI
-
+- [v] start planning course - router/api
+- [v] implement batch processing - so it can be used to run/preview/accept or delete - with the ability to iterate 
+- [v] implement analyzer - use current analyze code - with or without Spacy
 
 ### Content Raw - Existing data transfer
 - [v] implement break into elements for Spacy 
-- [/] implement break into elements without Spacy
+- [v] implement break into elements without Spacy
 
-### backup data 
+### Editor
+- [v] create course/lesson Tables
+- [v] create course/lesson UI
 
-- [] backup data to desktop
+### Step Summary
 
-
+- It looks like the data is in the new database
+- I have the server and some functionality in the client in the raw data 
+- The next stage will require to play with creating course and lessons - this will require some more work on the data/server and client 
+- This is what should be done in the next stage 
 
 ## Step 2 
 
 Raw Content playground
+- [] Make a list of elements that are needed to start generating and editing courses 
+    - [] data - prepare the data needed
+    - [] api we need on on content side 
+- [] design the ui for course/lesson generation
+- [] start planning auto generated course (with AI)
+
+### backup data 
+- [] reorder sound files 
+- [] backup data to desktop
 
 ## Content UI
 
