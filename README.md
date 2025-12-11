@@ -8,10 +8,6 @@ The has 3 main models
 2. Editor - for creating courses and lessons from existing content
 3. Student - for learning   
 
-
-
-
-
 ### TASKS
 
 ## Step 1 
@@ -104,13 +100,15 @@ Student implementation
 User interaction - statistics 
 
 ## Step 9 
-prepare for Alpha
+Prepare for Alpha
 
 ## Step 10 
-
 Alpha
 
 
-
+## Steps 11 - 20
+Product
+Sales 
+Searching for users 
 
 
