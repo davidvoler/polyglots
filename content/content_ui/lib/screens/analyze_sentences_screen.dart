@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/sentence_provider.dart';
 import '../models/requests.dart';
+import '../widgets/language_dropdown.dart';
 
 class AnalyzeSentencesScreen extends ConsumerStatefulWidget {
   final String corpusName;
@@ -18,7 +19,7 @@ class AnalyzeSentencesScreen extends ConsumerStatefulWidget {
 class _AnalyzeSentencesScreenState extends ConsumerState<AnalyzeSentencesScreen> {
   final _formKey = GlobalKey<FormState>();
   final _sourceController = TextEditingController(text: '');
-  final _langController = TextEditingController();
+  String? _selectedLanguage;
   final _limitController = TextEditingController();
   bool _useFullCorpus = true;
 
@@ -31,7 +32,6 @@ class _AnalyzeSentencesScreenState extends ConsumerState<AnalyzeSentencesScreen>
   @override
   void dispose() {
     _sourceController.dispose();
-    _langController.dispose();
     _limitController.dispose();
     super.dispose();
   }
@@ -40,7 +40,7 @@ class _AnalyzeSentencesScreenState extends ConsumerState<AnalyzeSentencesScreen>
     if (_formKey.currentState!.validate()) {
       final request = AnalyzeRequest(
         source: _sourceController.text.trim(),
-        lang: _langController.text.trim(),
+        lang: _selectedLanguage ?? '',
         limit: _useFullCorpus ? -1 : int.tryParse(_limitController.text) ?? -1,
         review: true,
       );
@@ -88,19 +88,15 @@ class _AnalyzeSentencesScreenState extends ConsumerState<AnalyzeSentencesScreen>
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _langController,
-              decoration: const InputDecoration(
-                labelText: 'Language *',
-                border: OutlineInputBorder(),
-                hintText: 'e.g., en, es, fr',
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter language';
-                }
-                return null;
+            LanguageDropdown(
+              value: _selectedLanguage,
+              onChanged: (value) {
+                setState(() {
+                  _selectedLanguage = value;
+                });
               },
+              labelText: 'Language *',
+              isRequired: true,
             ),
             const SizedBox(height: 24),
             SwitchListTile(
