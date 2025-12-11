@@ -20,6 +20,7 @@ The has 3 main models
 - [] start adding functionality
 
 ### Content
+- [v] import options 
 - [v] start planning course - router/api 
 - [] start planning auto generated course (with AI)
 - [] create course/lesson Tables
@@ -39,7 +40,7 @@ The has 3 main models
 
 ## Step 2 
 
-Raw Content playground - 
+Raw Content playground
 
 ## Content UI
 
