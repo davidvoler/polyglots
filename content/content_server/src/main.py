@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os 
+
+#for running locally
+os.environ["POSTGRES_PORT"] = "5433"
 
 from routers import (
     dashboard,

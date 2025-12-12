@@ -7,12 +7,12 @@ import asyncio
 router = APIRouter()
 
 async def _analyze_sentences(request: AnalyzeRequest):
-    set_batch_status(request, "start")
+    await set_batch_status(request, "start")
     await analyze_sentence_batch(request)
-    set_batch_status(request, "done")
+    await set_batch_status(request, "done")
 
 @router.post("/")
 async def analyze_sentences(request: AnalyzeRequest):
-    batch_id = set_batch_status(request, "create")
-    asyncio.create_task(_analyze_sentences)
+    batch_id = await set_batch_status(request, "create")
+    asyncio.create_task(_analyze_sentences(request))
     return request

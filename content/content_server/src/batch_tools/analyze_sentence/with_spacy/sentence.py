@@ -2,6 +2,21 @@ from spacy import load
 
 loaded_models = {}
 
+SPACY_MODELS_SHORT= {
+    "nl": "nl_core_news_lg",
+    "en": "en_core_web_trf",
+    "fi": "fi_core_news_lg",
+    "fr": "fr_dep_news_trf",
+    "de": "de_dep_news_trf",
+    "el": "el_core_news_lg",
+    "it": "it_core_news_lg",
+    "ja": "ja_core_news_trf",
+    "pt": "pt_core_news_lg",
+    "es": "es_dep_news_trf",
+    "sv": "sv_core_news_lg",
+}
+
+
 SPACY_MODELS = {
     "ca": "ca_core_news_trf",
     "zh": "zh_core_web_trf",

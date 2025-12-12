@@ -11,6 +11,7 @@ The has 3 main models
 ### TASKS
 
 ## Step 1 
+started - 2025-12-07
 
 ### content_server
 - [v] api code routes and models  
@@ -41,14 +42,19 @@ The has 3 main models
 
 ## Step 2 
 
+started - 2025-12-11
+
 Raw Content playground
-- [] Make a list of elements that are needed to start generating and editing courses 
-    - [] data - prepare the data needed
-    - [] use batch process to prepare the data - like analyze sentences
-    - [] api we need on on content side 
+- [v] Make a list of elements that are needed to start generating and editing courses 
+- [v] implement analyze sentences as a batch process 
+- [v] test analyze sentences from api 
+- []? Issue - to run analyze in docker is complicated - it may require a lot of work - shall I dod that or run with a local python?
+- [] create a ui for this process and text
+- [] data - prepare the data needed
+- [] use batch process to prepare the data - like analyze sentences
+- [] api we need on on content side 
 - [] design the ui for course/lesson generation - not UI now only the forms and processes
 - [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
-
 
 ### backup data 
 - [] reorder sound files 
@@ -64,11 +70,9 @@ Elements that are less useful for now - show text requires more permissions
 
 
 ## Step 3 
-
 Make a decision on functionality - in content and course
 What features should be included in alpha 
 Does editor need a separate server/ separate client 
-
 
 
 ## Step 4

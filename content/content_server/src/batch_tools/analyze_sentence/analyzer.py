@@ -51,9 +51,11 @@ async def analyze_sentence_batch(request: AnalyzeRequest):
     if request.is_preview:
         limit_offset = f"limit {request.limit} offset {request.offset}"
         table = 'content_raw.sentence_elements_preview'
+        on_conflict = 'on conflict (lang, id, batch_id) do nothing'
     else:
         limit_offset = ''
         table = 'content_raw.sentence_elements'
+        on_conflict = 'on conflict (lang, id) do nothing'
     sql = f""" select * from content_raw.sentences where lang = %s {limit_offset}"""
     results = await get_query_results(sql, (request.lang,))
     for r in results:
@@ -65,9 +67,9 @@ async def analyze_sentence_batch(request: AnalyzeRequest):
         noun1, noun2, adjective1, adjective2, verb_count, noun_count, adjective_count, adverb_count,
         len_c, len_elm,lang_extra, batch_id)
         values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s ,%s ,%s, %s)
-        on conflict (lang, id) do nothing
+        {on_conflict}
         """
-        await run_query(sql, (request.lang, id, text, json.dumps(data.get('elements')), data.get('adverb1'), data.get('adverb2'), data.get('verb1'), data.get('verb2'), 
+        await run_query(sql, (request.lang, _id, text, json.dumps(data.get('elements')), data.get('adverb1'), data.get('adverb2'), data.get('verb1'), data.get('verb2'), 
         data.get('auxiliary_verb1'), data.get('auxiliary_verb2'), data.get('noun1'), data.get('noun2'), data.get('adjective1'), data.get('adjective2'), 
         data.get('verb_count'), data.get('noun_count'), data.get('adjective_count'), data.get('adverb_count'),
         data.get('len_c'), data.get('len_e'),json.dumps(data.get('lang_extra')), request.batch_id))
