@@ -40,7 +40,7 @@ started - 2025-12-07
 - The next stage will require to play with creating course and lessons - this will require some more work on the data/server and client 
 - This is what should be done in the next stage 
 
-## Step 2 - Improve analyzer  
+## Step 2 - analyzer  
 
 started - 2025-12-11
 
@@ -51,14 +51,16 @@ Raw Content playground
 - [v] implement analyze sentences as a batch process 
 - [v] test analyze sentences from api 
 - []? Issue - to run analyze in docker is complicated - it may require a lot of work - shall I dod that or run with a local python?
-- improve analyzer 
+
+### improve analyzer 
+
 - [] add verb lemma and verb form
 - [] add words maybe also as word1 word2 etc - maybe up to 4 words - chose les frequent. 
 - [] have all the data of a sentences ready to use by the auto course generation.
-
-
-
-
+- [] root word
+- [] make a word collections - no need to have links
+- [] japanese - consider saving verbs with the auxiliary as a single element?
+- [] japanese root - maybe also use spacy
 
 ## Step 2.1 
 
