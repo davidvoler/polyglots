@@ -40,33 +40,49 @@ started - 2025-12-07
 - The next stage will require to play with creating course and lessons - this will require some more work on the data/server and client 
 - This is what should be done in the next stage 
 
-## Step 2 
+## Step 2 - Improve analyzer  
 
 started - 2025-12-11
+
+### Analyzer 
 
 Raw Content playground
 - [v] Make a list of elements that are needed to start generating and editing courses 
 - [v] implement analyze sentences as a batch process 
 - [v] test analyze sentences from api 
 - []? Issue - to run analyze in docker is complicated - it may require a lot of work - shall I dod that or run with a local python?
-- [] create a ui for this process and text
+- improve analyzer 
+- [] add verb lemma and verb form
+- [] add words maybe also as word1 word2 etc - maybe up to 4 words - chose les frequent. 
+- [] have all the data of a sentences ready to use by the auto course generation.
+
+
+
+
+
+## Step 2.1 
+
+
+### Analyzer UI
+- [] create a ui for this process
 - [] data - prepare the data needed
 - [] use batch process to prepare the data - like analyze sentences
 - [] api we need on on content side 
-- [] design the ui for course/lesson generation - not UI now only the forms and processes
-- [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
 
 ### backup data 
 - [] reorder sound files 
 - [] backup data to desktop
+### Content UI
 
-## Content UI
+### Editor UI
+- [] design the ui for course/lesson generation - not UI now only the forms and processes
+- [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
+
 
 Important elements should be working 
 Elements that are less useful for now - show text requires more permissions 
 
-## Content - Courses and lessons 
-
+### Content - Courses and lessons 
 
 
 ## Step 3 
