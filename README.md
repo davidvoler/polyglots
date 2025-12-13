@@ -50,7 +50,9 @@ Raw Content playground
 - [v] Make a list of elements that are needed to start generating and editing courses 
 - [v] implement analyze sentences as a batch process 
 - [v] test analyze sentences from api 
-- []? Issue - to run analyze in docker is complicated -  shall I dod that or run with a local python?
+- [v]? Issue - to run analyze in docker is complicated -  shall I dod that or run with a local python?
+Running locally for now - no docker 
+When needed we will solve this issue
 
 ### improve analyzer 
 
@@ -62,12 +64,9 @@ Raw Content playground
 - [v] japanese root - maybe also use spacy
 - [v] add options to the final table 
 
-
-
-
-
+Completed - 2025-12-13
 ## Step 2.1 
-
+Started - 2025-12-13
 
 ### Content Raw 
 - [] make a words collections 
