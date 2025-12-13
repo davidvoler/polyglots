@@ -2,7 +2,7 @@ from collections import OrderedDict
 from wordfreq import zipf_frequency
 
 
-def get_ranked_words(words:list,lang, max_rank=760, min_rank=260, words_count=3):
+def get_ranked_words(words:list,lang, max_rank=910, min_rank=260, words_count=3):
     ranked = {}
     words = list(set(words))
     if len (words) == 1:

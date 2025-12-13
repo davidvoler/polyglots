@@ -1426,7 +1426,7 @@ def analyze_sentence(text:str, id:int, lang:str) -> Dict:
     for f in filtered_elements:
         f.update(translit_single(f.get('text')))
     u['elements'] = filtered_elements
-    print(u)
+    # print(u)
     verb_count = 0
     noun_count = 0
     adjective_count = 0
@@ -1476,17 +1476,17 @@ def analyze_sentence(text:str, id:int, lang:str) -> Dict:
 
 
 # Example usage
-if __name__ == "__main__":
-    test_text = "でも、今すぐ読みたいんだ。それで、図書館に行くことにした。"
-    unified = analyze_sentence_unified(test_text)
-    print(json.dumps(unified, indent=2, ensure_ascii=False))
-    filtered_elements = remove_substring_elements(unified['elements'])
-    for g in unified['elements']:
-        print(g.get('text'))
-    print("--------------------------------")
-    with_t = []
-    for f in filtered_elements:
-        f.update(translit_single(f.get('text')))
-    for f in filtered_elements:
-        print(f)
-    print("--------------------------------")
+# if __name__ == "__main__":
+#     test_text = "でも、今すぐ読みたいんだ。それで、図書館に行くことにした。"
+#     unified = analyze_sentence_unified(test_text)
+#     print(json.dumps(unified, indent=2, ensure_ascii=False))
+#     filtered_elements = remove_substring_elements(unified['elements'])
+#     for g in unified['elements']:
+#         print(g.get('text'))
+#     print("--------------------------------")
+#     with_t = []
+#     for f in filtered_elements:
+#         f.update(translit_single(f.get('text')))
+#     for f in filtered_elements:
+#         print(f)
+#     print("--------------------------------")

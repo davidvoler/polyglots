@@ -26,17 +26,34 @@ def analyze_sentence(lang:str, text:str, id:int) -> dict:
     return data
 
 
+async def get_last_completed_batch(lang:str):
+    sql = f""" select max(id) as mx  from content_raw.sentence_elements where lang = %s"""
+    results = await get_query_results(sql, (lang,))
+    print(f"results: {results}")
+    try:
+        mx = results[0].get('mx', 0)
+        if not mx:
+            return 0
+        return mx
+    except:
+        return 0
+
+
+
 async def analyze_sentence_batch(request: AnalyzeRequest):
     if request.is_preview:
         limit_offset = f"limit {request.limit} offset {request.offset}"
         table = 'content_raw.sentence_elements_preview'
         on_conflict = 'on conflict (lang, id, batch_id) do nothing'
+        last_completed_batch = 0
     else:
         limit_offset = ''
         table = 'content_raw.sentence_elements'
         on_conflict = 'on conflict (lang, id) do nothing'
-    sql = f""" select * from content_raw.sentences where lang = %s {limit_offset}"""
-    results = await get_query_results(sql, (request.lang,))
+        last_completed_batch = await get_last_completed_batch(request.lang)
+    print(f"last_completed_batch: {last_completed_batch}")
+    sql = f""" select * from content_raw.sentences where lang = %s and id > %s order by id {limit_offset} """
+    results = await get_query_results(sql, (request.lang, last_completed_batch))
     for r in results:
         text = r.get('text')
         _id = r.get('id')

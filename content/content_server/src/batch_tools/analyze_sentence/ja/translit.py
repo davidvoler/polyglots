@@ -36,16 +36,16 @@ def translit_single(text:str) -> str:
     
 
 
-if __name__ == "__main__":
-    sentences = [
-    "こんにちは世界",
-    "私の名前は田中です",
-    "東京駅に行きます",
-    "美味しい寿司を食べました",
-    "今すぐ読みたいんだ"
-    ]
-    for idx, s in enumerate(sentences):
-            results = translit(s)
-            print(json.dumps(results, indent=2, ensure_ascii=False))
+# if __name__ == "__main__":
+#     sentences = [
+#     "こんにちは世界",
+#     "私の名前は田中です",
+#     "東京駅に行きます",
+#     "美味しい寿司を食べました",
+#     "今すぐ読みたいんだ"
+#     ]
+#     for idx, s in enumerate(sentences):
+#             results = translit(s)
+#             print(json.dumps(results, indent=2, ensure_ascii=False))
 
 
