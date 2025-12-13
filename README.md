@@ -54,13 +54,13 @@ Raw Content playground
 
 ### improve analyzer 
 
-- [] add verb lemma and verb form
+- [v] add verb lemma and verb form
 - [] add words maybe also as word1 word2 etc - maybe up to 4 words - chose les frequent. 
 - [] have all the data of a sentences ready to use by the auto course generation.
 - [] root word
 - [] make a word collections - no need to have links
-- [] japanese - consider saving verbs with the auxiliary as a single element?
-- [] japanese root - maybe also use spacy
+- [v] japanese - consider saving verbs with the auxiliary as a single element?
+- [v] japanese root - maybe also use spacy
 
 ## Step 2.1 
 
