@@ -1,6 +1,21 @@
 from spacy import load
-
+import spacy
 loaded_models = {}
+
+SPACY_MODELS_SHORT= {
+    "nl": "nl_core_news_lg",
+    "en": "en_core_web_trf",
+    "fi": "fi_core_news_lg",
+    "fr": "fr_dep_news_trf",
+    "de": "de_dep_news_trf",
+    "el": "el_core_news_lg",
+    "it": "it_core_news_lg",
+    "ja": "ja_core_news_trf",
+    "pt": "pt_core_news_lg",
+    "es": "es_dep_news_trf",
+    "sv": "sv_core_news_lg",
+}
+
 
 SPACY_MODELS = {
     "ca": "ca_core_news_trf",
@@ -33,6 +48,12 @@ def get_nlp(lang:str):
     return loaded_models[lang]
 
 
+def get_text(token) -> str:
+    if token.pos_ == "PROPN":
+        return token.text
+    return token.text.lower()
+
+
 def analyze_sentence(text:str, id:int, lang:str) -> dict:
     nlp = get_nlp(lang)
     doc = nlp(text)
@@ -48,6 +69,8 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
     adjective_count = 0
     adverb_count = 0
     auxiliary_verb_count = 0
+    propn = []
+    root = []
     i = 1
     for token in doc:
         if token.pos_ == "PUNCT":
@@ -61,25 +84,32 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
         if token.pos_ == "X":
             continue
         words.append(token.text)
+        if token.dep_ == "ROOT":
+            root = [token.lemma_, get_text(token)]
         if token.pos_ == "VERB":
-            verbs.append(token.lemma_)
-        if token.pos_ == "NOUN":
-            nouns.append(token.lemma_)
-        if token.pos_ == "ADJECTIVE":
-            adjectives.append(token.lemma_)
-        if token.pos_ == "ADV":
-            adverbs.append(token.lemma_)
-        if token.pos_ == "AUX":
-            auxiliary_verbs.append(token.lemma_)
 
+            verbs.append([token.lemma_, get_text(token)])
+        if token.pos_ == "NOUN":
+            nouns.append([token.lemma_, get_text(token)])    
+        if token.pos_ == "ADJECTIVE":
+            adjectives.append([token.lemma_, get_text(token)])
+        if token.pos_ == "ADV":
+            adverbs.append([token.lemma_, get_text(token)])
+        if token.pos_ == "AUX":
+            auxiliary_verbs.append([token.lemma_, get_text(token)])
+        if token.pos_ == "PROPN":
+            propn.append([token.lemma_, get_text(token)])
+            continue
         elements.append({
-            "text": token.text,
+            "text": get_text(token),
             "lemma": token.lemma_,
             "pos": token.pos_,
+            "dep": token.dep_,
+
         })
 
     results = {
-        "text": text,
+        "text": get_text(token),
         "id": id,
         "elements": elements,
         "words": words,
@@ -89,24 +119,33 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
     }
     for verb in verbs:
         verb_count += 1
-        results[f"verb{verb_count}"] = verb
+        results[f"verb_lemma{verb_count}"] = verb[0]
+        results[f"verb{verb_count}"] = verb[1]
     for noun in nouns:
         noun_count += 1
-        results[f"noun{noun_count}"] = noun
+        results[f"noun_lemma{noun_count}"] = noun[0]
+        results[f"noun{noun_count}"] = noun[1]
     for adjective in adjectives:
         adjective_count += 1
-        results[f"adjective{adjective_count}"] = adjective
+        results[f"adjective_lemma{adjective_count}"] = adjective[0]
     for adverb in adverbs:
         adverb_count += 1
-        results[f"adverb{adverb_count}"] = adverb
+        results[f"adverb{adverb_count}"] = adverb[0]
     for auxiliary_verb in auxiliary_verbs:
         auxiliary_verb_count += 1
-        results[f"auxiliary_verb{auxiliary_verb_count}"] = auxiliary_verb
+        results[f"auxiliary_verb{auxiliary_verb_count}"] = auxiliary_verb[0]
     results["verb_count"] = verb_count
     results["noun_count"] = noun_count
     results["adjective_count"] = adjective_count
     results["adverb_count"] = adverb_count
     results["auxiliary_verb_count"] = auxiliary_verb_count
+    results["propn"] = propn
+    if len(root) > 1:
+        results["root_lemma"] = root[0]
+        results["root"] = root[1]
+    else:
+        results["root_lemma"] = ''
+        results["root"] = ''
     return results
 
 if __name__ == "__main__":

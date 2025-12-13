@@ -1,9 +1,4 @@
-from pydantic import BaseModel
+from models.batch_request import BatchRequest
 
-class AnalyzeRequest(BaseModel):
-    corpus: str
-    lang: str
-    to_lang: str
-    review: bool = True
-    limit: int = -1
-    offset: int = 0
+class AnalyzeRequest(BatchRequest):
+    operation: str = "analyze"

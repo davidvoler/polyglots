@@ -10,3 +10,4 @@ jwt
 python-multipart
 psycopg
 aerospike
+spacy

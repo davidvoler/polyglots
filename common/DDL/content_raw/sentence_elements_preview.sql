@@ -21,11 +21,6 @@ CREATE TABLE content_raw.sentence_elements_preview (
 	len_elm int2 NULL,
 	lang_extra jsonb DEFAULT '{}'::jsonb NULL,
 	"options" _varchar DEFAULT ARRAY[]::character varying[] NULL,
-	batch_id bpchar(36) NOT NULL,
-	root_lemma varchar(100) NULL,
-	noun1_lemma varchar(100) NULL,
-	verb1_lemma varchar(100) NULL,
-	root varchar(100) NULL,
-	verb1_aux varchar(100) NULL,
-	CONSTRAINT sentence_elements_new__pkey PRIMARY KEY (lang, id, batch_id)
+	batch_id char(36) NOT NULL,
+	CONSTRAINT sentence_elements_preview_pkey PRIMARY KEY (lang, id, batch_id)
 );
