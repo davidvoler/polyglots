@@ -55,14 +55,24 @@ Raw Content playground
 ### improve analyzer 
 
 - [v] add verb lemma and verb form
-- [] add words maybe also as word1 word2 etc - maybe up to 4 words - chose les frequent. 
-- [] have all the data of a sentences ready to use by the auto course generation.
-- [] root word
-- [] make a word collections - no need to have links
+- [v] add words maybe also as word1 word2 etc - maybe up to 4 words - chose les frequent. 
+- [v] have all the data of a sentences ready to use by the auto course generation.
+- [v] root word
 - [v] japanese - consider saving verbs with the auxiliary as a single element?
 - [v] japanese root - maybe also use spacy
+- [v] add options to the final table 
+
+
+
+
 
 ## Step 2.1 
+
+
+### Content Raw 
+- [] make a words collections 
+1. Used zipf ranking 
+2. Using how common it is in out corpus 
 
 
 ### Analyzer UI
@@ -70,6 +80,8 @@ Raw Content playground
 - [] data - prepare the data needed
 - [] use batch process to prepare the data - like analyze sentences
 - [] api we need on on content side 
+
+
 
 ### backup data 
 - [] reorder sound files 

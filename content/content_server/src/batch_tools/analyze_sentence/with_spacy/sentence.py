@@ -49,7 +49,7 @@ def get_nlp(lang:str):
 
 
 def get_text(token) -> str:
-    if token.dep_ == "PROPN":
+    if token.pos_ == "PROPN":
         return token.text
     return token.text.lower()
 
@@ -69,6 +69,7 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
     adjective_count = 0
     adverb_count = 0
     auxiliary_verb_count = 0
+    propn = []
     root = []
     i = 1
     for token in doc:
@@ -96,9 +97,11 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
             adverbs.append([token.lemma_, get_text(token)])
         if token.pos_ == "AUX":
             auxiliary_verbs.append([token.lemma_, get_text(token)])
-        
+        if token.pos_ == "PROPN":
+            propn.append([token.lemma_, get_text(token)])
+            continue
         elements.append({
-            "text": token.text,
+            "text": get_text(token),
             "lemma": token.lemma_,
             "pos": token.pos_,
             "dep": token.dep_,
@@ -136,6 +139,7 @@ def analyze_sentence(text:str, id:int, lang:str) -> dict:
     results["adjective_count"] = adjective_count
     results["adverb_count"] = adverb_count
     results["auxiliary_verb_count"] = auxiliary_verb_count
+    results["propn"] = propn
     if len(root) > 1:
         results["root_lemma"] = root[0]
         results["root"] = root[1]

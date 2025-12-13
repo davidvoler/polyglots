@@ -1,6 +1,4 @@
-DROP TABLE content_raw.sentence_elements;
-
-CREATE TABLE content_raw.sentence_elements (
+CREATE TABLE content_raw.sentence_elements_preview (
 	lang varchar(12) NOT NULL,
 	id int8 NOT NULL,
 	"text" varchar(300) NOT NULL,
@@ -22,5 +20,12 @@ CREATE TABLE content_raw.sentence_elements (
 	len_c int2 DEFAULT 0 NULL,
 	len_elm int2 NULL,
 	lang_extra jsonb DEFAULT '{}'::jsonb NULL,
-	CONSTRAINT sentence_elements1_pkey PRIMARY KEY (lang, id)
+	"options" _varchar DEFAULT ARRAY[]::character varying[] NULL,
+	batch_id bpchar(36) NOT NULL,
+	root_lemma varchar(100) NULL,
+	noun1_lemma varchar(100) NULL,
+	verb1_lemma varchar(100) NULL,
+	root varchar(100) NULL,
+	verb1_aux varchar(100) NULL,
+	CONSTRAINT sentence_elements_new__pkey PRIMARY KEY (lang, id, batch_id)
 );
