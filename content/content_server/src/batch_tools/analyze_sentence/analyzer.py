@@ -65,11 +65,11 @@ async def analyze_sentence_batch(request: AnalyzeRequest):
         sql = f""" INSERT INTO {table}
         (lang, id, text, elements, adverb1, adverb2, verb1, verb2, auxiliary_verb1, auxiliary_verb2, 
         noun1, noun2, adjective1, adjective2, verb_count, noun_count, adjective_count, adverb_count,
-        len_c, len_elm,lang_extra, batch_id)
-        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s ,%s ,%s, %s)
+        len_c, len_elm,lang_extra, batch_id, root_lemma, root, noun1_lemma, verb1_lemma, verb1_aux)
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s ,%s ,%s, %s, %s, %s, %s, %s, %s)
         {on_conflict}
         """
         await run_query(sql, (request.lang, _id, text, json.dumps(data.get('elements')), data.get('adverb1'), data.get('adverb2'), data.get('verb1'), data.get('verb2'), 
         data.get('auxiliary_verb1'), data.get('auxiliary_verb2'), data.get('noun1'), data.get('noun2'), data.get('adjective1'), data.get('adjective2'), 
         data.get('verb_count'), data.get('noun_count'), data.get('adjective_count'), data.get('adverb_count'),
-        data.get('len_c'), data.get('len_e'),json.dumps(data.get('lang_extra')), request.batch_id))
+        data.get('len_c'), data.get('len_e'),json.dumps(data.get('lang_extra')), request.batch_id, data.get('root_lemma'), data.get('root'), data.get('noun1_lemma'), data.get('verb1_lemma'), data.get('verb_aux1', '')))

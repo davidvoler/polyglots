@@ -50,7 +50,7 @@ Raw Content playground
 - [v] Make a list of elements that are needed to start generating and editing courses 
 - [v] implement analyze sentences as a batch process 
 - [v] test analyze sentences from api 
-- []? Issue - to run analyze in docker is complicated - it may require a lot of work - shall I dod that or run with a local python?
+- []? Issue - to run analyze in docker is complicated -  shall I dod that or run with a local python?
 
 ### improve analyzer 
 
@@ -76,16 +76,66 @@ Raw Content playground
 - [] backup data to desktop
 ### Content UI
 
+
+### Step 2.3
+started 2025/12/13
+
+
 ### Editor UI
-- [] design the ui for course/lesson generation - not UI now only the forms and processes
+- [v] design the ui for course/lesson generation - not UI now only the forms and processes
 - [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
+- [] When we refer to leaning of a language one size does NOT fit all
+
+### The editor UI - course/lesson generator 
+
+We have to ask the course creator 
+How important for her is that the students improve in
+We can ha a slider  for the following - what is more important
+We should ask for the reason of the course 
+
+
+- exam - school/university/
+- day to day language use . 
+
+Is this a course that planned for multiple levels, and that should include 
+- level test 
+
+- reading
+- writing 
+- understanding 
+- speaking
+
+We have also to ask for target like:
+- Vocabulary
+- Correct sentence composition
+- Learn by example  
+- Grammar and syntax - explicit 
+- Grammar and syntax - By example
+- Learning the alphabet
+- Is the alphabet completely new to the students?
+- Learning how to read
+
+
+We should also allow for free text 
 
 
 Important elements should be working 
 Elements that are less useful for now - show text requires more permissions 
 
-### Content - Courses and lessons 
+### generated course - How will it work
 
+1. Use AI to generate the all the titles and explanation 
+2. Us AI to select verbs and elements from the list we give it for each lesson or step
+3. If learning alphabet is selected - Create lessons or the alphabet - but it should include letters 
+4. Select sentences containing the words /verbs/noun/adjectives in selected by AI
+5. Go into the Editing mode 
+
+a. Change order 
+b. Add lessons - manual or generated  
+c. Edit texts 
+d. Add exercise type 
+
+### Content - Courses and lessons 
 
 ## Step 3 
 Make a decision on functionality - in content and course

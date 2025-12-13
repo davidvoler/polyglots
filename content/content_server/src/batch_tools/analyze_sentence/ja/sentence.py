@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import json
 import re
 from batch_tools.analyze_sentence.ja.translit import translit_single
-
+from batch_tools.analyze_sentence.ja.ja_spacy import get_root
 
 try:
     from fugashi import Tagger
@@ -1434,7 +1434,9 @@ def analyze_sentence(text:str, id:int, lang:str) -> Dict:
     for element in u['elements']:
         if element['type'] == 'verb':
             verb_count+=1
-            u[f'verb{verb_count}'] = element.get('lemma')
+            u[f'verb{verb_count}'] = element.get('text')
+            u[f'verb_aux{verb_count}'] = element.get('text') + element.get('auxiliary_verb','')
+            u[f'verb_lemma{verb_count}'] = element.get('lemma')
             u[f'auxiliary_verb{verb_count}'] = element.get('auxiliary_verb')
         elif element['type'] == 'noun':
             noun_count+=1
@@ -1463,6 +1465,10 @@ def analyze_sentence(text:str, id:int, lang:str) -> Dict:
     }
     u['len_c'] = len(text)
     u['len_e'] = len(filtered_elements)
+    u['root'], u['root_lemma'] = get_root(text)
+    root, root_lemma = get_root(text)
+    u['root'] = root
+    u['root_lemma'] = root_lemma
     return u
 
 
