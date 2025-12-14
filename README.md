@@ -63,12 +63,25 @@ When needed we will solve this issue
 - [v] japanese - consider saving verbs with the auxiliary as a single element?
 - [v] japanese root - maybe also use spacy
 - [v] add options to the final table 
+-
+
+### data 
+- [v] upload English
+- [v] upload japanese 
 
 Completed - 2025-12-13
+Data collection will take a few more days 
+
 ## Step 2.1 
 Started - 2025-12-13
 
 ### Content Raw 
+
+
+### Data 
+- [] test hebrew 
+- [] upoad hebrew for experiment 
+
 - [] make a words collections 
 1. Used zipf ranking 
 2. Using how common it is in out corpus 
