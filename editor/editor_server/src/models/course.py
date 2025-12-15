@@ -1,9 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-
-
-
 class Question(BaseModel):
     id: int
     step_id: int

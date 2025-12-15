@@ -107,8 +107,8 @@ started 2025/12/13
 
 ### Editor UI
 - [v] design the ui for course/lesson generation - not UI now only the forms and processes
-- [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
-- [] When we refer to leaning of a language one size does NOT fit all
+- [v] start planning auto generated course - (with AI?) Maybe the AI style will come later 
+- [v] When we refer to leaning of a language one size does NOT fit all
 
 ### The editor UI - course/lesson generator 
 
@@ -139,10 +139,7 @@ We have also to ask for target like:
 - Is the alphabet completely new to the students?
 - Learning how to read
 
-
 We should also allow for free text 
-
-
 Important elements should be working 
 Elements that are less useful for now - show text requires more permissions 
 
@@ -160,6 +157,14 @@ c. Edit texts
 d. Add exercise type 
 
 ### Content - Courses and lessons 
+
+### Editor UI
+
+
+- [v] Create the generate lesson page
+- []  Implement the backend - maybe with Olama
+
+
 
 ## Step 3 
 Make a decision on functionality - in content and course
