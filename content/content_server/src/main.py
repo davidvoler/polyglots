@@ -26,8 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(corpus.router, prefix="/api/v1/corpus", tags=["corpus"])
 app.include_router(review.router, prefix="/api/v1/review", tags=["review"])
