@@ -207,21 +207,32 @@ Other option
 a. words you probably know - thanks, Thank you, please,...
 b. words you probably know - Good morning, Good evening, Good afternoon 
 2. Verbs to eat, to drink, to see, to go ,4
-3. verbs,[] 5
+3. verbs, 5
 4. I, you - using the verbs we have learned and cordial words 
 5. he, she, they - the same
 ...
-12 verbs [], 
+12 verbs , 
 
 #### Data
 - [v] Group together words with lemma and word type
 - [v] Play with the data - what should be the most common words to choose by  
 
-#### Editor UI
-- [] find the right tool for editing - editable - recommended by Jemini and claude 
-- [] find the right tool for drag and drop - there are many options - I should let the code generator to decide 
+#### Editor backend 
 
-### Step 2.5
+- [v] initial list words, list verbs 
+
+#### Editor UI
+- [v] show initial course editor - what should it look like  
+- [v] find the right tool for editing - editable - recommended by Jemini and claude 
+- [v] find the right tool for drag and drop - there are many options - I should let the code generator to decide 
+
+completed - 16 - December 2025
+
+### Step 2.5 - linking the dots. 
+
+
+
+
 
 ### Data 
 - [] test hebrew 
