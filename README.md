@@ -150,15 +150,62 @@ As the generation I was planning did not match what is needed - we have to follo
 I have moved the work on the ui to the next step
 
 ### Step 2.4
+Started 16-December-2025
 
-### Editor UI
+This step is a planning stem with little implementation
+
+Now I understand what I want from ai generation
+1. First select elements from the data - root, verb, words
+2. Create some structure 
+3. Let the user add remove modules lessons 
+4. Add placeholders - for the ai to create. 
+5. ask ai to create specific explanation etc.  
+The example course was created in the last step
+Let's see if we can do the generation using a blend of AI and logic on the existing data
+
+
+What is needed to complete the process?
+
+
+1. make list of verbs, nouns adjectives, etc 
+2. collect them, let the user re-order them
+3. add placeholders for explanations
+4. early modules will have smaller number of sentences but as we go forward we will have more sentences per module/lesson
+a. sentences structure
+b. cultural issues
+c. The alphabet 
+4. create templates for lessons names
+a. example sentences 
+b. verb %s %s (見る, to go )
+```python
+class WordsGen:
+    word:str
+    type:str #verb, adjective, noun, propn, etc
+    is_lemma:bool
+    is_root:bool
+
+def get_full_course_words():
+    """Collects words for a complete course  
+    """
+    return [WordsGen(**w) for w in data]
+```
+
+Other option 
+
+1. Prepare by words and how common they are - and also how many sentences for each length are there 1-4 5-6 7-9 10-16
+2. in this list we can add word lemma, word type (verb, aux etc)
+3. add word frequency 
+4. use this list to generate lessons 
+
+[{"hira": "おちつけ", "kana": "オチツケ", "roma": "ochitsuke", "text": "落ち着け", "type": "verb", "lemma": "落ち着く", "meaning": "", "category": "verb", "position": 0}]
+[{"dep": "det", "pos": "DET", "text": "the", "lemma": "the"}, {"dep": "nsubj", "pos": "NOUN", "text": "dogs", "lemma": "dog"}, {"dep": "ROOT", "pos": "VERB", "text": "followed", "lemma": "follow"}]
+
 
 
 ### Step 2.5
 ### Data 
 - [] test hebrew 
 - [] upload hebrew for experiment 
-
 - [] make a words collections 
 1. Used zipf ranking 
 2. Using how common it is in out corpus 
