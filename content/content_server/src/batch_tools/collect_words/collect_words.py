@@ -26,10 +26,10 @@ def _add_word(words, word, wtype, lemma='',
             'types': set(),
             'count': 0,
             'lemma': lemma,
-            'w_count1-3': 0,
-            'w_count4-5': 0,
-            'w_count6-9': 0,
-            'w_count10-20': 0,
+            'w_count1_3': 0,
+            'w_count4_5': 0,
+            'w_count6_9': 0,
+            'w_count10_20': 0,
             'root_count': 0,
             'translit1': translit1,
             'translit2': translit2,
@@ -42,13 +42,13 @@ def _add_word(words, word, wtype, lemma='',
     if is_root:
         words[word]['root_count'] += 1
     if w_count >= 1 and w_count <= 3:
-        words[word]['w_count1-3'] += 1
+        words[word]['w_count1_3'] += 1
     elif w_count >= 4 and w_count <= 5:
-        words[word]['w_count4-5'] += 1
+        words[word]['w_count4_5'] += 1
     elif w_count >= 6 and w_count <= 9:
-        words[word]['w_count6-9'] += 1
-    elif w_count >= 10 and w_count <= 20:
-        words[word]['w_count10-20'] += 1
+        words[word]['w_count6_9'] += 1
+    elif w_count >= 10:
+        words[word]['w_count10_20'] += 1
 
 
 
@@ -57,14 +57,26 @@ async def _insert_words(words:dict, lang:str):
     sql = """
     insert into content_raw.words (lang, word, root_count, count, lemma, rank, w_count1_3, 
                                    w_count4_5, w_count6_9, w_count10_20, translit1, translit2, 
-                                   translit3, meaning, types, verb, noun, adjective, adverb, 
-                                   auxiliary_verb)
-                                   values( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                   translit3, meaning,verb, noun, adjective, adverb, 
+                                   auxiliary_verb, particle, pronoun, conjunction, compound_pattern)
+                                   values( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     for k,v in words.items():
-        rank = rank_word(w, lang)
-        wtypes = ', '.join(v.get('types'))
-        await run_query(sql, (lang, k,v.get('root_count'), v.get('count'), v.get('lemma'), rank, v.get('w_count1_3'), v.get('w_count4_5'), v.get('w_count6_9'), v.get('w_count10_20'), v.get('translit1'), v.get('translit2'), v.get('translit3'), v.get('meaning'), v.get('types'), v.get('verb'), v.get('noun'), v.get('adjective'), v.get('adverb'), v.get('auxiliary_verb')))
+        print(v.get('types'))
+        rank = rank_word(k, lang)
+        verb = 'verb' in v.get('types')
+        noun = 'noun' in v.get('types')
+        adjective = 'adjective' in v.get('types') or 'adj' in v.get('types')
+        adverb = 'adverb' in v.get('types') or 'adv' in v.get('types')
+        auxiliary_verb = 'auxiliary_verb' in v.get('types') or 'aux' in v.get('types')
+        particle = 'particle' in v.get('types') or 'p' in v.get('types')
+        pronoun = 'pronoun' in v.get('types') or 'pron' in v.get('types')
+        conjunction = 'conjunction' in v.get('types') or 'sconj'  in v.get('types')
+        compound_pattern = 'compound_pattern' in v.get('types') or 'cp' in v.get('types')   
+        await run_query(sql, (lang, k,v.get('root_count'), v.get('count'), v.get('lemma'), rank, 
+        v.get('w_count1_3'), v.get('w_count4_5'), v.get('w_count6_9'), v.get('w_count10_20'), 
+        v.get('translit1'), v.get('translit2'), v.get('translit3'), v.get('meaning'),
+        verb, noun, adjective, adverb, auxiliary_verb, particle, pronoun, conjunction, compound_pattern))
 
 
 async def collect_words(lang:str):
@@ -87,7 +99,7 @@ async def collect_words(lang:str):
                 translit1 = ''
                 translit2 = ''
                 translit3 = ''
-                wtype = e.get('pose')
+                wtype = e.get('pos','').lower()
                 is_root = e.get('dep') == 'ROOT' 
             meaning = e.get('meaning','')
             lemma = e.get('lemma','')
@@ -119,6 +131,11 @@ CREATE TABLE content_raw.words (
 	auxiliary_verb bool default false,
 	noun bool default false,
 	adjective bool default false,
+    conjunction bool default false,
+    compound_pattern bool default false,
+    particle bool default false,
+    pronoun bool default false,
+    interjection bool default false,
     primary key (lang, word)
 );
 """
