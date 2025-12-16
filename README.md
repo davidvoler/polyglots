@@ -78,26 +78,9 @@ Started - 2025-12-13
 ### Content Raw 
 
 
-### Data 
-- [] test hebrew 
-- [] upoad hebrew for experiment 
-
-- [] make a words collections 
-1. Used zipf ranking 
-2. Using how common it is in out corpus 
-
-
-### Analyzer UI
-- [] create a ui for this process
-- [] data - prepare the data needed
-- [] use batch process to prepare the data - like analyze sentences
-- [] api we need on on content side 
 
 
 
-### backup data 
-- [] reorder sound files 
-- [] backup data to desktop
 ### Content UI
 
 
@@ -116,14 +99,11 @@ We have to ask the course creator
 How important for her is that the students improve in
 We can ha a slider  for the following - what is more important
 We should ask for the reason of the course 
-
-
 - exam - school/university/
 - day to day language use . 
 
 Is this a course that planned for multiple levels, and that should include 
 - level test 
-
 - reading
 - writing 
 - understanding 
@@ -159,11 +139,44 @@ d. Add exercise type
 ### Content - Courses and lessons 
 
 ### Editor UI
-
-
 - [v] Create the generate lesson page
-- []  Implement the backend - maybe with Olama
+- [v]  Implement the backend - maybe with Olama
+Tested olama directly it is not doing the job properly 
+We will need a better guidance from our side 
+I took a decision to do some work before 
 
+Completed - 15-December 2025
+As the generation I was planning did not match what is needed - we have to follow the data. 
+I have moved the work on the ui to the next step
+
+### Step 2.4
+
+### Editor UI
+
+
+### Step 2.5
+### Data 
+- [] test hebrew 
+- [] upload hebrew for experiment 
+
+- [] make a words collections 
+1. Used zipf ranking 
+2. Using how common it is in out corpus 
+
+
+
+
+### step 2.6
+### Analyzer UI
+- [] create a ui for this process
+- [] data - prepare the data needed
+- [] use batch process to prepare the data - like analyze sentences
+- [] api we need on on content side 
+
+### step 2.7
+### backup data 
+- [] reorder sound files 
+- [] backup data to desktop
 
 
 ## Step 3 
