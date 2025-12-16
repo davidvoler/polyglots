@@ -33,11 +33,3 @@ async def delete_course(request: CourseRequest):
     """
     await run_query(sql, (request.id,))
     return Course(id=request.id, lang=request.lang, to_lang=request.to_lang, name=request.name, description=request.description, created_by=request.created_by, school=request.school)
-
-async def generate_course(request: GenerateRequest):
-    sql = """
-    INSERT INTO content_raw.courses (lang, to_lang, name, description, created_by, school)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    """
-    await run_query(sql, (request.lang, request.to_lang, request.name, request.description, request.created_by, request.school))
-    return Course(id=id, lang=request.lang, to_lang=request.to_lang, name=request.name, description=request.description, created_by=request.created_by, school=request.school)
