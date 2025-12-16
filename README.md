@@ -63,28 +63,24 @@ When needed we will solve this issue
 - [v] japanese - consider saving verbs with the auxiliary as a single element?
 - [v] japanese root - maybe also use spacy
 - [v] add options to the final table 
+-
+
+### data 
+- [v] upload English
+- [v] upload japanese 
 
 Completed - 2025-12-13
+Data collection will take a few more days 
+
 ## Step 2.1 
 Started - 2025-12-13
 
 ### Content Raw 
-- [] make a words collections 
-1. Used zipf ranking 
-2. Using how common it is in out corpus 
-
-
-### Analyzer UI
-- [] create a ui for this process
-- [] data - prepare the data needed
-- [] use batch process to prepare the data - like analyze sentences
-- [] api we need on on content side 
 
 
 
-### backup data 
-- [] reorder sound files 
-- [] backup data to desktop
+
+
 ### Content UI
 
 
@@ -94,8 +90,8 @@ started 2025/12/13
 
 ### Editor UI
 - [v] design the ui for course/lesson generation - not UI now only the forms and processes
-- [] start planning auto generated course - (with AI?) Maybe the AI style will come later 
-- [] When we refer to leaning of a language one size does NOT fit all
+- [v] start planning auto generated course - (with AI?) Maybe the AI style will come later 
+- [v] When we refer to leaning of a language one size does NOT fit all
 
 ### The editor UI - course/lesson generator 
 
@@ -103,14 +99,11 @@ We have to ask the course creator
 How important for her is that the students improve in
 We can ha a slider  for the following - what is more important
 We should ask for the reason of the course 
-
-
 - exam - school/university/
 - day to day language use . 
 
 Is this a course that planned for multiple levels, and that should include 
 - level test 
-
 - reading
 - writing 
 - understanding 
@@ -126,10 +119,7 @@ We have also to ask for target like:
 - Is the alphabet completely new to the students?
 - Learning how to read
 
-
 We should also allow for free text 
-
-
 Important elements should be working 
 Elements that are less useful for now - show text requires more permissions 
 
@@ -147,6 +137,47 @@ c. Edit texts
 d. Add exercise type 
 
 ### Content - Courses and lessons 
+
+### Editor UI
+- [v] Create the generate lesson page
+- [v]  Implement the backend - maybe with Olama
+Tested olama directly it is not doing the job properly 
+We will need a better guidance from our side 
+I took a decision to do some work before 
+
+Completed - 15-December 2025
+As the generation I was planning did not match what is needed - we have to follow the data. 
+I have moved the work on the ui to the next step
+
+### Step 2.4
+
+### Editor UI
+
+
+### Step 2.5
+### Data 
+- [] test hebrew 
+- [] upload hebrew for experiment 
+
+- [] make a words collections 
+1. Used zipf ranking 
+2. Using how common it is in out corpus 
+
+
+
+
+### step 2.6
+### Analyzer UI
+- [] create a ui for this process
+- [] data - prepare the data needed
+- [] use batch process to prepare the data - like analyze sentences
+- [] api we need on on content side 
+
+### step 2.7
+### backup data 
+- [] reorder sound files 
+- [] backup data to desktop
+
 
 ## Step 3 
 Make a decision on functionality - in content and course

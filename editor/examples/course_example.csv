@@ -1,0 +1,43 @@
+module,listening,reading,speaking,writing,lesson_name, verbs, word_limit, Description
+1,1,0,1,0,Initial expirience of the language, , 5, Learn how to say Thank you;Excuse me and other basic phrases in Japanese.
+1,1,0,1,0,Wellcome to Japanese, , , The Alphabets - Hiragana, Katakana, and Kanji.
+1,1,0,1,0,Word order in Japanese, , , Word order in Japanese.
+1,1,0,1,0,Let's have some sushi.., 食べる, 5, Learn how to say "I want to eat sushi" in Japanese.
+1,1,0,1,0,Is it time for green tea?, 飲む, 5, Lean how to use the verb "飲む" to drink. 
+1,1,0,1,0,Would you like to see cherry blossoms?, 見る, 5, Lean how to use the verb "見る" to see.
+1,1,0,1,0,Would you like to go to the park?, 行く, 5, Lean how to use the verb "行く" to go.
+1,1,0,1,0,Would you like to see the movie?, 見る, 5, Lean how to use the verb "見る" to see.
+1,1,0,1,0,Module warp up, , , Review the lessons and practice the phrases.
+2,1,1,0,0, Introduction to alphabets used in Japanese, , , Introduction to Hiragana, Katakana, and Kanji.
+2,1,1,0,0, For now we use transliteration to read Japanese, , ,For now we use transliteration to read Japanese
+2,1,1,0,0, More sentences with the verb "見る" and "食べる",飲む;食べる,5, More sentences with the verb "飲む" and "食べる" to drink and eat.
+2,1,1,0,0, More sentences with the verb "行く" and "見る",行く;見る,5, More sentences with the verb "行く" and "見る" to go and see.
+2,1,1,0,0, Module warp up,飲む;食べる;行く;見る,6, Review the lessons and practice the phrases.
+3,1,1,0,0, Introduction to the verb "する", , , Introduction to the verb "する" to do.
+3,1,1,0,0, More sentences with the verb "する",する,5, More sentences with the verb "する" to do.
+3,1,1,0,0, More sentences with the verb "する",する,5, More sentences with the verb "する" to do.
+3,1,1,0,0, Module warp up,する,5, Review the lessons and practice the phrases.
+4,1,1,0,0, Expressing desire,食べる,6, Expressing desire - I want to eat sushi.
+4,1,1,0,0, Expressing desire,飲む ,6, Expressing desire - I want to drink green tea.
+4,1,1,0,0, Expressing desire,行く  ,6, Expressing desire - I want to go to the park.
+4,1,1,0,0, Expressing desire,見る ,6, Expressing desire - I want to watch a movie.
+4,1,1,0,0, Module warp up,食べる;飲む;行く;見る,6, Review the lessons and practice the phrases.
+5,1,1,0,0, Talk about things that happened in the past,,, Talk about things that happened in the past.
+5,1,1,0,0, I did somthing yesterday, 昨日,6, The word "yesterday" in Japanese.
+5,1,1,0,0, I did somthing last week, 先週,6, The word "last week" in Japanese.
+5,1,1,0,0, I did last year, 去年,6, The word "last year" in Japanese.
+5,1,1,0,0, Module warp up,昨日;先週;去年,6, Review the lessons and practice the phrases.
+6,1,1,0,0, Ask for someone attention,,, On the street - in a restaurant - in a bar.
+6,1,1,0,0, Ask for the menu,,6, Ask for the menu.
+6,1,1,0,0, Order somthing from menu,,6, Order somthing from menu.
+6,1,1,0,0, Ask for the bill,,6, Ask for the bill.
+6,1,1,0,0, Module warp up,,6, Review the lessons and practice the phrases.
+7,1,1,0,0, Your first Hiragana letter す,す,, We will learn how to read the letter "す" - please notice it when you see it in text in all exercises in this module.
+7,1,1,0,0, Excuse me,すみません,6, Excuse me - I'm sorry
+7,1,1,0,0, More sentences with the Hiragana letter "す",すみません,6, More sentences with the Hiragana letter "す"
+7,1,1,0,0, Your second Hiragana letter み,み,, We will learn how to read the letter "み" - please notice it when you see it in text in all exercises in this module.
+7,1,1,0,0, More sentences with the Hiragana letter "み",み,6, More sentences with the Hiragana letter "み"
+8,1,1,1,1, Sentence patterns somthing I did yesterday, ,6, Sentence patterns somthing I did yesterday.
+8,1,1,1,1, Sentence patterns somthing I will do today, ,6, Sentence patterns somthing I will do today.
+8,1,1,0,0, Use the verbs we know so far with the sentences patterns, ,6,
+8,1,1,0,0, Module warp up,,6, Review the lessons and practice the phrases.
