@@ -196,13 +196,33 @@ Other option
 2. in this list we can add word lemma, word type (verb, aux etc)
 3. add word frequency 
 4. use this list to generate lessons 
+5. Add words to course by some order
+6. Select words per module. start with 2 words per module and than 4,8,10 etc
+7. Select max words in sentence per module
+8. start maybe with words you already know. 
 
-[{"hira": "おちつけ", "kana": "オチツケ", "roma": "ochitsuke", "text": "落ち着け", "type": "verb", "lemma": "落ち着く", "meaning": "", "category": "verb", "position": 0}]
-[{"dep": "det", "pos": "DET", "text": "the", "lemma": "the"}, {"dep": "nsubj", "pos": "NOUN", "text": "dogs", "lemma": "dog"}, {"dep": "ROOT", "pos": "VERB", "text": "followed", "lemma": "follow"}]
+#### Generated course 
 
+1. Welcome to English ,4
+a. words you probably know - thanks, Thank you, please,...
+b. words you probably know - Good morning, Good evening, Good afternoon 
+2. Verbs to eat, to drink, to see, to go ,4
+3. verbs,[] 5
+4. I, you - using the verbs we have learned and cordial words 
+5. he, she, they - the same
+...
+12 verbs [], 
 
+#### Data
+- [v] Group together words with lemma and word type
+- [v] Play with the data - what should be the most common words to choose by  
+
+#### Editor UI
+- [] find the right tool for editing - editable - recommended by Jemini and claude 
+- [] find the right tool for drag and drop - there are many options - I should let the code generator to decide 
 
 ### Step 2.5
+
 ### Data 
 - [] test hebrew 
 - [] upload hebrew for experiment 
