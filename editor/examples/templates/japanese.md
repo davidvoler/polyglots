@@ -22,3 +22,34 @@ maybe take from here some
 すわる、座る – to sit (suwaru)
 たつ、立つ – to stand (tatsu)
 はしる、走る – to run (hashiru)
+
+
+
+
+Time-Based Greetings
+Ohayou gozaimasu (おはようございます): Good morning (polite).
+Ohayou (おはよう): Good morning (casual).
+Konnichiwa (こんにちは): Hello / Good afternoon (daytime).
+Konbanwa (こんばんは): Good evening (after dark). 
+General & Situational Greetings
+Hajimemashite (はじめまして): Nice to meet you (first time meeting).
+Arigatou gozaimasu (ありがとうございます): Thank you (polite).
+Sumimasen (すみません): Excuse me / Sorry (versatile).
+Doumo (どうも): Hi / Thanks (casual).
+Ogenki desu ka? (お元気ですか): How are you? (polite).
+Yoroshiku onegaishimasu (よろしくおねがいします): Please treat me favorably / Nice to meet you (often follows Hajimemashite). 
+Phone Greetings
+Moshi moshi (もしもし): Hello (used exclusively on the phone). 
+Home & Leaving/Returning
+Ittekimasu (いってきます): I'm leaving (said by person leaving home).
+Itterasshai (いってらっしゃい): Have a good day (said to person leaving).
+Tadaima (ただいま): I'm home / I'm back.
+Okaerinasai (おかえりなさい): Welcome home (response to Tadaima). 
+Mealtime 
+Itadakimasu (いただきます): Thanks for the food (before eating).
+Gochisousama deshita (ごちそうさまでした): Thanks for the meal (after eating). 
+Saying Goodbye 
+Sayounara (さようなら): Goodbye (often implies a longer separation).
+Jaa ne / Mata ne (じゃあね / またね): See ya / Later (casual).
+Oyasuminasai (おやすみなさい): Good night (before bed).
+Otsukaresama deshita (おつかれさまでした): Thank you for your hard work

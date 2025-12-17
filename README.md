@@ -233,7 +233,9 @@ Started 16 - December 2025
 
 Now let's link the dots and enable creating semi automated courses. 
 
-
+- [] get greeting words like - hello, thank you etc
+- [] get known words 
+- [] generate explanation  
 
 
 
