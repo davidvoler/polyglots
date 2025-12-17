@@ -229,12 +229,19 @@ b. words you probably know - Good morning, Good evening, Good afternoon
 completed - 16 - December 2025
 
 ### Step 2.5 - linking the dots. 
+Started 16 - December 2025
+
+Now let's link the dots and enable creating semi automated courses. 
 
 
 
 
+
+### Step 2.6 
 
 ### Data 
+
+
 - [] test hebrew 
 - [] upload hebrew for experiment 
 - [] make a words collections 
