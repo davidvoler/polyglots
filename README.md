@@ -232,11 +232,27 @@ completed - 16 - December 2025
 Started 16 - December 2025
 
 Now let's link the dots and enable creating semi automated courses. 
+#### The templating system 
+
+- [v] create a template per course 
+- [v] create a template per module
+- [v] decide if to use tags per elements - true false for eah element type 
+
+Started by template in code - next move to template in database tables. 
+
+
+
+#### Generation process
+- [] select templates 
+- [] order words, verbs, nouns etc 
+- [] select alphabet - yes/no
+- [] generate the course.
+
+#### Greetings 
 
 - [] get greeting words like - hello, thank you etc
 - [] get known words 
 - [] generate explanation  
-
 
 
 ### Step 2.6 
