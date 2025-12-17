@@ -18,6 +18,13 @@ class LessonTemplate(BaseModel):
     lessons_type:str = 'reading'
 
 
+class ExplanationTemplate(BaseModel):
+    title: str
+    description: str
+    content: str
+    conceptType: str = ''
+    examples: list[str] = []
+
 
 class CourseTemplate(BaseModel):
     name: str
@@ -60,27 +67,27 @@ COURSE_TEMPLATE_JAPANESE = CourseTemplate(
     name="Japanese Course",
     description="A course for learning Japanese including learning to read and write Hiragana, Kanji and Katakana",
     modules=[
-    ModuleTemplate(words=10, level=1, lessons_types=['listening', 'vocabulary'], lessons_content=['greetings'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=20, level=5, lessons_types=['listening', 'vocabulary'], lessons_content=[ 'verbs', 'nouns',], lessons_count=10, module_count=5),
-    ModuleTemplate(words=15, level=10, lessons_types=['reading', 'alphabet'], lessons_content=[ 'hiragana'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=15, level=15, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=15, level=20, lessons_types=['listening', 'vocabulary','reading'], lessons_content=[ 'verbs', 'nouns','adverbs'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=20, level=25, lessons_types=['reading', 'alphabet'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
-    ModuleTemplate(words=30, level=30, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=20, level=35, lessons_types=['reading', 'alphabet'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
-    ModuleTemplate(words=30, level=40, lessons_types=['listening', 'vocabulary','reading'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=20, level=45, lessons_types=['reading', 'alphabet', 'writing'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
-    ModuleTemplate(words=50, level=50, lessons_types=['listening', 'vocabulary','reading', 'writing'], lessons_content=[ 'katakana'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=50, level=55, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=50, level=60, lessons_types=['grammar'], lessons_content=[ 'syntax', 'auxiliary_verbs'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=50, level=65, lessons_types=['grammar'], lessons_content=[ 'syntax', 'particles'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=50, level=70, lessons_types=['reading', 'alphabet', 'writing'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
-    ModuleTemplate(words=60, level=75, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=70, level=80, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=80, level=85, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'syntax', 'kanji'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=90, level=90, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'kanji'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=100, level=95, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','syntax', 'kanji'], lessons_count=10, module_count=5),
-    ModuleTemplate(words=200, level=100, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'syntax', 'kanji'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=10, level=1, lessons_types=['listening', 'vocabulary'], lessons_content=['greetings'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=20, level=5, lessons_types=['listening', 'vocabulary'], lessons_content=[ 'verbs', 'nouns',], lessons_count=10, module_count=5),
+            ModuleTemplate(words=15, level=10, lessons_types=['reading', 'alphabet'], lessons_content=[ 'hiragana'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=15, level=15, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=15, level=20, lessons_types=['listening', 'vocabulary','reading'], lessons_content=[ 'verbs', 'nouns','adverbs'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=20, level=25, lessons_types=['reading', 'alphabet'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
+            ModuleTemplate(words=30, level=30, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=20, level=35, lessons_types=['reading', 'alphabet'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
+            ModuleTemplate(words=30, level=40, lessons_types=['listening', 'vocabulary','reading'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=20, level=45, lessons_types=['reading', 'alphabet', 'writing'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=50, lessons_types=['listening', 'vocabulary','reading', 'writing'], lessons_content=[ 'katakana'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=55, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=60, lessons_types=['grammar'], lessons_content=[ 'syntax', 'auxiliary_verbs'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=65, lessons_types=['grammar'], lessons_content=[ 'syntax', 'particles'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=70, lessons_types=['reading', 'alphabet', 'writing'], lessons_content=[ 'kanji',], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=75, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=80, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=85, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'syntax', 'kanji'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=90, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'kanji'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=95, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','syntax', 'kanji'], lessons_count=10, module_count=5),
+            ModuleTemplate(words=50, level=100, lessons_types=['listening', 'vocabulary','reading', 'speaking'], lessons_content=[ 'verbs', 'nouns','adjectives','adverbs','writing','grammar', 'syntax', 'kanji'], lessons_count=10, module_count=5),
     ]
 )
 
