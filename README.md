@@ -237,12 +237,21 @@ Now let's link the dots and enable creating semi automated courses.
 - [v] create a template per course 
 - [v] create a template per module
 - [v] decide if to use tags per elements - true false for eah element type 
+- [v] Started by template in code - next move to template in database tables. 
 
-Started by template in code - next move to template in database tables. 
+Next step im course templating 
+
+- [v] create an automatic template that uses calculations - not predefined module definitions
+- [v] Play with the sql and try to generate for this logic - in japanese 
+- []  Play with English 
 
 
+#### Data
+- [v] after playing with the data - I can see that japanese is missing "pronoun" 
+- [v] Japanese is missing Particles - We need them for grammar explanations 
 
 #### Generation process
+
 - [] select templates 
 - [] order words, verbs, nouns etc 
 - [] select alphabet - yes/no
@@ -253,6 +262,12 @@ Started by template in code - next move to template in database tables.
 - [] get greeting words like - hello, thank you etc
 - [] get known words 
 - [] generate explanation  
+
+
+#### The step for course generation is iterative
+- We format raw data 
+- We generate a course 
+- We understand that we have something missing in raw data - and we recreate it 
 
 
 ### Step 2.6 
