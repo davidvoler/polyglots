@@ -1,0 +1,16 @@
+GREETING_WORDS = [
+    "thank you",
+    "thanks",
+    "please",
+    "sorry",
+    "excuse me",
+    "hello",
+    "hi",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "good night",
+    "goodbye",
+    "see you later",
+    "see you tomorrow",
+]

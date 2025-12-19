@@ -259,9 +259,8 @@ Next step im course templating
 
 #### Greetings 
 
-- [] get greeting words like - hello, thank you etc
-- [] get known words 
-- [] generate explanation  
+- [v] get greeting words like - hello, thank you etc
+- [v] generate explanation  - or placeholders for explanation
 
 
 #### The step for course generation is iterative

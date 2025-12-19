@@ -33,12 +33,28 @@ def gen_course_based_on_copus():
     
 
 def create_course_template(course_template: CourseTemplate):
-    words_per_module = course_template.words_per_module_start
+    words_per_module = int(course_template.words_per_module_start)
     sentence_length = course_template.sentence_length_start
     for i in range(30):
         print(f"Module {i+1} - words: {int(words_per_module)} - sentence length: {int(sentence_length)}")
         words_per_module += course_template.words_per_module_increase_factor
         sentence_length += course_template.sentence_length_increase_factor
+
+def create_course_template_with_words(course_template: CourseTemplate, words: list[str]):
+    words_per_module = course_template.words_per_module_start
+    sentence_length = course_template.sentence_length_start
+    i = 0
+    while len(words) > 0:
+        i += 1
+        module_words = words[:int(words_per_module)]
+        words = words[int(words_per_module):]
+        print(f"Module {i+1} - words: {module_words} - sentence length: {int(sentence_length)}")
+        words_per_module += course_template.words_per_module_increase_factor
+        sentence_length += course_template.sentence_length_increase_factor
+
+
+
+
 
 if __name__ == "__main__":
     course_template = CourseTemplate()
