@@ -34,4 +34,4 @@ async def gen_course(lang:str):
             print(j,f". {r}")
         words = [v[0] for v in verbs[:200]]
         print(words[0:10])
-        create_course_template_with_words(CourseTemplate(), words)
+        await create_course_template_with_words(CourseTemplate(), words)

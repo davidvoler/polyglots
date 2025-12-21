@@ -1,5 +1,6 @@
 """This is an alternative templating approach"""
 from pydantic import BaseModel
+from utils.db import get_query_results
 
 class CourseTemplate(BaseModel):
     words_per_module_start: float =2
@@ -40,17 +41,23 @@ def create_course_template(course_template: CourseTemplate):
         words_per_module += course_template.words_per_module_increase_factor
         sentence_length += course_template.sentence_length_increase_factor
 
-def gen_lessons(from_ln:int, to_len:int, words:list[str], lessons_count:int):
+async def gen_lessons(from_ln:int, to_len:int, words:list[str], lessons_count:int):
     lesson_no = 0
+    
+    sql = """
+    select text from content_raw.sentence_elements where lang='en' and len_elm >= %s and len_elm <= %s and root = %s order by len_c limit 10
+    """
     for word in words:
         lesson_no += 1
         print(f"Lesson {lesson_no}: introducing the word '{word}'")
+        sentences = await get_query_results(sql, (from_ln, to_len, word))
+        for sentence in sentences:
+            print(sentence.get('text'))
     
         
 
 
-
-def create_course_template_with_words(course_template: CourseTemplate, words: list[str]):
+async def create_course_template_with_words(course_template: CourseTemplate, words: list[str]):
     words_per_module = course_template.words_per_module_start
     sentence_length = course_template.sentence_length_start
     i = 0
@@ -59,7 +66,7 @@ def create_course_template_with_words(course_template: CourseTemplate, words: li
         module_words = words[:int(words_per_module)]
         words = words[int(words_per_module):]
         print(f"Module {i+1} - words: {module_words} - sentence length: {int(sentence_length)}")
-        gen_lessons(1, 4, module_words, 10)
+        await gen_lessons(1, 6, module_words, 10)
         words_per_module += course_template.words_per_module_increase_factor
         sentence_length += course_template.sentence_length_increase_factor
 

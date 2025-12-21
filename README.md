@@ -275,7 +275,7 @@ Next step im course templating
 ### Data
 - [v] - Add len_elm to English - so we can generate by word count. - done with sql
 ### Add Lessons
-- [] - add lessons 
+- [v] - add lessons 
 - [] - add sentences
 - [] - add translation
 - [] - add placeholders for grammar and syntax 
