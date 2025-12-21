@@ -243,7 +243,7 @@ Next step im course templating
 
 - [v] create an automatic template that uses calculations - not predefined module definitions
 - [v] Play with the sql and try to generate for this logic - in japanese 
-- []  Play with English 
+- [v]  Play with English 
 
 
 #### Data
@@ -269,7 +269,37 @@ Next step im course templating
 - We understand that we have something missing in raw data - and we recreate it 
 
 
+
+### Step 2.5.1 - printout level generation
+- [] - Add len_elm to English - so we can generate by word count.
+- [] - continue to work with the generator and print out results
+- [] - add lessons 
+- [] - add sentences
+- [] - add translation
+- [] - add placeholders for grammar and syntax 
+
+--- [] ----
+When we are happy with the above tasks we can break it into api
+We can run start planning the client
+--- [] --
+
+### Step 2.5.2 - generation in steps - continue experiments 
+
+
+### Step 2.5.3 - generation with UI
+
+
+### Step 2.5.4 - Full process - API/UI - MVP 
+
+### Step 2.5.5 -? 
+
+
+
+
+
 ### Step 2.6 
+
+
 
 ### Data 
 
