@@ -271,8 +271,10 @@ Next step im course templating
 
 
 ### Step 2.5.1 - printout level generation
-- [] - Add len_elm to English - so we can generate by word count.
-- [] - continue to work with the generator and print out results
+
+### Data
+- [v] - Add len_elm to English - so we can generate by word count. - done with sql
+### Add Lessons
 - [] - add lessons 
 - [] - add sentences
 - [] - add translation

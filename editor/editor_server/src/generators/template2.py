@@ -40,6 +40,16 @@ def create_course_template(course_template: CourseTemplate):
         words_per_module += course_template.words_per_module_increase_factor
         sentence_length += course_template.sentence_length_increase_factor
 
+def gen_lessons(from_ln:int, to_len:int, words:list[str], lessons_count:int):
+    lesson_no = 0
+    for word in words:
+        lesson_no += 1
+        print(f"Lesson {lesson_no}: introducing the word '{word}'")
+    
+        
+
+
+
 def create_course_template_with_words(course_template: CourseTemplate, words: list[str]):
     words_per_module = course_template.words_per_module_start
     sentence_length = course_template.sentence_length_start
@@ -49,6 +59,7 @@ def create_course_template_with_words(course_template: CourseTemplate, words: li
         module_words = words[:int(words_per_module)]
         words = words[int(words_per_module):]
         print(f"Module {i+1} - words: {module_words} - sentence length: {int(sentence_length)}")
+        gen_lessons(1, 4, module_words, 10)
         words_per_module += course_template.words_per_module_increase_factor
         sentence_length += course_template.sentence_length_increase_factor
 
