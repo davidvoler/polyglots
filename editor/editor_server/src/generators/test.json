@@ -1,0 +1,39 @@
+[
+    {
+        "hira": "しごと",
+        "kana": "シゴト",
+        "roma": "shigoto",
+        "text": "仕事",
+        "type": "noun",
+        "lemma": "仕事",
+        "meaning": "",
+        "category": "noun",
+        "position": 2
+    },
+    {
+        "hira": "",
+        "kana": "ソコ",
+        "roma": "soko",
+        "text": "そこ",
+        "type": "compounds",
+        "lemma": "",
+        "meaning": "there; then",
+        "category": "pronoun",
+        "position": 5
+    },
+    {
+        "hira": "いっ",
+        "kana": "イッ",
+        "roma": "itsu",
+        "text": "行っ",
+        "type": "verb",
+        "lemma": "行く",
+        "meaning": "",
+        "category": "verb",
+        "position": 8,
+        "auxiliary_verb": "た"
+    }
+]
+
+
+彼は仕事でそこへ行った。
