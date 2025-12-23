@@ -276,16 +276,19 @@ Next step im course templating
 - [v] - Add len_elm to English - so we can generate by word count. - done with sql
 ### Add Lessons
 - [v] - add lessons 
-- [] - add sentences
-- [] - add translation
-- [] - add placeholders for grammar and syntax 
+- [v] - add sentences
+- [v] - add translation
+- [v] - add placeholders for grammar and syntax 
 
---- [] ----
 When we are happy with the above tasks we can break it into api
 We can run start planning the client
---- [] --
 
 ### Step 2.5.2 - generation in steps - continue experiments 
+
+We have used prints so far with the lessons and modules - let's start by structuring the results
+We can print the full results. 
+Let's restructure the tasks
+
 
 
 ### Step 2.5.3 - generation with UI

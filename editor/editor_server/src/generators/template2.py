@@ -45,14 +45,27 @@ async def gen_lessons(from_ln:int, to_len:int, words:list[str], lessons_count:in
     lesson_no = 0
     
     sql = """
-    select text from content_raw.sentence_elements where lang='en' and len_elm >= %s and len_elm <= %s and root = %s order by len_c limit 10
+    select l.text as text, tl.text as translation from content_raw.sentence_elements l 
+    join content_raw.translation_links tr on l.lang = tr.lang and l.id = tr.id
+    join content_raw.sentence_elements tl on tr.to_id = tl.id and tr.to_lang = tl.lang
+    where l.lang='en' and l.len_elm >= %s and l.len_elm <= %s and l.root = %s order by l.len_c limit 10
     """
     for word in words:
         lesson_no += 1
         print(f"Lesson {lesson_no}: introducing the word '{word}'")
         sentences = await get_query_results(sql, (from_ln, to_len, word))
         for sentence in sentences:
-            print(sentence.get('text'))
+            print(sentence.get('text'), sentence.get('translation'))
+    #TODO: Add placeholders
+
+    placeholders = [
+        "Grammar explanation",
+        "Cultural explanation",
+    ]
+    for placeholder in placeholders:
+        lesson_no += 1
+        print(f"Lesson {lesson_no}   Placeholder: {placeholder}")
+    
     
         
 
