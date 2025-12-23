@@ -3,7 +3,7 @@ len_elm is missing from from English
 """
 from utils.db import run_query, get_query_results
 import asyncio
-from generators.template2 import CourseTemplate, create_course_template_with_words
+from generators.course_template import CourseTemplate, create_course_template_with_words
 
 LEN_C_GROUPS = [10, 15, 20,25,30,35,40,45]
 LEN_C_GROUPS = [6, 15]

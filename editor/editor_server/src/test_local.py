@@ -1,8 +1,4 @@
-from generators.generate_en import gen_course
-import os
+from generators.gen_course import gen_course
 import asyncio
-
-
-os.environ["POSTGRES_PORT"] = "5433"
 
 asyncio.run(gen_course('en'))
