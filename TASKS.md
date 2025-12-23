@@ -298,7 +298,35 @@ We can run start planning the client.
 We can print the full results.  
 Let's restructure the tasks.
 
-*(No specific tasks defined yet)*
+**Ready for Implementation:** The entry point for the gen_course function in the test local
+
+### Tasks
+
+- [Implemented] The test function should provide the CourseTemplate
+- [Implemented] CourseTemplate has lang and to_lang - use it in the generation
+- [Implemented] The course template should have an option to have a greeting module 
+- [Implemented] Add reading Module and lessons option to CourseTemplate
+- [Implemented] Add word selection for each module - words should have the word and type (go, verb)
+- [Implemented] There should be an option to add reading exercises to each module - concentrating on reading the new words and sentences in the module 
+- [Implemented] Optional writing lessons - like reading 
+- [Implemented] gen_course will return a course structure (use Models) and the printing of the course for review will happen in the test_local.py
+- [Implemented] Finally implement an API endpoint (router) for course generation 
+
+#### Word Selection 
+
+
+- [ ] Create a code that will collect words and type from current sentences - this code should run in content/content_server.
+- [ ] there is already such code - but we need to improve it - it should include word/word_type (verb,adjective, pronom etc) and count sentences. 
+- [ ] 
+- [ ] Implement an API function for selecting words for course and ordering them - 
+- [ ] the API should return a list of words with type and count sentences, min max words in sentence
+- [ ] This api should be used to create a course or a module with the words 
+
+ 
+- [] 
+
+#### 
+
 
 ---
 

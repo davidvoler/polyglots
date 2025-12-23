@@ -1,5 +1,13 @@
-from fastapi import APIRouter
-from models.generate import ByWordsRequest, ByWordResponse, WordCount
+from fastapi import APIRouter, HTTPException
+from models.generate import (
+    ByWordsRequest, 
+    ByWordResponse, 
+    WordCount,
+    CourseTemplateRequest,
+    GeneratedCourse
+)
+from generators.course_template import CourseTemplate
+from generators.generate import gen_course
 from utils.db import get_query_results, run_query
 
 router = APIRouter()
@@ -84,3 +92,43 @@ async def comon_elements(request: ByWordsRequest):
     return ByWordResponse(words=[WordCount(**row) for row in data], 
         lang=request.lang, words_count=request.words_count, 
         word_type=request.word_type, total_words=len(data))
+
+
+@router.post("/course", response_model=GeneratedCourse)
+async def generate_course(request: CourseTemplateRequest):
+    """
+    Generate a complete course based on the course template configuration.
+    
+    Args:
+        request: CourseTemplateRequest with course generation parameters
+    
+    Returns:
+        GeneratedCourse object containing the complete course structure
+    """
+    try:
+        # Convert request to CourseTemplate
+        course_template = CourseTemplate(
+            lang=request.lang,
+            to_lang=request.to_lang,
+            words_per_module_start=request.words_per_module_start,
+            words_per_module_increase_factor=request.words_per_module_increase_factor,
+            sentence_length_start=request.sentence_length_start,
+            sentence_length_increase_factor=request.sentence_length_increase_factor,
+            verbs=request.verbs,
+            nouns=request.nouns,
+            adjectives=request.adjectives,
+            adverbs=request.adverbs,
+            grammar_per_module=request.grammar_per_module,
+            greeting_module=request.greeting_module,
+            reading_module=request.reading_module,
+            reading_exercises=request.reading_exercises,
+            writing_exercises=request.writing_exercises
+        )
+        
+        # Generate the course
+        generated_course = await gen_course(course_template)
+        
+        return generated_course
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating course: {str(e)}")
