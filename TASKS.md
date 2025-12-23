@@ -312,6 +312,12 @@ Let's restructure the tasks.
 - [Implemented] gen_course will return a course structure (use Models) and the printing of the course for review will happen in the test_local.py
 - [Implemented] Finally implement an API endpoint (router) for course generation 
 
+
+### Course Generate UI
+
+- [Implemented] In the flutter editor add the code logic to generate a course - Use the new endpoint 
+
+
 #### Word Selection 
 
 
