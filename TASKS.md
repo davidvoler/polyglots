@@ -361,7 +361,7 @@ Let's restructure the tasks.
 
 - [Implemented] In Course let's create a new Generate with AI page - this page should lead us to a wizard like page with the following steps 
 - [Implemented] Select options - for the generator - This options are CourseTemplate in gereators.course_template
-- [ ] Select words - you will get a list of words and you can reorder them, remove some etc  
+- [ ] Select words - you will get a list of words and you can reorder them, remove some 
 - [ ] Run generate - this process will take time - show some progress bar 
 - [ ] Review results - see module lesson and sentences
 - [ ] Edit results - Remove sentences, change order of sentences lessons modules. 
