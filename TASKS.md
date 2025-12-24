@@ -321,7 +321,7 @@ Let's restructure the tasks.
 #### Word Selection 
 
 
-- [ ] Create a code that will collect words and type from current sentences - this code should run in content/content_server.
+- [Implemented] Create a code that will collect words and type from current sentences - this code should run in content/content_server.
 - [ ] there is already such code - but we need to improve it - it should include word/word_type (verb,adjective, pronom etc) and count sentences. 
 - [ ] 
 - [ ] Implement an API function for selecting words for course and ordering them - 
@@ -355,6 +355,21 @@ Let's restructure the tasks.
 ---
 
 ## Step 2.6 
+
+
+### UI 
+
+- [Implemented] In Course let's create a new Generate with AI page - this page should lead us to a wizard like page with the following steps 
+- [Implemented] Select options - for the generator - This options are CourseTemplate in gereators.course_template
+- [ ] Select words - you will get a list of words and you can reorder them, remove some etc  
+- [ ] Run generate - this process will take time - show some progress bar 
+- [ ] Review results - see module lesson and sentences
+- [ ] Edit results - Remove sentences, change order of sentences lessons modules. 
+- [ ] Some course will require writing or generate with AI - allow editing manually or mark for generation 
+- [ ] Run generate lessons (with AI)
+- [ ] Last stage - the generation is complete - now we can view the course and continue editing
+
+
 
 ### Data 
 - [ ] test hebrew 
