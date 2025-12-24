@@ -577,5 +577,8 @@ async def create_course_template_with_words(course_template: CourseTemplate, wor
 
 
 if __name__ == "__main__":
-    course_template = CourseTemplate()
+    course_template = CourseTemplate(
+        lang='en',
+        to_lang='ja'
+    )
     create_course_template(course_template)
