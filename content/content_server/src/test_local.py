@@ -6,7 +6,7 @@ import asyncio
 os.environ['POSTGRES_PORT'] = '5433'
 
 async def main():
-    await collect_words_pos('en')
+    await collect_words_pos('ja')
 
 if __name__ == "__main__":
     asyncio.run(main())

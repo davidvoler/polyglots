@@ -170,9 +170,17 @@ async def collect_words_pos(lang:str):
     for r in results:
         elements = r.get('elements', [])
         w_count = len(elements)
+        root = r.get('root', '')
         for e in elements:
-            pos = e.get('pos','').lower()
-            is_root = e.get('dep') == 'ROOT'
+            if lang == 'ja':
+                if e.get('text') == root:
+                    is_root = True
+                else:
+                    is_root = False
+                pos = e.get('type')
+            else:
+                is_root = e.get('dep') == 'ROOT'
+                pos = e.get('pos','').lower()
             _add_word_pos(words, e.get('text'), lang, pos, w_count, e.get('lemma'), is_root)
     await _insert_words_pos(words, lang)
 
