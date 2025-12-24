@@ -79,6 +79,24 @@ async def _insert_words(words:dict, lang:str):
         verb, noun, adjective, adverb, auxiliary_verb, particle, pronoun, conjunction, compound_pattern))
 
 
+async def _insert_words_pos(words:dict, lang:str):
+    sql = """
+    insert into content_raw.words_pos (lang, word, pos, root_count, count, lemma, rank, 
+    wc1, wc2, wc3, wc4, wc5, wc6, wc7, wc8, wc9, wc10, wc11, wc12, wc13, wc14, wc15, wc16, wc17_and_more)
+    values( %s, %s, %s, %s, %s, %s, %s, 
+    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    on conflict (lang, word, pos) do nothing
+    """
+    for _,v in words.items():
+        params = (lang, v.get('word'), v.get('pos'), v.get('root_count'), v.get('count'), v.get('lemma'), 
+        v.get('rank'), 
+        v.get('1'), v.get('2'), v.get('3'), v.get('4'), v.get('5'), v.get('6'),
+        v.get('7'), v.get('8'), v.get('9'), v.get('10'), v.get('11'), v.get('12'), v.get('13'), 
+        v.get('14'), v.get('15'), v.get('16'), v.get('17_and_more'))
+        print(len(params))
+        await run_query(sql, params)   
+
+
 async def collect_words(lang:str):
     results = await _get_elements_data(lang)
     words = {}
@@ -106,6 +124,58 @@ async def collect_words(lang:str):
             _add_word(words, e.get('text'), wtype, lemma, w_count, translit1, translit2, translit3, meaning, is_root)
 
     await _insert_words(words, lang)
+
+
+
+def _add_word_pos(words:list, word:str, lang:str, pos:str,w_count:int, lemma='', is_root:bool=False):
+    key = f"{word}_{pos}"
+    if key not in words:
+        words[key] = {
+            'word': word,
+            'pos': pos,
+            'lemma': lemma,
+            'root_count':0,
+            '0':0,
+            '1':0,
+            '2':0,
+            '3':0,
+            '4':0,
+            '5':0,
+            '6':0,
+            '7':0,
+            '8':0,
+            '9':0,
+            '10':0,
+            '11':0,
+            '12':0,
+            '13':0,
+            '14':0,
+            '15':0,
+            '16':0,
+            '17_and_more':0,
+            'rank':rank_word(word, lang),
+            'count':0,
+        }
+    if is_root:
+        words[key]['root_count'] += 1
+    if w_count <= 16:
+        words[key][str(w_count)] += 1
+    else:
+        words[key]['17_and_more'] += 1
+    words[key]['count'] += 1
+
+async def collect_words_pos(lang:str):
+    results = await _get_elements_data(lang)
+    words = {}
+    for r in results:
+        elements = r.get('elements', [])
+        w_count = len(elements)
+        for e in elements:
+            pos = e.get('pos','').lower()
+            is_root = e.get('dep') == 'ROOT'
+            _add_word_pos(words, e.get('text'), lang, pos, w_count, e.get('lemma'), is_root)
+    await _insert_words_pos(words, lang)
+
 
 """
 [{"hira": "おちつけ", "kana": "オチツケ", "roma": "ochitsuke", "text": "落ち着け", "type": "verb", "lemma": "落ち着く", "meaning": "", "category": "verb", "position": 0}]
