@@ -1,6 +1,8 @@
 from utils.db import get_query_results, run_query
 from collections import OrderedDict
 from wordfreq import zipf_frequency
+from pydantic import BaseModel 
+
 
 def rank_word(word:str,lang):
     return  1000 - int(zipf_frequency(word,lang) * 100)
@@ -183,6 +185,60 @@ async def collect_words_pos(lang:str):
                 pos = e.get('pos','').lower()
             _add_word_pos(words, e.get('text'), lang, pos, w_count, e.get('lemma'), is_root)
     await _insert_words_pos(words, lang)
+
+
+
+class Word(BaseModel):
+    word:str
+    pos:str = ''
+    w_count: int = 0
+    lemma: str = ''
+    rank:int = 0
+    sentence_count: int = 0
+    root_count: int = 0
+    def key(self):
+        return f'{self.word}_{self.pos}_{self.w_count}'
+
+
+async def _insert_words_pos1(words:dict, lang:str):
+    sql = """
+    insert into content_raw.words_pos1 (lang, word, pos,wcount, root_count, sentences_count, lemma, rank)
+    values( %s, %s, %s, %s, %s, %s, %s, %s)
+    on conflict (lang, word, pos,wcount) do nothing
+    """
+    for _,v in words.items():
+        params = (lang, v.word, v.pos,v.w_count, v.sentence_count, v.root_count,  v.lemma, v.rank)
+        print(len(params))
+        await run_query(sql, params)   
+
+
+async def collect_words_pos1(lang:str):
+    results = await _get_elements_data(lang)
+    words = {}
+    for r in results:
+        elements = r.get('elements', [])
+        w_count = len(elements)
+        root = r.get('root', '')
+        for e in elements:
+            if lang == 'ja':
+                if e.get('text') == root:
+                    is_root = True
+                else:
+                    is_root = False
+                pos = e.get('type')
+            else:
+                is_root = e.get('dep') == 'ROOT'
+                pos = e.get('pos','').lower()
+            w = Word(word = e.get('text'),pos=pos, lemma=e.get("lemma",''), w_count = w_count)
+            if w.key() not in words:
+                w.rank = rank_word(w.word, lang)
+                words[w.key()] = w 
+            words[w.key()].sentence_count +=1
+            if is_root:
+                words[w.key()].root_count +=1
+    await _insert_words_pos1(words, lang)
+
+
 
 
 """
