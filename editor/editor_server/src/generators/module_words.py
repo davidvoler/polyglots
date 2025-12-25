@@ -48,7 +48,32 @@ sentences_len_groups = [
 ]
 
 async def _get_words_pos(lang: str,  max_wcount: int, min_wcount: int, pos: str=''):
-    pass
+    sql = """
+    select word, pos, min(grp) as grp,sum(root_count) as root_count, sum(sentences_count) as sentences_count
+    from (
+    select word,pos,1 as grp, sum(root_count) as  root_count, sum(sentences_count) as sentences_count from content_raw.words_pos1 
+    where lang = 'ja' and wcount >=1 and wcount <=3 and sentences_count > 5
+    group by 1,2
+    union all
+    select word,pos,2 as grp,sum(root_count) as  root_count, sum(sentences_count) as sentences_count from content_raw.words_pos1 
+    where lang = 'ja' and wcount >=4 and wcount <=5 and sentences_count > 5
+    group by 1,2
+    union all
+    select word,pos,3 as grp,sum(root_count) as  root_count, sum(sentences_count) as sentences_count from content_raw.words_pos1 
+    where lang = 'ja' and wcount >=6 and wcount <=7 and sentences_count > 5
+    group by 1,2
+    union all
+    select word,pos as grp,4,sum(root_count) as  root_count, sum(sentences_count) as sentences_count from content_raw.words_pos1 
+    where lang = 'ja' and wcount >=8 and wcount <=10 and sentences_count > 5
+    group by 1,2
+    union all
+    select word,pos,5 as grp,sum(root_count) as  root_count, sum(sentences_count) as sentences_count from content_raw.words_pos1 
+    where lang = 'ja' and wcount >10  and sentences_count > 5
+    group by 1,2
+    )
+    group by 1,2 
+    order by grp, root_count desc, sentences_count desc
+    """
 
 async def _get_roots(lang: str,  max_wcount: int, min_wcount: int, pos: str=''):
     pass
