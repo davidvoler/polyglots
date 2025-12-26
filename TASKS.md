@@ -370,6 +370,28 @@ Done
 Starting stage 2.7  - 26.12.2025
 
 
+What would be the best idea for such a wizard? 
+1. Agent like - even if some of the answers would no involve AI - this is a powerful marketing feature.    
+2. Wizard like - As was done already
+3. Combination - we have an agent and a wizard 
+4. Start with a wizard - this is easy to plan - later on replace the wizard with an agent ui.
+
+
+What would be the steps?  
+- select languages  
+- select corpus 
+- select template
+
+
+
+
+- Each step can be repeated and improved. Save steps in some format 
+- Maybe also save deleted elements as deleted and allow show deleted 
+- Selection of style and template
+
+
+
+
 
 
 
