@@ -321,17 +321,11 @@ Let's restructure the tasks.
 #### Word Selection 
 
 
-- [Implemented] Create a code that will collect words and type from current sentences - this code should run in content/content_server.
-- [ ] there is already such code - but we need to improve it - it should include word/word_type (verb,adjective, pronom etc) and count sentences. 
-- [ ] 
-- [ ] Implement an API function for selecting words for course and ordering them - 
-- [ ] the API should return a list of words with type and count sentences, min max words in sentence
-- [ ] This api should be used to create a course or a module with the words 
-
- 
-- [] 
-
-#### 
+- [Done] Create a code that will collect words and type from current sentences - this code should run in content/content_server.
+- [Done] there is already such code - but we need to improve it - it should include word/word_type (verb,adjective, pronom etc) and count sentences. 
+- [Done] Implement an API function for selecting words for course and ordering them - 
+- [Done] the API should return a list of words with type and count sentences, min max words in sentence
+- [Done] This api should be used to create a course or a module with the words 
 
 
 ---
@@ -359,17 +353,35 @@ Let's restructure the tasks.
 
 ### UI 
 
-- [Implemented] In Course let's create a new Generate with AI page - this page should lead us to a wizard like page with the following steps 
-- [Implemented] Select options - for the generator - This options are CourseTemplate in gereators.course_template
-- [ ] Select words - you will get a list of words and you can reorder them, remove some 
+- [Done] In Course let's create a new Generate with AI page - this page should lead us to a wizard like page with the following steps 
+- [Done] Select options - for the generator - This options are CourseTemplate in gereators.course_template
+- [Done] Select words - you will get a list of words and you can reorder them, remove some 
+
+
+Closing 2.6 26.12.2025
+
+Done 
+
+- look and feel for the course generation wizard
+- select words
+- changed the word collection in content_row
+
+## Step 2.7 - Better design the course generation wizard
+Starting stage 2.7  - 26.12.2025
+
+
+
+
+
+## Step 2.8 - Implement the design of 2.7
+
+### UI 
 - [ ] Run generate - this process will take time - show some progress bar 
 - [ ] Review results - see module lesson and sentences
 - [ ] Edit results - Remove sentences, change order of sentences lessons modules. 
 - [ ] Some course will require writing or generate with AI - allow editing manually or mark for generation 
 - [ ] Run generate lessons (with AI)
 - [ ] Last stage - the generation is complete - now we can view the course and continue editing
-
-
 
 ### Data 
 - [ ] test hebrew 
@@ -384,9 +396,8 @@ Let's restructure the tasks.
 - [ ] use batch process to prepare the data - like analyze sentences
 - [ ] api we need on content side 
 
----
 
-## Step 2.7
+
 ### backup data 
 - [ ] reorder sound files 
 - [ ] backup data to desktop
