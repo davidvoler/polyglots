@@ -24,4 +24,6 @@ class WordSelectRequest(BaseModel):
     lang:str
     words_per_modules: int = 5
     ratio_increase:float = 0.08
+    skip_count:int = 0
+
     
