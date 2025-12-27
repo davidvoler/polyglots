@@ -1,0 +1,58 @@
+[
+    {
+        "hira": "おそか",
+        "kana": "オソカッ",
+        "roma": "osokatsu",
+        "text": "遅かっ",
+        "type": "adjective",
+        "lemma": "遅い",
+        "meaning": "",
+        "category": "adjective",
+        "position": 0
+    },
+    {
+        "hira": "",
+        "kana": "カラ",
+        "roma": "kara",
+        "text": "から",
+        "type": "compounds",
+        "lemma": "",
+        "meaning": "from",
+        "category": "particle_case",
+        "position": 4
+    },
+    {
+        "hira": "ともだち",
+        "kana": "トモダチ",
+        "roma": "tomodachi",
+        "text": "友達",
+        "type": "noun",
+        "lemma": "友達",
+        "meaning": "",
+        "category": "noun",
+        "position": 7
+    },
+    {
+        "hira": "とま",
+        "kana": "トマッ",
+        "roma": "tomatsu",
+        "text": "泊まっ",
+        "type": "verb",
+        "lemma": "泊まる",
+        "meaning": "",
+        "category": "verb",
+        "position": 12,
+        "auxiliary_verb": "た"
+    },
+    {
+        "hira": "",
+        "kana": "ンダ",
+        "roma": "nda",
+        "text": "んだ",
+        "type": "compounds",
+        "lemma": "",
+        "meaning": "ASSERTION",
+        "category": "compound_pattern",
+        "position": 16
+    }
+]
