@@ -8,7 +8,7 @@ from generators.ja.greeting import GREETING_WORDS as JA_GREETING_WORDS
 
 
 
-async def _get_words_pos(lang: str)-> list[WordSelect]:
+async def get_words_pos(lang: str)-> list[WordSelect]:
     sql = f"""
     select '{lang}' as lang, word, pos, min(min_wcount) as min_wcount, min(max_wcount) as max_wcount ,sum(root_count) as root_count, sum(sentences_count) as sentences_count
     from (
@@ -75,7 +75,7 @@ async def select_greetings_words(req:WordSelectRequest) ->list[ModuleWords]:
 
 async def select_module_words(req:WordSelectRequest) ->list[ModuleWords]:
     """Select words for a module based on the template"""
-    all_words = await _get_words_pos(req.lang)
+    all_words = await get_words_pos(req.lang)
     all_words = all_words[req.skip_count:]
     greeting_words = await select_greetings_words(req)
     print(greeting_words)

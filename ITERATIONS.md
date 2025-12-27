@@ -70,6 +70,52 @@ Lets describe the process from the point of view of a user
     b. we can have practice so far as a lesson in different location of the module
     c. user can on his own - choose practice so far
     d. he system could know how many elements we need to practice so far and how often to offer it  
+8. we add practice words by words - but we do not show all words in the sentences - only the important once 
+9. repeat lessons - could have value for how many time to repeat, and of course we stop when all old data has a value greater than say 80% correct 
+10. we can also ask the user if he want to repeat or to go to next lesson 
+11. we can add recommendations 
+
+Now we should ask the question again - do we need the cache 
+Maybe only for performance reasons 
+Lesson is made of say 10 sentences + explanations 
+In a lesson we choose to change direction he->ja 
+It is about doing a select by id - should be fast 
+for practicing words,letters and sentences so far cache would make it faster - but we could start simple - without it.
+- we wanted to avoid update to postgres - that was one of the reasons for cache
+it is a good reason for scale - not sure it is needed for - not sure it is the best for simplicity
+
+get data 
+- select all lesson sentences 
+- select explanations 
+- Format - or Mode  
+    - based on lesson definition sometime we format he->ja
+    - sometime we hide text - only listening 
+    - sometimes we skip explanations 
+    - sometime we show annotated text sometimes we sip it 
+- Alphabet lesson 
+    - it is like any other lesson - only the header and icon is changing 
+
+- repeat logic 
+    - repeat module - get exercises for all module elements so far
+    - repeat general - get everything that needs practice so far
+        - choose random 
+        - prefer later 
+        - prefer earlier 
+    - consider the logic in done in the cache module
+ 
+Questions 
+- We have the following elements so far 
+    - words 
+    - sentences 
+    - hearing - text is hidden
+Q. Should we let the user choose practicing of only one of these types?
+
+A. It is more complicated from UI point of view 
+    a. maybe let the backend decide - show an icon of what we are practicing 
+    b. always mix - practice elements  
+    c. let the course author decide what type of practice we are doing 
+
+
 
 
 
@@ -77,17 +123,17 @@ Lets describe the process from the point of view of a user
 ## Iteration 2 - Hebrew English - optional
 - given that I find some some solution for transliteration - nikud and maybe context
 
-#### Iteration 3 - English for my kids - optional
+## Iteration 3 - English for my kids - optional
 
 - Say in a year from now - I could think of an app that will help with vocabulary 
 - reading and sound 
 
-#### Iteration 4 - Arabic for myself - optional 
+## Iteration 4 - Arabic for myself - optional 
 - Assuming I have solved the transliteration issue for arabic and found a model like Spacy with morphological analyzer.
 - Even only transliteration would be good 
 - If not consider doing a simple course with a simpler learning process   
 
-#### Iteration 4 - Course Editor - Make it Production ready
+## Iteration 4 - Course Editor - Make it Production ready
 
 
-#### Iteration 5 - Student side - Make it Production ready
+## Iteration 5 - Student side - Make it Production ready
