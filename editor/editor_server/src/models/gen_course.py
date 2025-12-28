@@ -7,6 +7,7 @@ class Question(BaseModel):
     word: str = ''
     lang: str
     to_lang:str
+    to_id: int = 0
     sentence: str = ''
     translation:str = ''
     options:list[str] = []

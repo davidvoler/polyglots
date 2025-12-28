@@ -108,13 +108,38 @@ Questions
     - words 
     - sentences 
     - hearing - text is hidden
-Q. Should we let the user choose practicing of only one of these types?
 
+Q. Should we let the user choose practicing of only one of these types?
 A. It is more complicated from UI point of view 
     a. maybe let the backend decide - show an icon of what we are practicing 
     b. always mix - practice elements  
     c. let the course author decide what type of practice we are doing 
 
+Q. When do we insert En -> JA  - in the question mode
+A. When we have leaned some reading 
+A. Always - Use sound with text or without it 
+
+
+
+
+### implementation of the above 
+
+- [done] Export words to files - Japanese
+- [done] Reorder words 
+- [done] Generate sentences from selected words - Ja - En
+- [done] Generate sentences from selected words - Ja - HE
+- [done] Generate greetings - JA 
+- [done] Prepare placeholders for explanation 
+- [done] Prepare placeholders for grammar (particles) 
+- [done] Prepare placeholders for alphabets 
+
+- [done] MARK Duplicate sentences. with the same meaning - remove - manually select the simplest  
+- [done] Add alphabet teaching as part of the question - but only when we have encountered enough words that can be practiced (make use of words so far)
+- [ ] Insert the placeholder 
+- [ ] Add missing words  
+- [ ] Group question into lessons 
+- [ ] Group lessons into modules
+- [ ] Load from files to database 
 
 
 
