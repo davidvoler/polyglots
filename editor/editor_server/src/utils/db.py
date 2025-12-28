@@ -29,6 +29,7 @@ async def get_pg_con():
             row_factory=dict_row, 
             autocommit=True,
         ) 
+    # _conn.set_client_encoding('UTF8')
     return _conn
 
 async def get_pg_con_specific(host:str, port:str, db_name:str, user:str, password:str):

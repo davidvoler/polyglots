@@ -1,4 +1,5 @@
 from generators.module_words import get_words_pos
+from generators.lessons_from_words import load_words, create_greeting_lessons
 import asyncio
 import os
 
@@ -16,4 +17,6 @@ async def get_words():
 
 
 if __name__ == '__main__':
-    asyncio.run(get_words())
+    # asyncio.run(get_words())
+    # asyncio.run(load_words("../courses/japanese_english/words_reviewd.csv","../courses/japanese_hebrew/course.csv", 'ja','he'))
+    asyncio.run(create_greeting_lessons("../courses/japanese_hebrew/", 'ja','he'))
