@@ -1,5 +1,5 @@
 DESCRIPTIONS = [
-    ("into to Japanese", 'intro',''),
+    ("Intro to Japanese", 'intro',''),
     ("What is a particle ", 'intro',''),
     ("に", 'particle', 'に'),
     ("の", 'particle','の'),

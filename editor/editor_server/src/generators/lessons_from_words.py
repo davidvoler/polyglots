@@ -66,7 +66,6 @@ async def create_question_no_duplicates(word, lang:str, to_lang:str)->Question:
 async def create_greeting_lessons(fpath, lang:str, to_lang:str)->Question:
     from generators.ja.greeting import GREETING_WORDS
     questions = []
-
     for gr in GREETING_WORDS:
         sql = f"""
         SELECT l.id as id, l.lang as lang, l.text as sentence, first(t.text) as translation,first(t.id) as to_id,
@@ -254,3 +253,29 @@ async def alphabet_by_words(path, course_path, lang,to_lang):
         for l in lessons:
             l_words = '\t'.join(l[2])
             f.write(f"{l[0]}\t{l[1]}\t{l_words}\n")
+
+async def gen_description_lessons(target_path):
+    from generators.ja.descriptions import DESCRIPTIONS
+    
+    with open(target_path, 'w') as f:
+        for d in DESCRIPTIONS:
+            f.write("\t".join(d) +"\n")
+        
+
+async def collect_course(source_folder):
+    #load greetings
+    # load words
+    # load alphabet 
+    
+    # load descriptions 
+
+    """write course in the following order
+    1. greeting - module
+    2. load words - 
+    3. start with 2 lessons per word
+    4. add description every 10 lessons until we have no more descriptions 
+    5. after 40 lessons switch to lesson per word 
+    6. add alphabet 
+    """
+    pass 
+    

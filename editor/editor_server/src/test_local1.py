@@ -1,5 +1,7 @@
 from generators.module_words import get_words_pos
-from generators.lessons_from_words import load_words, create_greeting_lessons, load_words_no_duplicate, alphabet_by_words
+from generators.lessons_from_words import (load_words, create_greeting_lessons, 
+load_words_no_duplicate, alphabet_by_words,
+gen_description_lessons)
 import asyncio
 import os
 
@@ -19,5 +21,7 @@ async def get_words():
 if __name__ == '__main__':
     # asyncio.run(get_words())
     # asyncio.run(load_words_no_duplicate("../courses/japanese_english/words_reviewd.csv","../courses/japanese_hebrew/course_no_duplicates.csv", 'ja','he'))
-    asyncio.run(alphabet_by_words("../courses/japanese_english/words_reviewd.csv","../courses/japanese_english/alphabet.csv", 'ja','en'))
+    # asyncio.run(alphabet_by_words("../courses/japanese_english/words_reviewd.csv","../courses/japanese_english/alphabet.csv", 'ja','en'))
+    asyncio.run(gen_description_lessons("../courses/japanese_english/description_lessons.csv"))
+    
     # asyncio.run(create_greeting_lessons("../courses/japanese_hebrew/", 'ja','he'))
