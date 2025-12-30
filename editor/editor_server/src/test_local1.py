@@ -1,4 +1,4 @@
-from generators.module_words import get_words_pos
+from generators.module_words import get_words_pos, get_words_pos_rare
 from generators.lessons_from_words import (load_words, create_greeting_lessons, 
 load_words_no_duplicate, alphabet_by_words,
 gen_description_lessons)
@@ -15,6 +15,11 @@ async def get_words():
         for w in words:
             f.write(f"""{w.lang}\t{w.word}\t{w.pos}\t{w.min_wcount}\t{w.max_wcount}\t{w.sentences_count}\t{w.root_count}\n""")
         
+async def get_words_rate():
+    words = await get_words_pos_rare('ja')
+    with open('../courses/japanese_english/words_rare.csv', 'w') as f:
+        for w in words:
+            f.write(f"""{w.lang}\t{w.word}\t{w.pos}\t{w.min_wcount}\t{w.max_wcount}\t{w.sentences_count}\t{w.root_count}\n""")
 
 
 
@@ -22,6 +27,7 @@ if __name__ == '__main__':
     # asyncio.run(get_words())
     # asyncio.run(load_words_no_duplicate("../courses/japanese_english/words_reviewd.csv","../courses/japanese_hebrew/course_no_duplicates.csv", 'ja','he'))
     # asyncio.run(alphabet_by_words("../courses/japanese_english/words_reviewd.csv","../courses/japanese_english/alphabet.csv", 'ja','en'))
-    asyncio.run(gen_description_lessons("../courses/japanese_english/description_lessons.csv"))
+    # asyncio.run(gen_description_lessons("../courses/japanese_english/description_lessons.csv"))
+    asyncio.run(get_words_rate())
     
     # asyncio.run(create_greeting_lessons("../courses/japanese_hebrew/", 'ja','he'))
