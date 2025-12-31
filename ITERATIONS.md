@@ -135,14 +135,16 @@ A. Always - Use sound with text or without it
 
 - [done] MARK Duplicate sentences. with the same meaning - remove - manually select the simplest  
 - [done] Add alphabet teaching as part of the question - but only when we have encountered enough words that can be practiced (make use of words so far)
-- [ ] Insert the placeholder 
-- [ ] Add missing words  
-- [ ] Group question into lessons 
-- [ ] Group lessons into modules
+- [ ] Insert the descriptions parts  
+- [done] Add words that have less that >=5 sentences - not inserted to the course - this is a long script
+- [done] Group question into lessons 
+- [done] Group lessons into modules
 - [ ] Load from files to database 
 
 
-
+- [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
+- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
+- [ ] As I have only one stage left let me do it as it is now. 
 
 
 ## Iteration 2 - Hebrew English - optional
