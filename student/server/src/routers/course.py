@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/", response_model=list[Course])
 async def get_course(req: CourseRequest) -> list[Course]:
     sql = """
-    SELECT * FROM course.course WHERE lang = %s AND to_lang = %s
+    SELECT id as course_id,* FROM course.course WHERE lang = %s AND to_lang = %s
     """
     data = await get_query_results(sql, (req.lang, req.to_lang))
     return [Course(**row) for row in data]

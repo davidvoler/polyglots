@@ -9,7 +9,8 @@ class CourseService {
   static const int _timeoutSeconds = 10;
 
   static String get _baseUrl {
-    return dotenv.env['BASE_PATH'] ?? 'https://polyglots.social';
+    // return dotenv.env['BASE_PATH'] ?? 'https://polyglots.social';
+    return '0.0.0.0:8004';
   }
 
   static bool get _isHttps {
@@ -31,7 +32,7 @@ class CourseService {
       final client = http.Client();
       final url = _getUri('/api/v1/course/');
       final payload = {'lang': lang, 'to_lang': toLang};
-
+      print('url: $url');
       final response = await client
           .post(
             url,

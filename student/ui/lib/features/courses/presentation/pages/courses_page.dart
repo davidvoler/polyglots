@@ -20,12 +20,6 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
   void initState() {
     super.initState();
     _coursesFuture = _fetchCourses();
-
-    ref.listen<SettingsState>(settingsProvider, (_, next) {
-      setState(() {
-        _coursesFuture = _fetchCourses(next);
-      });
-    });
   }
 
   Future<List<Course>> _fetchCourses([SettingsState? settings]) {
@@ -45,6 +39,12 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SettingsState>(settingsProvider, (_, next) {
+      setState(() {
+        _coursesFuture = _fetchCourses(next);
+      });
+    });
+
     return Container(
       color: Colors.grey.shade100,
       child: SafeArea(

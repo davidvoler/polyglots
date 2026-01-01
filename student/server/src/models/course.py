@@ -15,13 +15,13 @@ class Module(BaseModel):
     lessons: list[Lesson]
 
 class Course(BaseModel):
-    id: int
-    lang: str
-    to_lang: str
-    name: str
+    course_id: int = 0
+    lang: str = ''
+    to_lang: str = ''
+    title: str = ''
     description: str = ''
     image: str = ''
-    modules: list[Module]
+    modules: list[Module] = []
     modules_count: int = 0
     lessons_count: int = 0
 
