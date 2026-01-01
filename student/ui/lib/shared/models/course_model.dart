@@ -13,8 +13,8 @@ class Lesson {
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
     return Lesson(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
+      id: json['lesson_id'] ?? json['id'] ?? 0,
+      name: json['title'] ?? json['name'] ?? '',
       description: json['description'] ?? '',
       image: json['image'] ?? '',
     );
@@ -22,8 +22,8 @@ class Lesson {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
+      'lesson_id': id,
+      'title': name,
       'description': description,
       'image': image,
     };
@@ -36,6 +36,7 @@ class Module {
   final String description;
   final String image;
   final List<Lesson> lessons;
+  final int lessonsCount;
 
   Module({
     required this.id,
@@ -43,31 +44,33 @@ class Module {
     this.description = '',
     this.image = '',
     this.lessons = const [],
+    this.lessonsCount = 0,
   });
 
   factory Module.fromJson(Map<String, dynamic> json) {
     final lessonsJson = json['lessons'] as List<dynamic>? ?? [];
+    final parsedLessons = lessonsJson
+        .map((lesson) => Lesson.fromJson(lesson as Map<String, dynamic>))
+        .toList();
 
     return Module(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
+      id: json['module_id'] ?? json['id'] ?? 0,
+      name: json['title'] ?? json['name'] ?? '',
       description: json['description'] ?? '',
       image: json['image'] ?? '',
-      lessons: lessonsJson
-          .map((lesson) => Lesson.fromJson(lesson as Map<String, dynamic>))
-          .toList(),
+      lessons: parsedLessons,
+      lessonsCount: json['lessons_count'] ?? parsedLessons.length,
     );
   }
 
-  int get lessonsCount => lessons.length;
-
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
+      'module_id': id,
+      'title': name,
       'description': description,
       'image': image,
       'lessons': lessons.map((lesson) => lesson.toJson()).toList(),
+      'lessons_count': lessonsCount,
     };
   }
 }
@@ -107,10 +110,10 @@ class Course {
     );
 
     return Course(
-      id: json['id'] ?? 0,
+      id: json['course_id'] ?? json['id'] ?? 0,
       lang: json['lang'] ?? '',
       toLang: json['to_lang'] ?? '',
-      name: json['name'] ?? '',
+      name: json['title'] ?? json['name'] ?? '',
       description: json['description'] ?? '',
       image: json['image'] ?? '',
       modules: modules,
@@ -121,10 +124,10 @@ class Course {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'course_id': id,
       'lang': lang,
       'to_lang': toLang,
-      'name': name,
+      'title': name,
       'description': description,
       'image': image,
       'modules': modules.map((module) => module.toJson()).toList(),

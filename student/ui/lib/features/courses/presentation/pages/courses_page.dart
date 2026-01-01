@@ -15,11 +15,21 @@ class CoursesPage extends ConsumerStatefulWidget {
 
 class _CoursesPageState extends ConsumerState<CoursesPage> {
   late Future<List<Course>> _coursesFuture;
+  late final ProviderSubscription<SettingsState> _settingsListener;
 
   @override
   void initState() {
     super.initState();
     _coursesFuture = _fetchCourses();
+
+    _settingsListener = ref.listenManual<SettingsState>(
+      settingsProvider,
+      (previous, next) {
+        setState(() {
+          _coursesFuture = _fetchCourses(next);
+        });
+      },
+    );
   }
 
   Future<List<Course>> _fetchCourses([SettingsState? settings]) {
@@ -38,13 +48,13 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    ref.listen<SettingsState>(settingsProvider, (_, next) {
-      setState(() {
-        _coursesFuture = _fetchCourses(next);
-      });
-    });
+  void dispose() {
+    _settingsListener.close();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Colors.grey.shade100,
       child: SafeArea(

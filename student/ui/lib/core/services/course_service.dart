@@ -28,8 +28,8 @@ class CourseService {
     required String lang,
     required String toLang,
   }) async {
+    final client = http.Client();
     try {
-      final client = http.Client();
       final url = _getUri('/api/v1/course/');
       final payload = {'lang': lang, 'to_lang': toLang};
       print('url: $url');
@@ -60,12 +60,14 @@ class CourseService {
     } catch (e) {
       print('❌ fetchCourses failed: $e');
       rethrow;
+    } finally {
+      client.close();
     }
   }
 
   static Future<Course> fetchCourseById(int courseId) async {
+    final client = http.Client();
     try {
-      final client = http.Client();
       final url = _getUri('/api/v1/course/course/$courseId');
 
       final response = await client
@@ -92,6 +94,8 @@ class CourseService {
     } catch (e) {
       print('❌ fetchCourseById failed: $e');
       rethrow;
+    } finally {
+      client.close();
     }
   }
 }
