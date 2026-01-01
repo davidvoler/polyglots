@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/course_service.dart';
 import '../../../../shared/models/course_model.dart';
 import '../../../../shared/providers/settings_provider.dart';
+import 'course_detail_page.dart';
 
 class CoursesPage extends ConsumerStatefulWidget {
   const CoursesPage({super.key});
@@ -71,7 +72,20 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
                   itemCount: courses.length,
                   itemBuilder: (context, index) {
                     final course = courses[index];
-                    return _CourseCard(course: course);
+                    return _CourseCard(
+                      course: course,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailPage(
+                              courseId: course.id,
+                              initialCourse: course,
+                            ),
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
               );
@@ -142,8 +156,12 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
 
 class _CourseCard extends StatelessWidget {
   final Course course;
+  final VoidCallback onTap;
 
-  const _CourseCard({required this.course});
+  const _CourseCard({
+    required this.course,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,80 +171,88 @@ class _CourseCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Colors.blue.shade50,
-                  child: Icon(
-                    Icons.menu_book,
-                    color: Colors.blue.shade700,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundColor: Colors.blue.shade50,
+                    child: Icon(
+                      Icons.menu_book,
+                      color: Colors.blue.shade700,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        course.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          course.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        course.description.isNotEmpty
-                            ? course.description
-                            : 'Course for ${course.lang} → ${course.toLang}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
+                        const SizedBox(height: 6),
+                        Text(
+                          course.description.isNotEmpty
+                              ? course.description
+                              : 'Course for ${course.lang} → ${course.toLang}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _InfoChip(
-                  icon: Icons.layers,
-                  label: '${course.modulesCount} modules',
-                ),
-                const SizedBox(width: 8),
-                _InfoChip(
-                  icon: Icons.school,
-                  label: '${course.lessonsCount} lessons',
-                ),
-              ],
-            ),
-            if (course.modules.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: course.modules
-                    .map(
-                      (module) => Chip(
-                        avatar: const Icon(Icons.folder, size: 16),
-                        label: Text(module.name),
-                        backgroundColor: Colors.grey.shade100,
-                      ),
-                    )
-                    .toList(),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.grey.shade400,
+                  ),
+                ],
               ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _InfoChip(
+                    icon: Icons.layers,
+                    label: '${course.modulesCount} modules',
+                  ),
+                  const SizedBox(width: 8),
+                  _InfoChip(
+                    icon: Icons.school,
+                    label: '${course.lessonsCount} lessons',
+                  ),
+                ],
+              ),
+              if (course.modules.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: course.modules
+                      .map(
+                        (module) => Chip(
+                          avatar: const Icon(Icons.folder, size: 16),
+                          label: Text(module.name),
+                          backgroundColor: Colors.grey.shade100,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

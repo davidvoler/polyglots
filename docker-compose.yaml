@@ -54,6 +54,22 @@
       - POSTGRES_HOST=postgres1
       - POSTGRES_USER=polyglots
       - POSTGRES_PASSWORD=polyglots
-      - AEROSPIKE_HOST=polyglots
-      - AEROSPIKE_PORT=3000
+  
+
+  student_server:
+    container_name: student_server
+    image: student_server:polyglots
+    build:
+      context: student/server
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8004:8000
+    volumes:
+      - ./student/server/src:/app
+    environment:
+      - POSTGRES_DB=polyglots
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres1
+      - POSTGRES_USER=polyglots
+      - POSTGRES_PASSWORD=polyglots
   

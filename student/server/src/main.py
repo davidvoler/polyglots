@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import (
-    quiz, results, stats, auth,
+    quiz, results, stats, 
+    # auth,
     course
 )
 
@@ -49,9 +50,9 @@ app.include_router(stats.router,
     prefix="/api/v1/stats",
     tags=["stats"])
 
-app.include_router(auth.router,
-    prefix="/api/v1/auth",
-    tags=["auth"])
+# app.include_router(auth.router,
+#     prefix="/api/v1/auth",
+#     tags=["auth"])
 
 app.include_router(course.router,
     prefix="/api/v1/course",

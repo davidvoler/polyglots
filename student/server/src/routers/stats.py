@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends
 from models.stats import StatsRequest, Stats
-from utils.stats import single_query_stats, get_progress
+
 router = APIRouter()
 
 @router.post("/stats")
 async def stats(req:StatsRequest):
-   print(req)    
-   res=  await single_query_stats(req)
-   print(res)
-   return res
-
-
-
-@router.post("/progress")
-async def progress(req:StatsRequest):
-   print(req)    
-   res=  await get_progress(req)
-   print(res)
-   return res
+   return Stats(
+    user_id=req.user_id,
+    lang=req.lang,
+    to_lang=req.to_lang,
+    course_id=req.course_id,
+    lessons=0,
+    exercises=0,
+    words=0,
+    sentences=0,
+    alphabet=0
+   )
