@@ -4,9 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/user_preferences_service.dart';
 import 'core/services/user_service.dart';
+import 'features/courses/presentation/pages/courses_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/progress/presentation/pages/progress_page.dart';
-import 'shared/models/app_data.dart';
 import 'shared/providers/theme_provider.dart';
 import 'shared/providers/language_provider.dart';
 
@@ -69,6 +69,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         index: _currentPageIndex,
         children: [
           HomePage(),
+          CoursesPage(),
           ProgressPage(questionsToday: questionsToday),
         ],
       ),
@@ -86,6 +87,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'Courses',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up),
