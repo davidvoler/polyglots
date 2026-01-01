@@ -65,7 +65,7 @@ async def create_course_from_file(path,lang, to_lang, title, description):
             if l[1] in ["kanji","katakana",'hiragana']:
                 await create_exercise(lang, to_lang,course_id, module_id,lesson_id, 0, 0 ,"alphabet",l)
             else:
-                await create_exercise(lang, to_lang,course_id, module_id,lesson_id, l[2], l[5])
+               await create_exercise(lang, to_lang,course_id, module_id,lesson_id, l[2], l[5])
 
 
 
