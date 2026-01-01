@@ -42,11 +42,22 @@ async def create_exercise(lang, to_lang, course_id, module_id,lesson_id, sentenc
     params = (lang, to_lang,course_id, module_id,lesson_id, sentence_id, to_sentence_id,exercise_type,json.dumps(extra_data))
     await get_query_results(sql, params)
     
+async def create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, sentence, to_sentence,options):
+    sql = """
+    INSERT INTO course.exercise(lang,to_lang,course_id, module_id,lesson_id, sentence, to_sentence,exercise_type, options) 
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id
+    """
+    params = (lang, to_lang,course_id, module_id,lesson_id, sentence, to_sentence,'alphabet',options)
+    await get_query_results(sql, params)
+
 
 
 def _load_elements(folder, fname):
+    res = []
     with open(f"{folder}/{fname}.csv") as f:
-        return  f.readlines()
+        for l in f.readlines():
+            res.append(l.strip().split("\t"))
+    return res
 
 
 
@@ -58,9 +69,11 @@ async def create_course_from_file(path,lang, to_lang, title, description):
     for e in elements:
         l = e.split("\t")
         if l[0] == "M":
-            module_id = await create_module(lang, to_lang, e, e, course_id)
+            title = e.replace("M\t","").replace("\t",", ").replace("|","").strip().replace("by_words","words")
+            module_id = await create_module(lang, to_lang, title, title, course_id)
         elif l[0] == "L":
-            lesson_id = await create_lesson(lang, to_lang, e, e, course_id,module_id)
+            title = e.replace("L\t","").replace("by_words","").strip()
+            lesson_id = await create_lesson(lang, to_lang, title, title, course_id,module_id)
         elif l[0] == "S":
             if l[1] in ["kanji","katakana",'hiragana']:
                 await create_exercise(lang, to_lang,course_id, module_id,lesson_id, 0, 0 ,"alphabet",l)
@@ -72,3 +85,30 @@ async def create_course_from_file(path,lang, to_lang, title, description):
 
 
 
+async def load_all_alphabet_exercises(folder, lang, to_lang):
+    course_id = 29
+    hiragana = []
+    katakana = []
+    kanji = []
+    all_alphabet = _load_elements(folder, 'ab_all')
+    for a in all_alphabet:
+        print(a)
+    for a in all_alphabet:
+        if a[0] == 'hiragana':
+            hiragana.append(a)
+        elif a[0] == 'katakana':
+            katakana.append(a)
+        elif a[0] == 'kanji':
+            kanji.append(a)
+    module_id = await create_module(lang, to_lang, 'Hiragana', 'Hiragana', course_id)
+    for a in hiragana:
+        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:] )
+    module_id = await create_module(lang, to_lang, 'Kanji', 'Kanji', course_id)
+    for a in kanji:
+        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:] )
+    module_id = await create_module(lang, to_lang, 'katakana', 'katakana', course_id)
+    for a in katakana:
+        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:])

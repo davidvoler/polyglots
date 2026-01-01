@@ -5,7 +5,10 @@ gen_description_lessons)
 import asyncio
 import os
 from generators.course_from_sentences import sentences_from_folder, create_modules,correct_greeting
-from generators.create_course_from_file import create_course_from_file
+from generators.create_course_from_file import create_course_from_file, load_all_alphabet_exercises
+from generators.complete_exercise import complete_exercise
+
+
 os.environ["POSTGRES_PORT"] = "5433"  
 
 
@@ -35,4 +38,6 @@ if __name__ == '__main__':
     # create_modules('../courses/japanese_english/edited')
     # asyncio.run(correct_greeting('../courses/japanese_english/edited'))
     # asyncio.run(test_insert_get_id())
-    asyncio.run(create_course_from_file('../courses/japanese_english/edited','ja','en', "Japanese course", "Japanese course" ))
+    #asyncio.run(create_course_from_file('../courses/japanese_english/edited','ja','en', "Japanese course", "Japanese course" ))
+    # asyncio.run(complete_exercise('ja','en'))
+    asyncio.run(load_all_alphabet_exercises('../courses/japanese_english/edited','ja','en'))

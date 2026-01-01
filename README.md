@@ -24,3 +24,11 @@ This repository contains **3 main applications**, each consisting of a client-se
 - **Server-side**: Python (FastAPI-based REST APIs)
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker Compose for local development
+
+
+## how do you teach an alphabet?
+
+1. Identify the letter in words or sentences - multi select
+2. Meaning or words with the letter - identify the writing from sound - advanced after you know quite most of the letters in the word
+3. words practice - just a normal words practice - when all words have the letter in them
+

@@ -132,7 +132,6 @@ A. Always - Use sound with text or without it
 - [done] Prepare placeholders for explanation 
 - [done] Prepare placeholders for grammar (particles) 
 - [done] Prepare placeholders for alphabets 
-
 - [done] MARK Duplicate sentences. with the same meaning - remove - manually select the simplest  
 - [done] Add alphabet teaching as part of the question - but only when we have encountered enough words that can be practiced (make use of words so far)
 - [ ] Insert the descriptions parts  
@@ -145,6 +144,19 @@ A. Always - Use sound with text or without it
 - [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
 - [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
 - [ ] As I have only one stage left let me do it as it is now. 
+
+
+### Take away from the manual part 
+
+The ui parts should include the following steps
+
+1. Select and order words - we should review the top 40 words carefully - anything after than tht can stay as it is
+2. Select greeting words and sentences 
+3. Gen lesson word by words - show the sentences and option 
+4. Show words so far - selected by and in sentences - 
+5. Allow the author to add a lesson by new word - by typing or selecting from list 
+6. allow generating explained lessons - gen with ai
+7. allow the author to close a module and start a new one 
 
 
 ## Iteration 2 - Hebrew English - optional
