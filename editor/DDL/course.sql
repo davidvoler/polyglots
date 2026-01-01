@@ -26,3 +26,4 @@ Create table course.course (
     created_at timestamp default now(),
     updated_at timestamp default now()
 );
+

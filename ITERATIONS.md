@@ -70,24 +70,109 @@ Lets describe the process from the point of view of a user
     b. we can have practice so far as a lesson in different location of the module
     c. user can on his own - choose practice so far
     d. he system could know how many elements we need to practice so far and how often to offer it  
+8. we add practice words by words - but we do not show all words in the sentences - only the important once 
+9. repeat lessons - could have value for how many time to repeat, and of course we stop when all old data has a value greater than say 80% correct 
+10. we can also ask the user if he want to repeat or to go to next lesson 
+11. we can add recommendations 
+
+Now we should ask the question again - do we need the cache 
+Maybe only for performance reasons 
+Lesson is made of say 10 sentences + explanations 
+In a lesson we choose to change direction he->ja 
+It is about doing a select by id - should be fast 
+for practicing words,letters and sentences so far cache would make it faster - but we could start simple - without it.
+- we wanted to avoid update to postgres - that was one of the reasons for cache
+it is a good reason for scale - not sure it is needed for - not sure it is the best for simplicity
+
+get data 
+- select all lesson sentences 
+- select explanations 
+- Format - or Mode  
+    - based on lesson definition sometime we format he->ja
+    - sometime we hide text - only listening 
+    - sometimes we skip explanations 
+    - sometime we show annotated text sometimes we sip it 
+- Alphabet lesson 
+    - it is like any other lesson - only the header and icon is changing 
+
+- repeat logic 
+    - repeat module - get exercises for all module elements so far
+    - repeat general - get everything that needs practice so far
+        - choose random 
+        - prefer later 
+        - prefer earlier 
+    - consider the logic in done in the cache module
+ 
+Questions 
+- We have the following elements so far 
+    - words 
+    - sentences 
+    - hearing - text is hidden
+
+Q. Should we let the user choose practicing of only one of these types?
+A. It is more complicated from UI point of view 
+    a. maybe let the backend decide - show an icon of what we are practicing 
+    b. always mix - practice elements  
+    c. let the course author decide what type of practice we are doing 
+
+Q. When do we insert En -> JA  - in the question mode
+A. When we have leaned some reading 
+A. Always - Use sound with text or without it 
 
 
+
+
+### implementation of the above 
+
+- [done] Export words to files - Japanese
+- [done] Reorder words 
+- [done] Generate sentences from selected words - Ja - En
+- [done] Generate sentences from selected words - Ja - HE
+- [done] Generate greetings - JA 
+- [done] Prepare placeholders for explanation 
+- [done] Prepare placeholders for grammar (particles) 
+- [done] Prepare placeholders for alphabets 
+- [done] MARK Duplicate sentences. with the same meaning - remove - manually select the simplest  
+- [done] Add alphabet teaching as part of the question - but only when we have encountered enough words that can be practiced (make use of words so far)
+- [ ] Insert the descriptions parts  
+- [done] Add words that have less that >=5 sentences - not inserted to the course - this is a long script
+- [done] Group question into lessons 
+- [done] Group lessons into modules
+- [ ] Load from files to database 
+
+
+- [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
+- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
+- [ ] As I have only one stage left let me do it as it is now. 
+
+
+### Take away from the manual part 
+
+The ui parts should include the following steps
+
+1. Select and order words - we should review the top 40 words carefully - anything after than tht can stay as it is
+2. Select greeting words and sentences 
+3. Gen lesson word by words - show the sentences and option 
+4. Show words so far - selected by and in sentences - 
+5. Allow the author to add a lesson by new word - by typing or selecting from list 
+6. allow generating explained lessons - gen with ai
+7. allow the author to close a module and start a new one 
 
 
 ## Iteration 2 - Hebrew English - optional
 - given that I find some some solution for transliteration - nikud and maybe context
 
-#### Iteration 3 - English for my kids - optional
+## Iteration 3 - English for my kids - optional
 
 - Say in a year from now - I could think of an app that will help with vocabulary 
 - reading and sound 
 
-#### Iteration 4 - Arabic for myself - optional 
+## Iteration 4 - Arabic for myself - optional 
 - Assuming I have solved the transliteration issue for arabic and found a model like Spacy with morphological analyzer.
 - Even only transliteration would be good 
 - If not consider doing a simple course with a simpler learning process   
 
-#### Iteration 4 - Course Editor - Make it Production ready
+## Iteration 4 - Course Editor - Make it Production ready
 
 
-#### Iteration 5 - Student side - Make it Production ready
+## Iteration 5 - Student side - Make it Production ready

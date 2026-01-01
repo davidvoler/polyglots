@@ -1,0 +1,16 @@
+DESCRIPTIONS = [
+    ("Intro to Japanese", 'intro',''),
+    ("What is a particle ", 'intro',''),
+    ("に", 'particle', 'に'),
+    ("の", 'particle','の'),
+    ("へ", 'particle', "へ"),
+    ("Question か", 'particle', 'か'),
+    ("Japanese verb conjugation", 'intro',''),
+    ('Negative ない', 'conjugation','ない'),
+    ('Polite ます', 'conjugation','ます'),
+    ('Potential める', 'conjugation','める'),
+    ("Japanese writing system", 'intro',''),
+    ("Hiragana", 'intro',''),
+    ("Kanji", 'intro',''),
+    ("Katakana", 'intro',''),
+]
