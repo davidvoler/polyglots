@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import (
     quiz, results, stats, auth,
-    course
+    preview,tatoeba, lang_info, language
 )
 
 
@@ -48,12 +48,21 @@ app.include_router(results.router,
 app.include_router(stats.router,
     prefix="/api/v1/stats",
     tags=["stats"])
-
 app.include_router(auth.router,
     prefix="/api/v1/auth",
     tags=["auth"])
 
-app.include_router(course.router,
-    prefix="/api/v1/course",
-    tags=["course"])
+app.include_router(preview.router,
+    prefix="/api/v1/preview",
+    tags=["preview"])
+app.include_router(tatoeba.router,
+    prefix="/api/v1/tatoeba",
+    tags=["tatoeba"])
 
+app.include_router(lang_info.router,
+    prefix="/api/v1/tatoeba",
+    tags=["lang_info"])
+
+app.include_router(language.router,
+    prefix="/api/v1/language",
+    tags=["language"])
