@@ -9,7 +9,6 @@ class Results(BaseModel):
     lang:str
     attempts:int = 0
     words:list = []
-    structure: bool = False
     answer_delay_ms: int = 0
     play_times: int = 0
 

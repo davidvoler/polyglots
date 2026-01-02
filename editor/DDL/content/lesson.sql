@@ -4,7 +4,7 @@
 
 -- DROP TABLE course.lesson;
 
-CREATE TABLE course.lesson (
+CREATE TABLE content.lesson (
 	lesson_id serial4 NOT NULL,
 	course_id int8 NOT NULL,
 	module_id int8 NOT NULL,

@@ -4,7 +4,7 @@
 
 -- DROP TABLE course."module";
 
-CREATE TABLE course."module" (
+CREATE TABLE content."module" (
 	module_id serial4 NOT NULL,
 	course_id int8 NOT NULL,
 	lang varchar(12) NOT NULL,
