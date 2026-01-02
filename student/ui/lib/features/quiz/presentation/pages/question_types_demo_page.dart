@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 import '../../../../shared/models/quiz_model.dart';
 
@@ -35,11 +36,26 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
   bool _isCorrect = false;
   List<_CellPos> _selectedCells = [];
   Set<String> _foundWords = {};
+  String _typedAnswer = '';
+  double _typingTimeLeft = 10.0;
+  bool _showTypingPrompt = false;
+  Timer? _typingTimer;
+  Timer? _revealTimer;
+  final TextEditingController _typingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _questions = _buildDemoQuestions();
+    _setupForCurrentQuestion();
+  }
+
+  @override
+  void dispose() {
+    _typingTimer?.cancel();
+    _revealTimer?.cancel();
+    _typingController.dispose();
+    super.dispose();
   }
 
   List<_DemoQuestion> _buildDemoQuestions() {
@@ -106,6 +122,16 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         grid: wordSearchGrid,
         targets: wordTargets,
       ),
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'typing_1',
+          sentence: 'Memorize this word, then type it.',
+          options: const [],
+          words: const [],
+          questionType: QuizQuestionType.typing,
+        ),
+        targets: const ['bonjour'],
+      ),
     ];
   }
 
@@ -116,7 +142,14 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
       _isCorrect = false;
       _selectedCells = [];
       _foundWords = {};
+      _typedAnswer = '';
+      _typingTimeLeft = 10.0;
+      _showTypingPrompt = false;
+      _typingController.clear();
     });
+    _typingTimer?.cancel();
+    _revealTimer?.cancel();
+    _setupForCurrentQuestion();
   }
 
   void _next() {
@@ -172,6 +205,19 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     });
   }
 
+  void _submitTyping() {
+    if (_submitted) return;
+    final target = _questions[_currentIndex].targets?.first ?? '';
+    final normalizedInput = _typedAnswer.trim().toLowerCase();
+    final normalizedTarget = target.toLowerCase();
+    final isCorrect = normalizedInput == normalizedTarget;
+    _typingTimer?.cancel();
+    setState(() {
+      _submitted = true;
+      _isCorrect = isCorrect;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final question = _questions[_currentIndex];
@@ -216,6 +262,8 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         return 'Explanation';
       case QuizQuestionType.wordSearch:
         return 'Word Search';
+      case QuizQuestionType.typing:
+        return 'Typing';
     }
   }
 
@@ -224,6 +272,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     switch (sentence.questionType) {
       case QuizQuestionType.explanation:
       case QuizQuestionType.wordSearch:
+      case QuizQuestionType.typing:
         if (sentence.questionType == QuizQuestionType.wordSearch && question.grid != null) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +282,11 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
                 style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 12),
-              Expanded(child: _buildWordSearchGrid(question)),
+              Expanded(
+                child: sentence.questionType == QuizQuestionType.wordSearch
+                    ? _buildWordSearchGrid(question)
+                    : _buildTypingArea(question),
+              ),
             ],
           );
         }
@@ -440,9 +493,116 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     });
   }
 
+  void _setupForCurrentQuestion() {
+    final question = _questions[_currentIndex];
+    if (question.sentence.questionType == QuizQuestionType.typing) {
+      setState(() {
+        _showTypingPrompt = true;
+      });
+      _revealTimer = Timer(const Duration(seconds: 4), () {
+        setState(() {
+          _showTypingPrompt = false;
+          _typingTimeLeft = 10.0;
+        });
+        _typingTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+          setState(() {
+            _typingTimeLeft = (_typingTimeLeft - 0.1).clamp(0.0, 10.0);
+            if (_typingTimeLeft <= 0) {
+              _typingTimer?.cancel();
+              _submitTyping();
+            }
+          });
+        });
+      });
+    }
+  }
+
+  Widget _buildTypingArea(_DemoQuestion question) {
+    final targetWord = question.targets?.first ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _showTypingPrompt ? 'Memorize this word' : 'Type the word you just saw:',
+          style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        if (_showTypingPrompt)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              targetWord.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+          ),
+        if (!_showTypingPrompt) ...[
+          LinearProgressIndicator(
+            value: _typingTimeLeft / 10.0,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(_typingTimeLeft > 3 ? Colors.blue : Colors.red),
+            minHeight: 8,
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _typingController,
+            onChanged: (val) => setState(() {
+              _typedAnswer = val;
+            }),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Type here…',
+            ),
+            enabled: !_submitted,
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: targetWord
+                .split('')
+                .map(
+                  (c) => ElevatedButton(
+                    onPressed: _submitted
+                        ? null
+                        : () {
+                            final newText = _typingController.text + c;
+                            setState(() {
+                              _typingController.text = newText;
+                              _typingController.selection = TextSelection.fromPosition(
+                                TextPosition(offset: newText.length),
+                              );
+                              _typedAnswer = newText;
+                            });
+                          },
+                    child: Text(c.toUpperCase()),
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+          if (_submitted)
+            Text(
+              _isCorrect ? 'Correct!' : 'Incorrect. The word was "${targetWord.toUpperCase()}".',
+              style: TextStyle(
+                color: _isCorrect ? Colors.green.shade700 : Colors.red.shade700,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildFooter(_DemoQuestion question) {
     final isExplanation = question.sentence.questionType == QuizQuestionType.explanation;
     final isWordSearch = question.sentence.questionType == QuizQuestionType.wordSearch;
+    final isTyping = question.sentence.questionType == QuizQuestionType.typing;
     final isMultiple = question.sentence.questionType == QuizQuestionType.multipleChoice;
 
     return Column(
@@ -461,6 +621,14 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
             child: ElevatedButton(
               onPressed: _submitWordSearch,
               child: const Text('Check Selection'),
+            ),
+          ),
+        if (isTyping && !_submitted && !_showTypingPrompt)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _submitTyping,
+              child: const Text('Submit'),
             ),
           ),
         if (_submitted && !_isCorrect && !isExplanation && !isWordSearch)

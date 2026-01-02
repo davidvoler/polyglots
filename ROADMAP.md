@@ -270,4 +270,4 @@ hidden quiz
 - any answer give you a point 
 - answering faster - or getting correct give you a bonus 
 - later we can add bonuses - say for learning new words etc. 
-- yuo can see your 
+--- show a simple daily progress in the home page ---

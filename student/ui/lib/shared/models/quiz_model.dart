@@ -40,6 +40,7 @@ enum QuizQuestionType {
   multipleChoice,
   explanation,
   wordSearch,
+  typing,
 }
 
 class QuizSentence {
@@ -85,6 +86,8 @@ class QuizSentence {
         typeString == 'wordsearch' ||
         typeString == 'word-search') {
       questionType = QuizQuestionType.wordSearch;
+    } else if (typeString == 'typing' || typeString == 'type' || typeString == 'write') {
+      questionType = QuizQuestionType.typing;
     }
 
     return QuizSentence(
@@ -110,6 +113,8 @@ class QuizSentence {
       questionTypeString = 'explanation';
     } else if (questionType == QuizQuestionType.wordSearch) {
       questionTypeString = 'word_search';
+    } else if (questionType == QuizQuestionType.typing) {
+      questionTypeString = 'typing';
     }
 
     return {
