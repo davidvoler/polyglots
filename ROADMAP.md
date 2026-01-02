@@ -218,3 +218,47 @@ We probably need to do the following
 
 
 #### Iteration 5 - Student side - Make it Production ready
+
+
+
+### Games and exercise type 
+
+
+#### - alphabet related 
+all games should be about fun - not too difficult
+
+Find words in an array
+like find car in this array
+
+a b c 
+c a a
+d b r
+
+
+Or find as many words you already know - etc
+
+find a letter in text - it can be preset more than once. 
+
+Later on this can be complicated where you do not show the words in the learned language - but in student language
+User will have to translate and find the words 
+
+All these games can lead to writing exercises 
+
+##### - writing exercises
+Type words 
+show a word  - for 5 second
+hide the word 
+show the letters and write the word or short sentence
+Show limited letters - not the entire alphabet
+pres ready when you are done 
+--- time based with progress bar ---
+
+#### quiz with hidden original text
+
+hidden quiz 
+- show text
+- hide it - wait 5 seconds 
+- show selection of choices
+
+#### Video related
+- build quiz from video
