@@ -86,7 +86,7 @@ async def create_course_from_file(path,lang, to_lang, title, description):
 
 
 async def load_all_alphabet_exercises(folder, lang, to_lang):
-    course_id = 29
+    course_id = 30
     hiragana = []
     katakana = []
     kanji = []
@@ -101,14 +101,32 @@ async def load_all_alphabet_exercises(folder, lang, to_lang):
         elif a[0] == 'kanji':
             kanji.append(a)
     module_id = await create_module(lang, to_lang, 'Hiragana', 'Hiragana', course_id)
+    hiragana_letters = {}
     for a in hiragana:
-        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        if a[1] in hiragana_letters:
+            hiragana_letters[a[1]]+=1
+        else:
+            hiragana_letters[a[1]] = 1
+            title = f"Hiragana {a[1]}"
+            lesson_id = await create_lesson(lang, to_lang, title, title, course_id, module_id)
         await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:] )
     module_id = await create_module(lang, to_lang, 'Kanji', 'Kanji', course_id)
+    kanji_letters = {}
     for a in kanji:
-        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        if a[1] in kanji_letters:
+            kanji_letters[a[1]]+=1
+        else:
+            kanji_letters[a[1]] = 1
+            title = f"Kanji {a[1]}"
+            lesson_id = await create_lesson(lang, to_lang, title, title, course_id, module_id)
         await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:] )
     module_id = await create_module(lang, to_lang, 'katakana', 'katakana', course_id)
+    katakana_letters = {}
     for a in katakana:
-        lesson_id = await create_lesson(lang, to_lang, a[1], a[1], course_id, module_id)
+        if a[1] in katakana_letters:
+            katakana_letters[a[1]]+=1
+        else:
+            katakana_letters[a[1]] = 1
+            title = f"Katakana {a[1]}"
+            lesson_id = await create_lesson(lang, to_lang, title, title, course_id, module_id)
         await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, a[3],a[4], a[5:])
