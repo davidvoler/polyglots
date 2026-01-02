@@ -144,6 +144,54 @@ A. Always - Use sound with text or without it
 - [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
 - [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
 - [ ] As I have only one stage left let me do it as it is now. 
+- [ ] UI with cursor is quite simple - 
+- [ ] It is good I had some work to do with the manual part - Now I understand the structure I need 
+
+
+
+#### Structure of course and exercise 
+
+- [ ] now I think get_quiz should be simple - the simplest if possible
+```sql
+select * from exercise where lesson_id = %s
+```
+There should be no formatting all all in the load 
+We need to format an exercise exactly as it should be sent to the client. 
+So when we need a reverse quiz - we need to create a new exercise
+The same way on the result side - we can create only insert and use group by to get sum and value
+offered structure for exercise table 
+```json
+// building the options is done by the client
+{
+    id:2,
+    lesson_id:1,
+    module_id:1,
+    course_id:1,
+    correct:"str",
+    options:[list],
+    words:[list],
+    annotated_sentence:{},
+    audio:str,
+}
+//alternative - random shuffling of the options is done by the client
+{
+    id:2,
+    lesson_id:1,
+    module_id:1,
+    course_id:1,
+    correct:"str",
+    options:[
+        {text:"",correct:false},
+        {text:"",correct:false},
+        {text:"",correct:true},
+        {text:"",correct:false},
+    ],
+    words:[list],
+    annotated_sentence:{},
+    audio:str,
+}
+```
+
 
 
 ### Take away from the manual part 
@@ -157,7 +205,6 @@ The ui parts should include the following steps
 5. Allow the author to add a lesson by new word - by typing or selecting from list 
 6. allow generating explained lessons - gen with ai
 7. allow the author to close a module and start a new one 
-
 
 ## Iteration 2 - Hebrew English - optional
 - given that I find some some solution for transliteration - nikud and maybe context
