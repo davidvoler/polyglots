@@ -55,6 +55,13 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         words: const [],
         questionType: QuizQuestionType.explanation,
       ),
+      QuizSentence(
+        id: 'wordsearch_1',
+        sentence: 'Find the word "car" in the grid below:\n\na b c\nc a a\nd b r',
+        options: const [],
+        words: const [],
+        questionType: QuizQuestionType.wordSearch,
+      ),
     ];
   }
 
@@ -161,12 +168,15 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         return 'Multiple Selection';
       case QuizQuestionType.explanation:
         return 'Explanation';
+      case QuizQuestionType.wordSearch:
+        return 'Word Search';
     }
   }
 
   Widget _buildQuestionContent(QuizSentence question) {
     switch (question.questionType) {
       case QuizQuestionType.explanation:
+      case QuizQuestionType.wordSearch:
         return SingleChildScrollView(
           child: Text(
             question.sentence,
@@ -257,6 +267,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
 
   Widget _buildFooter(QuizSentence question) {
     final isExplanation = question.questionType == QuizQuestionType.explanation;
+    final isWordSearch = question.questionType == QuizQuestionType.wordSearch;
     final isMultiple = question.questionType == QuizQuestionType.multipleChoice;
 
     return Column(
@@ -269,7 +280,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
               child: const Text('Check Answer'),
             ),
           ),
-        if (_submitted && !_isCorrect && !isExplanation)
+        if (_submitted && !_isCorrect && !isExplanation && !isWordSearch)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
