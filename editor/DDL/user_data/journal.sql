@@ -26,3 +26,6 @@ CREATE TABLE user_data.journal (
 	score float DEFAULT 0.0 NULL,
 	CONSTRAINT journal_pkey PRIMARY KEY (user_id, created_at)
 );
+
+
+

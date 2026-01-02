@@ -22,6 +22,7 @@ CREATE TABLE content.exercise (
     -- extra data 
     root varchar(100) NULL,
     verb varchar(100) NULL,
+    verb_lemma varchar(100) NULL,
     noun varchar(100) NULL,
     adjective varchar(100) NULL,
     auxiliary varchar(100) NULL,
