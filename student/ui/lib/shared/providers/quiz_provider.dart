@@ -130,7 +130,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
     }
   }
 
-  // Select option (allows multiple attempts until correct)
+  // Select option (single-choice flow)
   void selectOption(int index) {
     if (state.isAnswered) return;
     
@@ -146,20 +146,62 @@ class QuizNotifier extends StateNotifier<QuizState> {
     // Check if this option is correct
     if (currentSentence.options[index].correct) {
       // Correct answer found - mark sentence as answered
-      currentSentence.answered = true;
-      state = state.copyWith(isAnswered: true);
-      
-      // Add to correct answers
-      List<int> newCorrectAnswers = List.from(state.correctAnswers);
-      newCorrectAnswers.add(state.currentQuestionIndex);
-      state = state.copyWith(correctAnswers: newCorrectAnswers);
-      
-      // Save results for this sentence
-      saveResultsSingle(currentSentence);
+      _markAnswered(isCorrect: true, currentSentence: currentSentence);
     } else {
       // Wrong answer - add to wrong answers but allow more attempts
       List<int> newWrongAnswers = List.from(state.wrongAnswers);
       newWrongAnswers.add(state.currentQuestionIndex);
+      state = state.copyWith(wrongAnswers: newWrongAnswers);
+    }
+  }
+
+  void toggleOption(int index) {
+    final currentSentence = state.currentSentence;
+    if (currentSentence == null) return;
+    if (state.isAnswered) return;
+    if (index < 0 || index >= currentSentence.options.length) return;
+
+    currentSentence.options[index].selected = !currentSentence.options[index].selected;
+    state = state.copyWith(); // trigger rebuild
+  }
+
+  void submitAnswer() {
+    final currentSentence = state.currentSentence;
+    if (currentSentence == null) return;
+    if (state.isAnswered) return;
+
+    switch (currentSentence.questionType) {
+      case QuizQuestionType.explanation:
+        currentSentence.attempts++;
+        _markAnswered(isCorrect: true, currentSentence: currentSentence);
+        break;
+      case QuizQuestionType.multipleChoice:
+        currentSentence.attempts++;
+        final selected = <int>{};
+        final correct = <int>{};
+        for (var i = 0; i < currentSentence.options.length; i++) {
+          if (currentSentence.options[i].selected) selected.add(i);
+          if (currentSentence.options[i].correct) correct.add(i);
+        }
+        final isCorrect = selected.isNotEmpty && selected.length == correct.length && selected.containsAll(correct);
+        _markAnswered(isCorrect: isCorrect, currentSentence: currentSentence);
+        break;
+      case QuizQuestionType.singleChoice:
+        // For single-choice, keep legacy flow: selectOption already marks answered when correct
+        break;
+    }
+  }
+
+  void _markAnswered({required bool isCorrect, required QuizSentence currentSentence}) {
+    currentSentence.answered = true;
+    state = state.copyWith(isAnswered: true);
+
+    if (isCorrect) {
+      final newCorrectAnswers = List<int>.from(state.correctAnswers)..add(state.currentQuestionIndex);
+      state = state.copyWith(correctAnswers: newCorrectAnswers);
+      saveResultsSingle(currentSentence);
+    } else {
+      final newWrongAnswers = List<int>.from(state.wrongAnswers)..add(state.currentQuestionIndex);
       state = state.copyWith(wrongAnswers: newWrongAnswers);
     }
   }

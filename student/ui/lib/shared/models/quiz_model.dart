@@ -35,6 +35,12 @@ class QuizOption {
   }
 }
 
+enum QuizQuestionType {
+  singleChoice,
+  multipleChoice,
+  explanation,
+}
+
 class QuizSentence {
   final String sentence;
   final List<QuizOption> options;
@@ -44,6 +50,7 @@ class QuizSentence {
   final String? dialogueLine;
   final String? translit;
   final String? sound;
+  final QuizQuestionType questionType;
 
   bool answered = false;
   int attempts = 0;
@@ -57,9 +64,24 @@ class QuizSentence {
     this.dialogueLine,
     this.translit,
     this.sound,
+    this.questionType = QuizQuestionType.singleChoice,
   });
 
   factory QuizSentence.fromJson(Map<String, dynamic> json) {
+    final typeString = (json['question_type'] ?? '').toString().toLowerCase();
+    QuizQuestionType questionType = QuizQuestionType.singleChoice;
+    if (typeString == 'multiple' ||
+        typeString == 'multiple_choice' ||
+        typeString == 'multi' ||
+        typeString == 'multiple-select' ||
+        typeString == 'multiple_selection') {
+      questionType = QuizQuestionType.multipleChoice;
+    } else if (typeString == 'explanation' ||
+        typeString == 'info' ||
+        typeString == 'informational') {
+      questionType = QuizQuestionType.explanation;
+    }
+
     return QuizSentence(
       sentence: json['sentence'] ?? '',
       words: json['words'] ?? [],
@@ -68,6 +90,7 @@ class QuizSentence {
       dialogueId: json['dialogue_id'],
       dialogueLine: json['dialogue_line'],
       translit: json['translit'],
+      questionType: questionType,
       options: List<dynamic>.from(json['options'] ?? [])
           .map((i) => QuizOption.fromJson(i))
           .toList(),
@@ -75,6 +98,13 @@ class QuizSentence {
   }
 
   Map<String, dynamic> toJson() {
+    String questionTypeString = 'single';
+    if (questionType == QuizQuestionType.multipleChoice) {
+      questionTypeString = 'multiple';
+    } else if (questionType == QuizQuestionType.explanation) {
+      questionTypeString = 'explanation';
+    }
+
     return {
       'sentence': sentence,
       'words': words,
@@ -83,6 +113,7 @@ class QuizSentence {
       'dialogue_id': dialogueId,
       'dialogue_line': dialogueLine,
       'translit': translit,
+      'question_type': questionTypeString,
       'options': options.map((option) => option.toJson()).toList(),
     };
   }
