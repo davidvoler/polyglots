@@ -9,12 +9,32 @@ class QuestionTypesDemoPage extends StatefulWidget {
   State<QuestionTypesDemoPage> createState() => _QuestionTypesDemoPageState();
 }
 
+class _DemoQuestion {
+  final QuizSentence sentence;
+  final List<String>? grid; // optional word search grid
+  final List<String>? targets;
+
+  _DemoQuestion({
+    required this.sentence,
+    this.grid,
+    this.targets,
+  });
+}
+
+class _CellPos {
+  final int row;
+  final int col;
+  _CellPos(this.row, this.col);
+}
+
 class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
-  late final List<QuizSentence> _questions;
+  late final List<_DemoQuestion> _questions;
   int _currentIndex = 0;
   Set<int> _selected = {};
   bool _submitted = false;
   bool _isCorrect = false;
+  List<_CellPos> _selectedCells = [];
+  Set<String> _foundWords = {};
 
   @override
   void initState() {
@@ -22,45 +42,69 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     _questions = _buildDemoQuestions();
   }
 
-  List<QuizSentence> _buildDemoQuestions() {
+  List<_DemoQuestion> _buildDemoQuestions() {
+    final wordSearchGrid = [
+      'catarefghi',
+      'oqrstuvwxp',
+      'plmnocatrd',
+      'abcarxyzab',
+      'defghijklm',
+      'nopcatqrst',
+      'vwxyzabcde',
+      'fghijklmnq',
+      'rstuvwxyzr',
+      'catzzzzzzz',
+    ];
+    final wordTargets = ['cat', 'car', 'arc'];
+
     return [
-      QuizSentence(
-        id: 'single_1',
-        sentence: 'What does "Bonjour" mean?',
-        options: [
-          QuizOption(sentence: 'Goodbye', correct: false),
-          QuizOption(sentence: 'Hello', correct: true),
-          QuizOption(sentence: 'Thank you', correct: false),
-          QuizOption(sentence: 'Please', correct: false),
-        ],
-        words: const [],
-        questionType: QuizQuestionType.singleChoice,
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'single_1',
+          sentence: 'What does "Bonjour" mean?',
+          options: [
+            QuizOption(sentence: 'Goodbye', correct: false),
+            QuizOption(sentence: 'Hello', correct: true),
+            QuizOption(sentence: 'Thank you', correct: false),
+            QuizOption(sentence: 'Please', correct: false),
+          ],
+          words: const [],
+          questionType: QuizQuestionType.singleChoice,
+        ),
       ),
-      QuizSentence(
-        id: 'multi_1',
-        sentence: 'Select all fruits.',
-        options: [
-          QuizOption(sentence: 'Apple', correct: true),
-          QuizOption(sentence: 'Car', correct: false),
-          QuizOption(sentence: 'Banana', correct: true),
-          QuizOption(sentence: 'Table', correct: false),
-        ],
-        words: const [],
-        questionType: QuizQuestionType.multipleChoice,
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'multi_1',
+          sentence: 'Select all fruits.',
+          options: [
+            QuizOption(sentence: 'Apple', correct: true),
+            QuizOption(sentence: 'Car', correct: false),
+            QuizOption(sentence: 'Banana', correct: true),
+            QuizOption(sentence: 'Table', correct: false),
+          ],
+          words: const [],
+          questionType: QuizQuestionType.multipleChoice,
+        ),
       ),
-      QuizSentence(
-        id: 'explain_1',
-        sentence: 'Tip: In multiple-selection questions, choose every correct option before submitting.',
-        options: const [],
-        words: const [],
-        questionType: QuizQuestionType.explanation,
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'explain_1',
+          sentence: 'Tip: In multiple-selection questions, choose every correct option before submitting.',
+          options: const [],
+          words: const [],
+          questionType: QuizQuestionType.explanation,
+        ),
       ),
-      QuizSentence(
-        id: 'wordsearch_1',
-        sentence: 'Find the word "car" in the grid below:\n\na b c\nc a a\nd b r',
-        options: const [],
-        words: const [],
-        questionType: QuizQuestionType.wordSearch,
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'wordsearch_1',
+          sentence: 'Find the words: ${wordTargets.map((w) => w.toUpperCase()).join(", ")}.\nWords can be in any direction.',
+          options: const [],
+          words: wordTargets,
+          questionType: QuizQuestionType.wordSearch,
+        ),
+        grid: wordSearchGrid,
+        targets: wordTargets,
       ),
     ];
   }
@@ -70,6 +114,8 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
       _selected = {};
       _submitted = false;
       _isCorrect = false;
+      _selectedCells = [];
+      _foundWords = {};
     });
   }
 
@@ -96,7 +142,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     setState(() {
       _selected = {idx};
       _submitted = true;
-      _isCorrect = _questions[_currentIndex].options[idx].correct;
+      _isCorrect = _questions[_currentIndex].sentence.options[idx].correct;
     });
   }
 
@@ -113,7 +159,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
 
   void _submitMultiple() {
     if (_submitted) return;
-    final question = _questions[_currentIndex];
+    final question = _questions[_currentIndex].sentence;
     final correctSet = <int>{};
     for (var i = 0; i < question.options.length; i++) {
       if (question.options[i].correct) correctSet.add(i);
@@ -144,7 +190,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
             ),
             const SizedBox(height: 8),
             Chip(
-              label: Text(_labelForType(question.questionType)),
+              label: Text(_labelForType(question.sentence.questionType)),
               backgroundColor: Colors.blue.shade50,
               labelStyle: TextStyle(color: Colors.blue.shade700),
             ),
@@ -173,21 +219,35 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     }
   }
 
-  Widget _buildQuestionContent(QuizSentence question) {
-    switch (question.questionType) {
+  Widget _buildQuestionContent(_DemoQuestion question) {
+    final sentence = question.sentence;
+    switch (sentence.questionType) {
       case QuizQuestionType.explanation:
       case QuizQuestionType.wordSearch:
+        if (sentence.questionType == QuizQuestionType.wordSearch && question.grid != null) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                sentence.sentence,
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 12),
+              Expanded(child: _buildWordSearchGrid(question)),
+            ],
+          );
+        }
         return SingleChildScrollView(
           child: Text(
-            question.sentence,
+            sentence.sentence,
             style: const TextStyle(fontSize: 18),
           ),
         );
       case QuizQuestionType.multipleChoice:
         return ListView.builder(
-          itemCount: question.options.length,
+          itemCount: sentence.options.length,
           itemBuilder: (context, idx) {
-            final opt = question.options[idx];
+            final opt = sentence.options[idx];
             final selected = _selected.contains(idx);
             final showResult = _submitted;
             final correct = opt.correct;
@@ -225,9 +285,9 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         );
       case QuizQuestionType.singleChoice:
         return ListView.builder(
-          itemCount: question.options.length,
+          itemCount: sentence.options.length,
           itemBuilder: (context, idx) {
-            final opt = question.options[idx];
+            final opt = sentence.options[idx];
             final selected = _selected.contains(idx);
             final showResult = _submitted;
             final correct = opt.correct;
@@ -265,10 +325,125 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     }
   }
 
-  Widget _buildFooter(QuizSentence question) {
-    final isExplanation = question.questionType == QuizQuestionType.explanation;
-    final isWordSearch = question.questionType == QuizQuestionType.wordSearch;
-    final isMultiple = question.questionType == QuizQuestionType.multipleChoice;
+  Widget _buildWordSearchGrid(_DemoQuestion question) {
+    final grid = question.grid!;
+    return AspectRatio(
+      aspectRatio: 1,
+      child: GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 10,
+        ),
+        itemCount: 100,
+        itemBuilder: (context, idx) {
+          final row = idx ~/ 10;
+          final col = idx % 10;
+          final letter = grid[row][col].toUpperCase();
+          final selected = _selectedCells.any((c) => c.row == row && c.col == col);
+          final matched = _submitted && _isCorrect && selected;
+          Color bg = Colors.white;
+          Color border = Colors.grey.shade300;
+          if (selected) {
+            bg = Colors.blue.shade50;
+            border = Colors.blue.shade400;
+          }
+          if (matched) {
+            bg = Colors.green.shade50;
+            border = Colors.green.shade400;
+          }
+
+          return GestureDetector(
+            onTap: () => _onGridTap(row, col),
+            child: Container(
+              decoration: BoxDecoration(
+                color: bg,
+                border: Border.all(color: border),
+              ),
+              child: Center(
+                child: Text(
+                  letter,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _onGridTap(int row, int col) {
+    final question = _questions[_currentIndex];
+    if (question.sentence.questionType != QuizQuestionType.wordSearch) return;
+    if (_submitted) return;
+
+    final existingIndex = _selectedCells.indexWhere((c) => c.row == row && c.col == col);
+    setState(() {
+      if (existingIndex >= 0) {
+        _selectedCells.removeAt(existingIndex);
+      } else {
+        _selectedCells.add(_CellPos(row, col));
+      }
+    });
+  }
+
+  void _submitWordSearch() {
+    final question = _questions[_currentIndex];
+    final grid = question.grid;
+    final targets = question.targets;
+    if (grid == null || targets == null) return;
+    if (_submitted) return;
+
+    final selected = List<_CellPos>.from(_selectedCells);
+    if (selected.isEmpty) {
+      setState(() {
+        _submitted = true;
+        _isCorrect = false;
+      });
+      return;
+    }
+
+    bool isLinear = true;
+    if (selected.length > 1) {
+      final dr = selected[1].row - selected[0].row;
+      final dc = selected[1].col - selected[0].col;
+      for (int i = 1; i < selected.length; i++) {
+        final prev = selected[i - 1];
+        final cur = selected[i];
+        if (cur.row - prev.row != dr || cur.col - prev.col != dc) {
+          isLinear = false;
+          break;
+        }
+      }
+    }
+
+    String wordFromSelection = '';
+    for (final cell in selected) {
+      if (cell.row < 0 || cell.row >= grid.length) continue;
+      final rowStr = grid[cell.row];
+      if (cell.col < 0 || cell.col >= rowStr.length) continue;
+      wordFromSelection += rowStr[cell.col];
+    }
+    final forward = wordFromSelection.toLowerCase();
+    final backward = String.fromCharCodes(forward.runes.toList().reversed);
+
+    final targetSet = targets.map((e) => e.toLowerCase()).toSet();
+    final matched = isLinear && (targetSet.contains(forward) || targetSet.contains(backward));
+
+    setState(() {
+      _submitted = true;
+      _isCorrect = matched;
+      if (matched) {
+        _foundWords.add(forward);
+        _foundWords.add(backward);
+      }
+    });
+  }
+
+  Widget _buildFooter(_DemoQuestion question) {
+    final isExplanation = question.sentence.questionType == QuizQuestionType.explanation;
+    final isWordSearch = question.sentence.questionType == QuizQuestionType.wordSearch;
+    final isMultiple = question.sentence.questionType == QuizQuestionType.multipleChoice;
 
     return Column(
       children: [
@@ -278,6 +453,14 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
             child: ElevatedButton(
               onPressed: _submitMultiple,
               child: const Text('Check Answer'),
+            ),
+          ),
+        if (isWordSearch && !_submitted)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _submitWordSearch,
+              child: const Text('Check Selection'),
             ),
           ),
         if (_submitted && !_isCorrect && !isExplanation && !isWordSearch)
@@ -305,4 +488,3 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     );
   }
 }
-

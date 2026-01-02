@@ -172,6 +172,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
 
     switch (currentSentence.questionType) {
       case QuizQuestionType.explanation:
+      case QuizQuestionType.wordSearch:
         currentSentence.attempts++;
         _markAnswered(isCorrect: true, currentSentence: currentSentence);
         break;

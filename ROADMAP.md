@@ -262,3 +262,12 @@ hidden quiz
 
 #### Video related
 - build quiz from video
+
+
+#### user interaction progress indicator
+
+- try to get it really simple 
+- any answer give you a point 
+- answering faster - or getting correct give you a bonus 
+- later we can add bonuses - say for learning new words etc. 
+- yuo can see your 

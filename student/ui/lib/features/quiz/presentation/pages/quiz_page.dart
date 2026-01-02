@@ -371,6 +371,7 @@ class _QuizPageState extends ConsumerState<QuizPage> {
   Widget _buildAnswerOptions(QuizSentence sentence, QuizState quizState) {
     switch (sentence.questionType) {
       case QuizQuestionType.explanation:
+      case QuizQuestionType.wordSearch:
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,9 +564,10 @@ class _QuizPageState extends ConsumerState<QuizPage> {
 
   Widget _buildBottomButton(QuizSentence sentence, QuizState quizState) {
     final isExplanation = sentence.questionType == QuizQuestionType.explanation;
+    final isWordSearch = sentence.questionType == QuizQuestionType.wordSearch;
     final isMultiple = sentence.questionType == QuizQuestionType.multipleChoice;
 
-    if (!quizState.isAnswered && (isExplanation || isMultiple)) {
+    if (!quizState.isAnswered && (isExplanation || isMultiple || isWordSearch)) {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
@@ -581,7 +583,7 @@ class _QuizPageState extends ConsumerState<QuizPage> {
             ),
           ),
           child: Text(
-            isExplanation ? 'Continue' : 'Check Answer',
+            (isExplanation || isWordSearch) ? 'Continue' : 'Check Answer',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
