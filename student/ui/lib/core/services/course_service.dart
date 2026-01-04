@@ -9,8 +9,7 @@ class CourseService {
   static const int _timeoutSeconds = 10;
 
   static String get _baseUrl {
-    // return dotenv.env['BASE_PATH'] ?? 'https://polyglots.social';
-    return '0.0.0.0:8004';
+    return dotenv.env['BASE_PATH'] ?? 'https://polyglots.social';
   }
 
   static bool get _isHttps {

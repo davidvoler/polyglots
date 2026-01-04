@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../../../../shared/models/quiz_model.dart';
+import 'widgets/explanation_question.dart';
+import 'widgets/multiple_choice_question.dart';
+import 'widgets/question_types_models.dart';
+import 'widgets/single_choice_question.dart';
+import 'widgets/typing_question.dart';
+import 'widgets/word_search_question.dart';
 
 class QuestionTypesDemoPage extends StatefulWidget {
   const QuestionTypesDemoPage({super.key});
@@ -10,33 +16,13 @@ class QuestionTypesDemoPage extends StatefulWidget {
   State<QuestionTypesDemoPage> createState() => _QuestionTypesDemoPageState();
 }
 
-class _DemoQuestion {
-  final QuizSentence sentence;
-  final List<String>? grid; // optional word search grid
-  final List<String>? targets;
-  final List<String>? letters; // optional custom letter bank
-
-  _DemoQuestion({
-    required this.sentence,
-    this.grid,
-    this.targets,
-    this.letters,
-  });
-}
-
-class _CellPos {
-  final int row;
-  final int col;
-  _CellPos(this.row, this.col);
-}
-
 class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
-  late final List<_DemoQuestion> _questions;
+  late final List<DemoQuestion> _questions;
   int _currentIndex = 0;
   Set<int> _selected = {};
   bool _submitted = false;
   bool _isCorrect = false;
-  List<_CellPos> _selectedCells = [];
+  List<CellPos> _selectedCells = [];
   Set<String> _foundWords = {};
   String _typedAnswer = '';
   double _typingTimeLeft = 10.0;
@@ -60,7 +46,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     super.dispose();
   }
 
-  List<_DemoQuestion> _buildDemoQuestions() {
+  List<DemoQuestion> _buildDemoQuestions() {
     final wordSearchGrid = [
       'catarefghi',
       'oqrstuvwxp',
@@ -76,7 +62,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     final wordTargets = ['cat', 'car', 'arc'];
 
     return [
-      _DemoQuestion(
+      SingleChoiceDemoQuestion(
         sentence: QuizSentence(
           id: 'single_1',
           sentence: 'What does "Bonjour" mean?',
@@ -90,7 +76,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           questionType: QuizQuestionType.singleChoice,
         ),
       ),
-      _DemoQuestion(
+      MultipleChoiceDemoQuestion(
         sentence: QuizSentence(
           id: 'multi_1',
           sentence: 'Select all fruits.',
@@ -104,7 +90,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           questionType: QuizQuestionType.multipleChoice,
         ),
       ),
-      _DemoQuestion(
+      ExplanationDemoQuestion(
         sentence: QuizSentence(
           id: 'explain_1',
           sentence: 'Tip: In multiple-selection questions, choose every correct option before submitting.',
@@ -113,7 +99,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           questionType: QuizQuestionType.explanation,
         ),
       ),
-      _DemoQuestion(
+      WordSearchDemoQuestion(
         sentence: QuizSentence(
           id: 'wordsearch_1',
           sentence: 'Find the words: ${wordTargets.map((w) => w.toUpperCase()).join(", ")}.\nWords can be in any direction.',
@@ -124,7 +110,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         grid: wordSearchGrid,
         targets: wordTargets,
       ),
-      _DemoQuestion(
+      TypingDemoQuestion(
         sentence: QuizSentence(
           id: 'typing_1',
           sentence: 'Memorize this word, then type it.',
@@ -134,7 +120,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         ),
         targets: const ['bonjour'],
       ),
-      _DemoQuestion(
+      TypingDemoQuestion(
         sentence: QuizSentence(
           id: 'typing_jp_1',
           sentence: 'Type the Japanese word 見える (to be visible).',
@@ -220,7 +206,9 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
 
   void _submitTyping() {
     if (_submitted) return;
-    final target = _questions[_currentIndex].targets?.first ?? '';
+    final question = _questions[_currentIndex];
+    if (question is! TypingDemoQuestion) return;
+    final target = question.targets.first;
     final normalizedInput = _typedAnswer.trim().toLowerCase();
     final normalizedTarget = target.toLowerCase();
     final isCorrect = normalizedInput == normalizedTarget;
@@ -249,7 +237,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
             ),
             const SizedBox(height: 8),
             Chip(
-              label: Text(_labelForType(question.sentence.questionType)),
+              label: Text(_labelForType(question.kind)),
               backgroundColor: Colors.blue.shade50,
               labelStyle: TextStyle(color: Colors.blue.shade700),
             ),
@@ -265,182 +253,84 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     );
   }
 
-  String _labelForType(QuizQuestionType type) {
-    switch (type) {
-      case QuizQuestionType.singleChoice:
+  String _labelForType(DemoQuestionKind kind) {
+    switch (kind) {
+      case DemoQuestionKind.singleChoice:
         return 'Single Choice';
-      case QuizQuestionType.multipleChoice:
+      case DemoQuestionKind.multipleChoice:
         return 'Multiple Selection';
-      case QuizQuestionType.explanation:
+      case DemoQuestionKind.explanation:
         return 'Explanation';
-      case QuizQuestionType.wordSearch:
+      case DemoQuestionKind.wordSearch:
         return 'Word Search';
-      case QuizQuestionType.typing:
+      case DemoQuestionKind.typing:
         return 'Typing';
     }
   }
 
-  Widget _buildQuestionContent(_DemoQuestion question) {
+  Widget _buildQuestionContent(DemoQuestion question) {
     final sentence = question.sentence;
-    switch (sentence.questionType) {
-      case QuizQuestionType.explanation:
-      case QuizQuestionType.wordSearch:
-      case QuizQuestionType.typing:
-        if (sentence.questionType == QuizQuestionType.wordSearch && question.grid != null) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                sentence.sentence,
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: sentence.questionType == QuizQuestionType.wordSearch
-                    ? _buildWordSearchGrid(question)
-                    : _buildTypingArea(question),
-              ),
-            ],
-          );
+    switch (question.kind) {
+      case DemoQuestionKind.explanation:
+        return ExplanationQuestion(text: sentence.sentence);
+      case DemoQuestionKind.wordSearch:
+        final q = question as WordSearchDemoQuestion;
+        if (q.grid.isEmpty) {
+          return ExplanationQuestion(text: sentence.sentence);
         }
-        return SingleChildScrollView(
-          child: Text(
-            sentence.sentence,
-            style: const TextStyle(fontSize: 18),
-          ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              sentence.sentence,
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: WordSearchQuestion(
+                grid: q.grid,
+                selectedCells: _selectedCells,
+                submitted: _submitted,
+                isCorrect: _isCorrect,
+                onCellTap: _onGridTap,
+              ),
+            ),
+          ],
         );
-      case QuizQuestionType.multipleChoice:
-        return ListView.builder(
-          itemCount: sentence.options.length,
-          itemBuilder: (context, idx) {
-            final opt = sentence.options[idx];
-            final selected = _selected.contains(idx);
-            final showResult = _submitted;
-            final correct = opt.correct;
-
-            Color bg = Colors.white;
-            Color border = Colors.grey.shade300;
-            if (showResult) {
-              if (correct) {
-                bg = Colors.green.shade50;
-                border = Colors.green.shade300;
-              } else if (selected) {
-                bg = Colors.red.shade50;
-                border = Colors.red.shade300;
-              }
-            } else if (selected) {
-              bg = Colors.blue.shade50;
-              border = Colors.blue.shade300;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: border),
-              ),
-              child: CheckboxListTile(
-                value: selected,
-                onChanged: _submitted ? null : (_) => _onToggle(idx),
-                title: Text(opt.sentence),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            );
-          },
+      case DemoQuestionKind.typing:
+        final q = question as TypingDemoQuestion;
+        final letters = q.letters ?? q.targets.expand((e) => e.split('')).toList();
+        return TypingQuestion(
+          targetWord: q.targets.first,
+          letters: letters,
+          showPrompt: _showTypingPrompt,
+          typingTimeLeft: _typingTimeLeft,
+          controller: _typingController,
+          submitted: _submitted,
+          isCorrect: _isCorrect,
+          onChanged: (val) => setState(() => _typedAnswer = val),
+          onLetterTap: _onTypingLetterTap,
         );
-      case QuizQuestionType.singleChoice:
-        return ListView.builder(
-          itemCount: sentence.options.length,
-          itemBuilder: (context, idx) {
-            final opt = sentence.options[idx];
-            final selected = _selected.contains(idx);
-            final showResult = _submitted;
-            final correct = opt.correct;
-
-            Color bg = Colors.white;
-            Color border = Colors.grey.shade300;
-            if (showResult && correct) {
-              bg = Colors.green.shade50;
-              border = Colors.green.shade300;
-            } else if (selected && showResult && !correct) {
-              bg = Colors.red.shade50;
-              border = Colors.red.shade300;
-            } else if (selected) {
-              bg = Colors.blue.shade50;
-              border = Colors.blue.shade300;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: border),
-              ),
-              child: ListTile(
-                onTap: () => _onSingleTap(idx),
-                title: Text(opt.sentence),
-                trailing: selected
-                    ? const Icon(Icons.check_circle, color: Colors.blue)
-                    : const Icon(Icons.radio_button_unchecked),
-              ),
-            );
-          },
+      case DemoQuestionKind.multipleChoice:
+        return MultipleChoiceQuestion(
+          options: sentence.options,
+          selected: _selected,
+          submitted: _submitted,
+          onToggle: _onToggle,
+        );
+      case DemoQuestionKind.singleChoice:
+        return SingleChoiceQuestion(
+          options: sentence.options,
+          selected: _selected,
+          submitted: _submitted,
+          onTap: _onSingleTap,
         );
     }
   }
 
-  Widget _buildWordSearchGrid(_DemoQuestion question) {
-    final grid = question.grid!;
-    return AspectRatio(
-      aspectRatio: 1,
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 10,
-        ),
-        itemCount: 100,
-        itemBuilder: (context, idx) {
-          final row = idx ~/ 10;
-          final col = idx % 10;
-          final letter = grid[row][col].toUpperCase();
-          final selected = _selectedCells.any((c) => c.row == row && c.col == col);
-          final matched = _submitted && _isCorrect && selected;
-          Color bg = Colors.white;
-          Color border = Colors.grey.shade300;
-          if (selected) {
-            bg = Colors.blue.shade50;
-            border = Colors.blue.shade400;
-          }
-          if (matched) {
-            bg = Colors.green.shade50;
-            border = Colors.green.shade400;
-          }
-
-          return GestureDetector(
-            onTap: () => _onGridTap(row, col),
-            child: Container(
-              decoration: BoxDecoration(
-                color: bg,
-                border: Border.all(color: border),
-              ),
-              child: Center(
-                child: Text(
-                  letter,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   void _onGridTap(int row, int col) {
     final question = _questions[_currentIndex];
-    if (question.sentence.questionType != QuizQuestionType.wordSearch) return;
+    if (question.kind != DemoQuestionKind.wordSearch) return;
     if (_submitted) return;
 
     final existingIndex = _selectedCells.indexWhere((c) => c.row == row && c.col == col);
@@ -448,19 +338,19 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
       if (existingIndex >= 0) {
         _selectedCells.removeAt(existingIndex);
       } else {
-        _selectedCells.add(_CellPos(row, col));
+        _selectedCells.add(CellPos(row, col));
       }
     });
   }
 
   void _submitWordSearch() {
     final question = _questions[_currentIndex];
+    if (question is! WordSearchDemoQuestion) return;
     final grid = question.grid;
     final targets = question.targets;
-    if (grid == null || targets == null) return;
     if (_submitted) return;
 
-    final selected = List<_CellPos>.from(_selectedCells);
+    final selected = List<CellPos>.from(_selectedCells);
     if (selected.isEmpty) {
       setState(() {
         _submitted = true;
@@ -506,9 +396,21 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     });
   }
 
+  void _onTypingLetterTap(String c) {
+    if (_submitted || _showTypingPrompt) return;
+    final newText = _typingController.text + c;
+    setState(() {
+      _typingController.text = newText;
+      _typingController.selection = TextSelection.fromPosition(
+        TextPosition(offset: newText.length),
+      );
+      _typedAnswer = newText;
+    });
+  }
+
   void _setupForCurrentQuestion() {
     final question = _questions[_currentIndex];
-    if (question.sentence.questionType == QuizQuestionType.typing) {
+    if (question.kind == DemoQuestionKind.typing) {
       setState(() {
         _showTypingPrompt = true;
       });
@@ -530,97 +432,12 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     }
   }
 
-  Widget _buildTypingArea(_DemoQuestion question) {
-    final targetWord = question.targets?.first ?? '';
-    final displayLetters = question.letters ?? targetWord.split('');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _showTypingPrompt ? 'Memorize this word' : 'Type the word you just saw:',
-          style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        if (_showTypingPrompt)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              targetWord,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-          ),
-        if (!_showTypingPrompt) ...[
-          LinearProgressIndicator(
-            value: _typingTimeLeft / 10.0,
-            backgroundColor: Colors.grey.shade200,
-            valueColor: AlwaysStoppedAnimation<Color>(_typingTimeLeft > 3 ? Colors.blue : Colors.red),
-            minHeight: 8,
-          ),
-        ],
-        const SizedBox(height: 12),
-        TextField(
-          controller: _typingController,
-          onChanged: (val) => setState(() {
-            _typedAnswer = val;
-          }),
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: 'Type here…',
-          ),
-          enabled: !_submitted && !_showTypingPrompt ? true : !_showTypingPrompt ? true : false,
-          readOnly: _showTypingPrompt,
-        ),
-        const SizedBox(height: 12),
-        if (!_showTypingPrompt)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: displayLetters
-                .map(
-                  (c) => ElevatedButton(
-                    onPressed: _submitted
-                        ? null
-                        : () {
-                            final newText = _typingController.text + c;
-                            setState(() {
-                              _typingController.text = newText;
-                              _typingController.selection = TextSelection.fromPosition(
-                                TextPosition(offset: newText.length),
-                              );
-                              _typedAnswer = newText;
-                            });
-                          },
-                    child: Text(c),
-                  ),
-                )
-                .toList(),
-          ),
-        if (_submitted)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(
-              _isCorrect ? 'Correct!' : 'Incorrect. The word was "$targetWord".',
-              style: TextStyle(
-                color: _isCorrect ? Colors.green.shade700 : Colors.red.shade700,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
 
-  Widget _buildFooter(_DemoQuestion question) {
-    final isExplanation = question.sentence.questionType == QuizQuestionType.explanation;
-    final isWordSearch = question.sentence.questionType == QuizQuestionType.wordSearch;
-    final isTyping = question.sentence.questionType == QuizQuestionType.typing;
-    final isMultiple = question.sentence.questionType == QuizQuestionType.multipleChoice;
+  Widget _buildFooter(DemoQuestion question) {
+    final isExplanation = question.kind == DemoQuestionKind.explanation;
+    final isWordSearch = question.kind == DemoQuestionKind.wordSearch;
+    final isTyping = question.kind == DemoQuestionKind.typing;
+    final isMultiple = question.kind == DemoQuestionKind.multipleChoice;
 
     return Column(
       children: [
