@@ -8,12 +8,33 @@ import 'widgets/question_types_models.dart';
 import 'widgets/single_choice_question.dart';
 import 'widgets/typing_question.dart';
 import 'widgets/word_search_question.dart';
+import 'widgets/memory_card_question.dart';
 
 class QuestionTypesDemoPage extends StatefulWidget {
   const QuestionTypesDemoPage({super.key});
 
   @override
   State<QuestionTypesDemoPage> createState() => _QuestionTypesDemoPageState();
+}
+
+class _MemoryCardState {
+  final String letter;
+  final bool revealed;
+  final bool matched;
+
+  const _MemoryCardState({
+    required this.letter,
+    this.revealed = false,
+    this.matched = false,
+  });
+
+  _MemoryCardState copyWith({bool? revealed, bool? matched}) {
+    return _MemoryCardState(
+      letter: letter,
+      revealed: revealed ?? this.revealed,
+      matched: matched ?? this.matched,
+    );
+  }
 }
 
 class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
@@ -30,6 +51,11 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
   Timer? _typingTimer;
   Timer? _revealTimer;
   final TextEditingController _typingController = TextEditingController();
+  List<_MemoryCardState> _memoryCards = [];
+  int? _memoryFirstIndex;
+  bool _memoryReady = false;
+  bool _memoryLock = false;
+  Timer? _memoryHideTimer;
 
   @override
   void initState() {
@@ -42,6 +68,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
   void dispose() {
     _typingTimer?.cancel();
     _revealTimer?.cancel();
+    _memoryHideTimer?.cancel();
     _typingController.dispose();
     super.dispose();
   }
@@ -60,6 +87,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
       'catzzzzzzz',
     ];
     final wordTargets = ['cat', 'car', 'arc'];
+    final memoryLetters = '言語明日問題仕事間に合わ美人'.split('');
 
     return [
       SingleChoiceDemoQuestion(
@@ -131,6 +159,16 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         targets: const ['見える'],
         letters: const ['見', '束', '座', 'っ', 'る', 'い', 'う', 'え', 'で', 'ら'],
       ),
+      MemoryCardDemoQuestion(
+        sentence: QuizSentence(
+          id: 'memory_cards_1',
+          sentence: 'Memory cards: match each pair of Japanese characters.',
+          options: const [],
+          words: const [],
+          questionType: QuizQuestionType.explanation,
+        ),
+        letters: memoryLetters,
+      ),
     ];
   }
 
@@ -145,9 +183,14 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
       _typingTimeLeft = 10.0;
       _showTypingPrompt = false;
       _typingController.clear();
+      _memoryCards = [];
+      _memoryFirstIndex = null;
+      _memoryReady = false;
+      _memoryLock = false;
     });
     _typingTimer?.cancel();
     _revealTimer?.cancel();
+    _memoryHideTimer?.cancel();
     _setupForCurrentQuestion();
   }
 
@@ -265,6 +308,8 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         return 'Word Search';
       case DemoQuestionKind.typing:
         return 'Typing';
+      case DemoQuestionKind.memoryCards:
+        return 'Memory Cards';
     }
   }
 
@@ -310,6 +355,53 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           isCorrect: _isCorrect,
           onChanged: (val) => setState(() => _typedAnswer = val),
           onLetterTap: _onTypingLetterTap,
+        );
+      case DemoQuestionKind.memoryCards:
+        final q = question as MemoryCardDemoQuestion;
+        final cards = _memoryCards
+            .map((c) => MemoryCardItem(
+                  letter: c.letter,
+                  revealed: c.revealed,
+                  matched: c.matched,
+                ))
+            .toList();
+        final pairsFound = _memoryCards.where((c) => c.matched).length ~/ 2;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              sentence.sentence,
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _memoryReady
+                  ? 'Flip two cards at a time. Matched pairs stay visible.'
+                  : 'Memorize the cards. They will hide shortly.',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: MemoryCardQuestion(
+                cards: cards,
+                onTap: _onMemoryCardTap,
+                interactionEnabled: _memoryReady && !_submitted && !_memoryLock,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pairs found: $pairsFound / ${q.letters.length}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            if (_submitted && _isCorrect)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Great job! All pairs matched.',
+                  style: TextStyle(color: Colors.green.shade700),
+                ),
+              ),
+          ],
         );
       case DemoQuestionKind.multipleChoice:
         return MultipleChoiceQuestion(
@@ -396,6 +488,58 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     });
   }
 
+  void _onMemoryCardTap(int idx) {
+    if (_submitted || !_memoryReady || _memoryLock || idx < 0 || idx >= _memoryCards.length) {
+      return;
+    }
+    final card = _memoryCards[idx];
+    if (card.matched || card.revealed) return;
+
+    setState(() {
+      _memoryCards[idx] = card.copyWith(revealed: true);
+    });
+
+    if (_memoryFirstIndex == null) {
+      _memoryFirstIndex = idx;
+      return;
+    }
+
+    final firstIdx = _memoryFirstIndex!;
+    final firstCard = _memoryCards[firstIdx];
+    final secondCard = _memoryCards[idx];
+    _memoryLock = true;
+
+    if (firstCard.letter == secondCard.letter) {
+      setState(() {
+        _memoryCards[firstIdx] = firstCard.copyWith(matched: true);
+        _memoryCards[idx] = secondCard.copyWith(matched: true);
+      });
+      _memoryFirstIndex = null;
+      _memoryLock = false;
+      _checkMemoryCompletion();
+    } else {
+      Timer(const Duration(milliseconds: 700), () {
+        if (!mounted) return;
+        setState(() {
+          _memoryCards[firstIdx] = _memoryCards[firstIdx].copyWith(revealed: false);
+          _memoryCards[idx] = _memoryCards[idx].copyWith(revealed: false);
+        });
+        _memoryFirstIndex = null;
+        _memoryLock = false;
+      });
+    }
+  }
+
+  void _checkMemoryCompletion() {
+    final allMatched = _memoryCards.isNotEmpty && _memoryCards.every((c) => c.matched);
+    if (allMatched) {
+      setState(() {
+        _submitted = true;
+        _isCorrect = true;
+      });
+    }
+  }
+
   void _onTypingLetterTap(String c) {
     if (_submitted || _showTypingPrompt) return;
     final newText = _typingController.text + c;
@@ -410,6 +554,29 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
 
   void _setupForCurrentQuestion() {
     final question = _questions[_currentIndex];
+    if (question.kind == DemoQuestionKind.memoryCards) {
+      _memoryHideTimer?.cancel();
+      final q = question as MemoryCardDemoQuestion;
+      final duplicated = [...q.letters, ...q.letters];
+      duplicated.shuffle();
+      setState(() {
+        _memoryCards = duplicated
+            .map((l) => _MemoryCardState(letter: l, revealed: true, matched: false))
+            .toList();
+        _memoryReady = false;
+        _memoryFirstIndex = null;
+        _memoryLock = false;
+      });
+      _memoryHideTimer = Timer(const Duration(seconds: 3), () {
+        if (!mounted) return;
+        setState(() {
+          _memoryCards = _memoryCards
+              .map((c) => c.matched ? c : c.copyWith(revealed: false))
+              .toList();
+          _memoryReady = true;
+        });
+      });
+    }
     if (question.kind == DemoQuestionKind.typing) {
       setState(() {
         _showTypingPrompt = true;
@@ -438,6 +605,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     final isWordSearch = question.kind == DemoQuestionKind.wordSearch;
     final isTyping = question.kind == DemoQuestionKind.typing;
     final isMultiple = question.kind == DemoQuestionKind.multipleChoice;
+    final isMemory = question.kind == DemoQuestionKind.memoryCards;
 
     return Column(
       children: [
@@ -465,7 +633,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
               child: const Text('Submit'),
             ),
           ),
-        if (_submitted && !_isCorrect && !isExplanation && !isWordSearch)
+        if (_submitted && !_isCorrect && !isExplanation && !isWordSearch && !isMemory)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(

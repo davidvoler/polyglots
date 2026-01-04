@@ -6,6 +6,7 @@ enum DemoQuestionKind {
   explanation,
   wordSearch,
   typing,
+  memoryCards,
 }
 
 abstract class DemoQuestion {
@@ -71,9 +72,34 @@ class TypingDemoQuestion extends DemoQuestion {
   });
 }
 
+class MemoryCardDemoQuestion extends DemoQuestion {
+  @override
+  final DemoQuestionKind kind = DemoQuestionKind.memoryCards;
+  @override
+  final QuizSentence sentence;
+  final List<String> letters;
+
+  const MemoryCardDemoQuestion({
+    required this.sentence,
+    required this.letters,
+  });
+}
+
 class CellPos {
   final int row;
   final int col;
   const CellPos(this.row, this.col);
+}
+
+class MemoryCardItem {
+  final String letter;
+  final bool revealed;
+  final bool matched;
+
+  const MemoryCardItem({
+    required this.letter,
+    required this.revealed,
+    required this.matched,
+  });
 }
 
