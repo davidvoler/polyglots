@@ -14,11 +14,13 @@ class _DemoQuestion {
   final QuizSentence sentence;
   final List<String>? grid; // optional word search grid
   final List<String>? targets;
+  final List<String>? letters; // optional custom letter bank
 
   _DemoQuestion({
     required this.sentence,
     this.grid,
     this.targets,
+    this.letters,
   });
 }
 
@@ -131,6 +133,17 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           questionType: QuizQuestionType.typing,
         ),
         targets: const ['bonjour'],
+      ),
+      _DemoQuestion(
+        sentence: QuizSentence(
+          id: 'typing_jp_1',
+          sentence: 'Type the Japanese word 見える (to be visible).',
+          options: const [],
+          words: const [],
+          questionType: QuizQuestionType.typing,
+        ),
+        targets: const ['見える'],
+        letters: const ['約', '見', '束', '座', 'っ', 'る', 'い', 'う', 'え', 'で', 'ら'],
       ),
     ];
   }
@@ -519,6 +532,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
 
   Widget _buildTypingArea(_DemoQuestion question) {
     final targetWord = question.targets?.first ?? '';
+    final displayLetters = question.letters ?? targetWord.split('');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -536,7 +550,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              targetWord.toUpperCase(),
+              targetWord,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
@@ -564,8 +578,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: targetWord
-                .split('')
+            children: displayLetters
                 .map(
                   (c) => ElevatedButton(
                     onPressed: _submitted
