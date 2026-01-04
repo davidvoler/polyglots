@@ -143,7 +143,7 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           questionType: QuizQuestionType.typing,
         ),
         targets: const ['見える'],
-        letters: const ['約', '見', '束', '座', 'っ', 'る', 'い', 'う', 'え', 'で', 'ら'],
+        letters: const ['見', '束', '座', 'っ', 'る', 'い', 'う', 'え', 'で', 'ら'],
       ),
     ];
   }
@@ -562,19 +562,22 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
             valueColor: AlwaysStoppedAnimation<Color>(_typingTimeLeft > 3 ? Colors.blue : Colors.red),
             minHeight: 8,
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _typingController,
-            onChanged: (val) => setState(() {
-              _typedAnswer = val;
-            }),
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Type here…',
-            ),
-            enabled: !_submitted,
+        ],
+        const SizedBox(height: 12),
+        TextField(
+          controller: _typingController,
+          onChanged: (val) => setState(() {
+            _typedAnswer = val;
+          }),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Type here…',
           ),
-          const SizedBox(height: 12),
+          enabled: !_submitted && !_showTypingPrompt ? true : !_showTypingPrompt ? true : false,
+          readOnly: _showTypingPrompt,
+        ),
+        const SizedBox(height: 12),
+        if (!_showTypingPrompt)
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -593,21 +596,22 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
                               _typedAnswer = newText;
                             });
                           },
-                    child: Text(c.toUpperCase()),
+                    child: Text(c),
                   ),
                 )
                 .toList(),
           ),
-          const SizedBox(height: 12),
-          if (_submitted)
-            Text(
-              _isCorrect ? 'Correct!' : 'Incorrect. The word was "${targetWord.toUpperCase()}".',
+        if (_submitted)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              _isCorrect ? 'Correct!' : 'Incorrect. The word was "$targetWord".',
               style: TextStyle(
                 color: _isCorrect ? Colors.green.shade700 : Colors.red.shade700,
                 fontWeight: FontWeight.w600,
               ),
             ),
-        ],
+          ),
       ],
     );
   }
