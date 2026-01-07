@@ -9,7 +9,6 @@ class Question(BaseModel):
     lang: str: str = ''
     to_lang: str: str = ''
 
-
 class Option(BaseModel):
     text: str = ''
     correct: bool = False
@@ -34,7 +33,6 @@ class MultipleChoiceQuestion(Question):
     annotated_sentence: dict = {}
 
 
-
 class IdentifyWordsQuestion(Question):
     qtype = 'identify_words'
     sentence: str
@@ -43,13 +41,11 @@ class IdentifyWordsQuestion(Question):
     annotated_sentence: dict = {}
     multiple_choice: bool = True
 
-
 class WordsArrayQuestion(Question):
     qtype = 'words_array'
     sentence: str
     options: list[Option]
     ab_array: list[str]
-
 
 class MemoryGameQuestion(Question):
     qtype = 'memory_game'
