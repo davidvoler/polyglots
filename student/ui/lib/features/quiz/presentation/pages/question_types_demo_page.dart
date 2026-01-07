@@ -9,6 +9,7 @@ import 'widgets/single_choice_question.dart';
 import 'widgets/typing_question.dart';
 import 'widgets/word_search_question.dart';
 import 'widgets/memory_card_question.dart';
+import 'widgets/identify_words_question.dart';
 
 class QuestionTypesDemoPage extends StatefulWidget {
   const QuestionTypesDemoPage({super.key});
@@ -102,6 +103,21 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
           ],
           words: const [],
           questionType: QuizQuestionType.singleChoice,
+        ),
+      ),
+      IdentifyWordsDemoQuestion(
+        sentence: QuizSentence(
+          id: 'identify_1',
+          sentence: 'Listen and tap the words you hear.',
+          options: [
+            QuizOption(sentence: 'こんにちは', transliteration: 'konnichiwa', correct: true),
+            QuizOption(sentence: 'さようなら', transliteration: 'sayounara', correct: false),
+            QuizOption(sentence: 'ありがとう', transliteration: 'arigatou', correct: true),
+            QuizOption(sentence: 'すみません', transliteration: 'sumimasen', correct: false),
+          ],
+          words: const [],
+          questionType: QuizQuestionType.identifyWords,
+          sound: 'demo_audio_1.mp3',
         ),
       ),
       MultipleChoiceDemoQuestion(
@@ -310,6 +326,8 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         return 'Typing';
       case DemoQuestionKind.memoryCards:
         return 'Memory Cards';
+      case DemoQuestionKind.identifyWords:
+        return 'Identify Words';
     }
   }
 
@@ -405,6 +423,13 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
         );
       case DemoQuestionKind.multipleChoice:
         return MultipleChoiceQuestion(
+          options: sentence.options,
+          selected: _selected,
+          submitted: _submitted,
+          onToggle: _onToggle,
+        );
+      case DemoQuestionKind.identifyWords:
+        return IdentifyWordsQuestion(
           options: sentence.options,
           selected: _selected,
           submitted: _submitted,
@@ -606,10 +631,11 @@ class _QuestionTypesDemoPageState extends State<QuestionTypesDemoPage> {
     final isTyping = question.kind == DemoQuestionKind.typing;
     final isMultiple = question.kind == DemoQuestionKind.multipleChoice;
     final isMemory = question.kind == DemoQuestionKind.memoryCards;
+    final isIdentify = question.kind == DemoQuestionKind.identifyWords;
 
     return Column(
       children: [
-        if (isMultiple && !_submitted)
+        if ((isMultiple || isIdentify) && !_submitted)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(

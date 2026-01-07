@@ -1,5 +1,23 @@
 # Question types 
 
+## Sentences 
+Until now we had only one type of question 
+listen and identify/guess the meaning of the sentences 
+
+An alternative version of it was - reverse mode - when we show the sentence in student language and let the user choose 
+
+What else is there?
+Identify words in speech - a short or a long sentences 
+Annotated sentences
+Annotation links 
+- link to sentences with similar words 
+- link to explanation about parts of speech  
+Build a sentence from 2/3 parts. - very similar to Duolingo
+
+
+
+
+## Reading 
 
 
 ## Alphabet

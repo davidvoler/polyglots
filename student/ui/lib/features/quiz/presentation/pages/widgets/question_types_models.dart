@@ -7,6 +7,7 @@ enum DemoQuestionKind {
   wordSearch,
   typing,
   memoryCards,
+  identifyWords,
 }
 
 abstract class DemoQuestion {
@@ -83,6 +84,15 @@ class MemoryCardDemoQuestion extends DemoQuestion {
     required this.sentence,
     required this.letters,
   });
+}
+
+class IdentifyWordsDemoQuestion extends DemoQuestion {
+  @override
+  final DemoQuestionKind kind = DemoQuestionKind.identifyWords;
+  @override
+  final QuizSentence sentence;
+
+  const IdentifyWordsDemoQuestion({required this.sentence});
 }
 
 class CellPos {

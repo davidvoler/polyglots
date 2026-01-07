@@ -178,6 +178,7 @@ class QuizNotifier extends StateNotifier<QuizState> {
         _markAnswered(isCorrect: true, currentSentence: currentSentence);
         break;
       case QuizQuestionType.multipleChoice:
+      case QuizQuestionType.identifyWords:
         currentSentence.attempts++;
         final selected = <int>{};
         final correct = <int>{};

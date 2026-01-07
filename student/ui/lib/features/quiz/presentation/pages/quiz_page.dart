@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/providers/quiz_provider.dart';
 import '../../../../shared/models/quiz_model.dart';
+import 'widgets/identify_words_question.dart';
 
 
 class QuizPage extends ConsumerStatefulWidget {
@@ -391,6 +392,8 @@ class _QuizPageState extends ConsumerState<QuizPage> {
             ],
           ),
         );
+      case QuizQuestionType.identifyWords:
+        return _buildIdentifyWords(sentence, quizState);
       case QuizQuestionType.multipleChoice:
         return _buildMultipleSelection(sentence, quizState);
       case QuizQuestionType.singleChoice:
@@ -563,13 +566,29 @@ class _QuizPageState extends ConsumerState<QuizPage> {
     );
   }
 
+  Widget _buildIdentifyWords(QuizSentence sentence, QuizState quizState) {
+    final selected = <int>{};
+    for (var i = 0; i < sentence.options.length; i++) {
+      if (ref.read(quizProvider.notifier).isOptionSelected(i)) {
+        selected.add(i);
+      }
+    }
+    return IdentifyWordsQuestion(
+      options: sentence.options,
+      selected: selected,
+      submitted: quizState.isAnswered,
+      onToggle: (idx) => ref.read(quizProvider.notifier).toggleOption(idx),
+    );
+  }
+
   Widget _buildBottomButton(QuizSentence sentence, QuizState quizState) {
     final isExplanation = sentence.questionType == QuizQuestionType.explanation;
     final isWordSearch = sentence.questionType == QuizQuestionType.wordSearch;
     final isTyping = sentence.questionType == QuizQuestionType.typing;
     final isMultiple = sentence.questionType == QuizQuestionType.multipleChoice;
+    final isIdentify = sentence.questionType == QuizQuestionType.identifyWords;
 
-    if (!quizState.isAnswered && (isExplanation || isMultiple || isWordSearch || isTyping)) {
+    if (!quizState.isAnswered && (isExplanation || isMultiple || isWordSearch || isTyping || isIdentify)) {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(

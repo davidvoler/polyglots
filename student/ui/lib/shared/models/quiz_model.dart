@@ -10,11 +10,13 @@ enum PracticeModes {
 class QuizOption {
   final String sentence;
   final bool correct;
+  final String? transliteration;
   bool selected;
 
   QuizOption({
     required this.sentence,
     required this.correct,
+    this.transliteration,
     this.selected = false,
   });
 
@@ -22,6 +24,7 @@ class QuizOption {
     return QuizOption(
       sentence: json['option'] ?? '',
       correct: json['correct'] ?? false,
+      transliteration: json['translit'] ?? json['transliteration'] ?? json['reading'],
       selected: json['selected'] ?? false,
     );
   }
@@ -30,6 +33,7 @@ class QuizOption {
     return {
       'option': sentence,
       'correct': correct,
+      if (transliteration != null) 'translit': transliteration,
       'selected': selected,
     };
   }
@@ -41,6 +45,7 @@ enum QuizQuestionType {
   explanation,
   wordSearch,
   typing,
+  identifyWords,
 }
 
 class QuizSentence {
@@ -88,6 +93,10 @@ class QuizSentence {
       questionType = QuizQuestionType.wordSearch;
     } else if (typeString == 'typing' || typeString == 'type' || typeString == 'write') {
       questionType = QuizQuestionType.typing;
+    } else if (typeString == 'identify_words' ||
+        typeString == 'identifywords' ||
+        typeString == 'identify') {
+      questionType = QuizQuestionType.identifyWords;
     }
 
     return QuizSentence(
@@ -115,6 +124,8 @@ class QuizSentence {
       questionTypeString = 'word_search';
     } else if (questionType == QuizQuestionType.typing) {
       questionTypeString = 'typing';
+    } else if (questionType == QuizQuestionType.identifyWords) {
+      questionTypeString = 'identify_words';
     }
 
     return {
