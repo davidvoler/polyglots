@@ -37,23 +37,47 @@
   #   volumes:
   #     - ./data/aerospike:/var/lib/aerospike
 
-  content_server:
-    container_name: content_server
-    image: content_server:polyglots
-    build:
-      context: content/content_server
-      dockerfile: Dockerfile.dev
+  # content_server:
+  #   container_name: content_server
+  #   image: content_server:polyglots
+  #   build:
+  #     context: content/content_server
+  #     dockerfile: Dockerfile.dev
 
+  #   ports:
+  #     - 8001:8000
+  #   volumes:
+  #     - ./content/content_server/src:/app
+  #   environment:
+  #     - POSTGRES_DB=polyglots
+  #     - POSTGRES_PORT=5432
+  #     - POSTGRES_HOST=postgres1
+  #     - POSTGRES_USER=polyglots
+  #     - POSTGRES_PASSWORD=polyglots
+  
+
+  student_server:
+    container_name: student_server
+    image: student_server:polyglots
+    build:
+      context: student/server
+      dockerfile: Dockerfile.dev
     ports:
-      - 8001:8000
+      - 8004:8004
     volumes:
-      - ./content/content_server/src:/app
+      - ./student/server/src:/app
     environment:
       - POSTGRES_DB=polyglots
       - POSTGRES_PORT=5432
       - POSTGRES_HOST=postgres1
       - POSTGRES_USER=polyglots
       - POSTGRES_PASSWORD=polyglots
-      - AEROSPIKE_HOST=polyglots
-      - AEROSPIKE_PORT=3000
+    command: 
+      - uvicorn
+      - main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8004"
+      - --reload
   

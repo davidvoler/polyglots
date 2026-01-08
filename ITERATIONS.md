@@ -140,10 +140,116 @@ A. Always - Use sound with text or without it
 - [done] Group lessons into modules
 - [ ] Load from files to database 
 
+## Iteration 2 - The student side - question types - planning
 
-- [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
-- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
-- [ ] As I have only one stage left let me do it as it is now. 
+#### Structure of course and exercise 
+
+- [InProgress] now I think get_quiz should be simple - the simplest if possible
+```sql
+select * from exercise where lesson_id = %s
+```
+There should be no formatting all all in the load 
+We need to format an exercise exactly as it should be sent to the client. 
+So when we need a reverse quiz - we need to create a new exercise
+The same way on the result side - we can create only insert and use group by to get sum and value
+offered structure for exercise table 
+```json
+// building the options is done by the client
+{
+    id:2,
+    lesson_id:1,
+    module_id:1,
+    course_id:1,
+    correct:"str",
+    options:[list],
+    words:[list],
+    annotated_sentence:{},
+    audio:str,
+}
+//alternative - random shuffling of the options is done by the client
+{
+    id:2,
+    lesson_id:1,
+    module_id:1,
+    course_id:1,
+    correct:"str",
+    options:[
+        {text:"",correct:false},
+        {text:"",correct:false},
+        {text:"",correct:true},
+        {text:"",correct:false},
+    ],
+    words:[list],
+    annotated_sentence:{},
+    audio:str,
+}
+```
+
+### multiple question type
+
+- [Done] - UI/UX design multiple question type 
+- [InProgress] - Data design of question types 
+- [ ] - start implementing the new question type 
+
+
+### Results structure
+- [Done] design the structure 
+- [ ] refresh based on results 
+
+claude.ai recomends using 3 words 
+
+let's define the words order 
+word1 = the word that exercise is on
+word2 = root ( if it is not word 1 ) - otherwise the less common (zipf) 
+word3 = less common (zipf) 
+
+
+alternative - device a way that any word would fall in one of the positions - so in case in a sentence there are words that all are in word1 we will save only one of them
+```sql
+where word1 in (%s,%s) or word2 in (%s,%s) or word2 in (%s,%s)
+```
+alternatively save a new results for words - without saving
+another alternative is saving verb, noun, propn for each sentence - if you have more than one save only one of them.
+
+
+
+#### options 1 - flat structure 
+Single insert
+No update
+all fields are saved 
+course_id, ...exercise_id, 
+
+To get refresh 
+```sql
+select exercise_id, count(*), sum(score), min(created), max(created) from results
+group by 1 
+```
+in the "where"  we can play with dates and other elements 
+We should get a larger list say 40 and randomly select 10 of them
+
+Can we save the words in the same structure 
+So we can search by words 
+
+#### Ideas and thoughts
+1. simplify exercise structure 
+2. an exercise is fully contained server only needs to pass it to the client with minimum touch
+3. The same sentences can be part of different exercises - so reverse sentences is another exercise and it Is recorded so in the results.
+4. Simplicity of the data - also in results 
+5. Get exercise in advance - Do we still need it? as we have minimum calculations now? 
+6. If we want to cache exercises - as there is almost no server side logic - we can load to local storage and client can get it from there
+7. We can use local storage for caching - say when you have no internet connection
+8. The same goes for results - we can cache results locally - when no internet connection
+
+Did we loose the the great ideas about algorithm of the learning?
+
+1. We can use it when practicing by words
+2. We can use it when practicing by times - refresh memory logic 
+3. I should review the ideas I had in the params
+a. it was strongly linked to the idea of branches and words containing
+b. I can still use the idea of A/B testing with algorithm settings 
+
+Is it all translated to how we structure the course?
+
 
 
 ### Take away from the manual part 
@@ -159,20 +265,60 @@ The ui parts should include the following steps
 7. allow the author to close a module and start a new one 
 
 
-## Iteration 2 - Hebrew English - optional
-- given that I find some some solution for transliteration - nikud and maybe context
+## Iteration 3 - Question type data - generate
 
-## Iteration 3 - English for my kids - optional
+The previous Iteration was all about thoughts and experiments 
+- Question types
+- Structure in DB
+- Simplify quiz data - no formatting while loading 
 
+Now let's generate some data to match above implementation - and test it. 
+
+
+
+
+
+## Iteration 4 - Simple student UI
+
+We should simplify the functionality of student
+- [] choose languages 
+- [] course course
+Login - maybe we can skip it for now 
+
+## Iteration 5 - Annotated sentence
+
+## Iteration 6 - Questions types in student
+
+## Iteration 7 - Student ready for first deploy even if it is only Japanese - English
+
+## Iteration 8 - Editor UI
+The following tasks will help improve editor ui
+- [ ]  Summary so far
+- [ ]  UI for Editor - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
+- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
+- [ ] As I have only one stage left let me do it as it is now. 
+- [ ] UI with cursor is quite simple - 
+- [ ] It is good I had some work to do with the manual part - Now I understand the structure I need 
+
+## Iteration 8 - Editor UI
+
+## Iteration 9
+## Iteration 10
+## Iteration 11
+## Iteration 12
+## Iteration 13
+## Iteration 14
+
+## Iteration 14 - English for my kids - optional
 - Say in a year from now - I could think of an app that will help with vocabulary 
 - reading and sound 
 
-## Iteration 4 - Arabic for myself - optional 
+## Iteration 15 - Arabic for myself - optional 
 - Assuming I have solved the transliteration issue for arabic and found a model like Spacy with morphological analyzer.
 - Even only transliteration would be good 
 - If not consider doing a simple course with a simpler learning process   
 
-## Iteration 4 - Course Editor - Make it Production ready
+## Iteration 16 - Course Editor - Make it Production ready
 
 
-## Iteration 5 - Student side - Make it Production ready
+## Iteration 17 - Student side - Make it Production ready

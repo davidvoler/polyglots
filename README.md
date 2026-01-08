@@ -32,3 +32,12 @@ This repository contains **3 main applications**, each consisting of a client-se
 2. Meaning or words with the letter - identify the writing from sound - advanced after you know quite most of the letters in the word
 3. words practice - just a normal words practice - when all words have the letter in them
 
+
+
+### Small steps - 5% to 10% difficulty - gradual difficulty
+When I am trying Duolingo - even a language I already know like German and Italian it is still difficult. 
+I am required to type the text - I am required to build complicated sentences. 
+I am looking for a solution that matches student stages and increases difficulty very slowly
+How do we achieve that?
+This is an open question that should guid us when building the app.
+Also - as we are an enabler - a tool for building courses - we do not have full control of what type of course will be built.

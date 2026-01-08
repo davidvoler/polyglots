@@ -10,11 +10,13 @@ enum PracticeModes {
 class QuizOption {
   final String sentence;
   final bool correct;
+  final String? transliteration;
   bool selected;
 
   QuizOption({
     required this.sentence,
     required this.correct,
+    this.transliteration,
     this.selected = false,
   });
 
@@ -22,6 +24,7 @@ class QuizOption {
     return QuizOption(
       sentence: json['option'] ?? '',
       correct: json['correct'] ?? false,
+      transliteration: json['translit'] ?? json['transliteration'] ?? json['reading'],
       selected: json['selected'] ?? false,
     );
   }
@@ -30,9 +33,19 @@ class QuizOption {
     return {
       'option': sentence,
       'correct': correct,
+      if (transliteration != null) 'translit': transliteration,
       'selected': selected,
     };
   }
+}
+
+enum QuizQuestionType {
+  singleChoice,
+  multipleChoice,
+  explanation,
+  wordSearch,
+  typing,
+  identifyWords,
 }
 
 class QuizSentence {
@@ -44,6 +57,7 @@ class QuizSentence {
   final String? dialogueLine;
   final String? translit;
   final String? sound;
+  final QuizQuestionType questionType;
 
   bool answered = false;
   int attempts = 0;
@@ -57,9 +71,34 @@ class QuizSentence {
     this.dialogueLine,
     this.translit,
     this.sound,
+    this.questionType = QuizQuestionType.singleChoice,
   });
 
   factory QuizSentence.fromJson(Map<String, dynamic> json) {
+    final typeString = (json['question_type'] ?? '').toString().toLowerCase();
+    QuizQuestionType questionType = QuizQuestionType.singleChoice;
+    if (typeString == 'multiple' ||
+        typeString == 'multiple_choice' ||
+        typeString == 'multi' ||
+        typeString == 'multiple-select' ||
+        typeString == 'multiple_selection') {
+      questionType = QuizQuestionType.multipleChoice;
+    } else if (typeString == 'explanation' ||
+        typeString == 'info' ||
+        typeString == 'informational') {
+      questionType = QuizQuestionType.explanation;
+    } else if (typeString == 'word_search' ||
+        typeString == 'wordsearch' ||
+        typeString == 'word-search') {
+      questionType = QuizQuestionType.wordSearch;
+    } else if (typeString == 'typing' || typeString == 'type' || typeString == 'write') {
+      questionType = QuizQuestionType.typing;
+    } else if (typeString == 'identify_words' ||
+        typeString == 'identifywords' ||
+        typeString == 'identify') {
+      questionType = QuizQuestionType.identifyWords;
+    }
+
     return QuizSentence(
       sentence: json['sentence'] ?? '',
       words: json['words'] ?? [],
@@ -68,6 +107,7 @@ class QuizSentence {
       dialogueId: json['dialogue_id'],
       dialogueLine: json['dialogue_line'],
       translit: json['translit'],
+      questionType: questionType,
       options: List<dynamic>.from(json['options'] ?? [])
           .map((i) => QuizOption.fromJson(i))
           .toList(),
@@ -75,6 +115,19 @@ class QuizSentence {
   }
 
   Map<String, dynamic> toJson() {
+    String questionTypeString = 'single';
+    if (questionType == QuizQuestionType.multipleChoice) {
+      questionTypeString = 'multiple';
+    } else if (questionType == QuizQuestionType.explanation) {
+      questionTypeString = 'explanation';
+    } else if (questionType == QuizQuestionType.wordSearch) {
+      questionTypeString = 'word_search';
+    } else if (questionType == QuizQuestionType.typing) {
+      questionTypeString = 'typing';
+    } else if (questionType == QuizQuestionType.identifyWords) {
+      questionTypeString = 'identify_words';
+    }
+
     return {
       'sentence': sentence,
       'words': words,
@@ -83,6 +136,7 @@ class QuizSentence {
       'dialogue_id': dialogueId,
       'dialogue_line': dialogueLine,
       'translit': translit,
+      'question_type': questionTypeString,
       'options': options.map((option) => option.toJson()).toList(),
     };
   }

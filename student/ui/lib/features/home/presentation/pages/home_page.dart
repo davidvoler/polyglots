@@ -7,6 +7,7 @@ import '../../../../shared/providers/progress_provider.dart';
 import '../../../../shared/widgets/language_dropdown.dart';
 import '../../../../shared/widgets/settings_toggle.dart';
 import '../../../quiz/presentation/pages/quiz_page.dart';
+import '../../../quiz/presentation/pages/question_types_demo_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -63,6 +64,23 @@ class HomePage extends ConsumerWidget {
               // Learning Options
               _buildLearningOptions(context, settings, ref),
               SizedBox(height: 24), // Bottom padding for scroll
+
+              // Demo question types
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: Icon(Icons.play_circle_fill),
+                  label: Text('See question type demos'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const QuestionTypesDemoPage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),

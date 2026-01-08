@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/providers/quiz_provider.dart';
 import '../../../../shared/models/quiz_model.dart';
+import 'widgets/identify_words_question.dart';
 
 
 class QuizPage extends ConsumerStatefulWidget {
@@ -246,46 +247,8 @@ class _QuizPageState extends ConsumerState<QuizPage> {
                           child: _buildAnswerOptions(currentSentence, quizState),
                         ),
 
-                        // Next button
-                        if (quizState.isAnswered)
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (quizState.isLastQuestion) {
-                                  // Save all results when quiz is finished
-                                  await ref.read(quizProvider.notifier).saveResults();
-                                  // Show quiz summary
-                                  _showQuizSummary(context, quizState);
-                                } else {
-                                  ref.read(quizProvider.notifier).nextQuestion();
-                                  // Auto-play audio for next question if enabled
-                                  if (widget.autoPlaySound) {
-                                    Future.delayed(Duration(milliseconds: 500), () {
-                                      if (mounted) {
-                                        ref.read(quizProvider.notifier).playAudio(normal: true);
-                                      }
-                                    });
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue.shade600,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                quizState.isLastQuestion ? 'Finish Quiz' : 'Next Question',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
+                        // Action button
+                        _buildBottomButton(currentSentence, quizState),
                       ],
                     ),
                   ),
@@ -407,6 +370,38 @@ class _QuizPageState extends ConsumerState<QuizPage> {
 
 
   Widget _buildAnswerOptions(QuizSentence sentence, QuizState quizState) {
+    switch (sentence.questionType) {
+      case QuizQuestionType.explanation:
+      case QuizQuestionType.wordSearch:
+      case QuizQuestionType.typing:
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                sentence.sentence,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              if (sentence.translit != null && sentence.translit!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  sentence.translit!,
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                ),
+              ],
+            ],
+          ),
+        );
+      case QuizQuestionType.identifyWords:
+        return _buildIdentifyWords(sentence, quizState);
+      case QuizQuestionType.multipleChoice:
+        return _buildMultipleSelection(sentence, quizState);
+      case QuizQuestionType.singleChoice:
+        return _buildSingleSelection(sentence, quizState);
+    }
+  }
+
+  Widget _buildSingleSelection(QuizSentence sentence, QuizState quizState) {
     return ListView.builder(
       itemCount: sentence.options.length,
       itemBuilder: (context, index) {
@@ -420,21 +415,17 @@ class _QuizPageState extends ConsumerState<QuizPage> {
         Color textColor = Colors.grey.shade800;
 
         if (isAnswered) {
-          // Quiz is completed - show correct answer in green
           if (isCorrect) {
             backgroundColor = Colors.green.shade50;
             borderColor = Colors.green.shade300;
             textColor = Colors.green.shade800;
           }
         } else if (isSelected) {
-          // Option is selected but quiz not completed yet
           if (isCorrect) {
-            // Correct answer selected - show in green
             backgroundColor = Colors.green.shade50;
             borderColor = Colors.green.shade300;
             textColor = Colors.green.shade800;
           } else {
-            // Wrong answer selected - show in red
             backgroundColor = Colors.red.shade50;
             borderColor = Colors.red.shade300;
             textColor = Colors.red.shade800;
@@ -499,6 +490,164 @@ class _QuizPageState extends ConsumerState<QuizPage> {
         );
       },
     );
+  }
+
+  Widget _buildMultipleSelection(QuizSentence sentence, QuizState quizState) {
+    return ListView.builder(
+      itemCount: sentence.options.length,
+      itemBuilder: (context, index) {
+        final option = sentence.options[index];
+        final isSelected = ref.read(quizProvider.notifier).isOptionSelected(index);
+        final isAnswered = quizState.isAnswered;
+        final isCorrect = ref.read(quizProvider.notifier).isOptionCorrect(index);
+
+        Color backgroundColor = Colors.white;
+        Color borderColor = Colors.grey.shade300;
+        Color textColor = Colors.grey.shade800;
+
+        if (isAnswered) {
+          if (isCorrect) {
+            backgroundColor = Colors.green.shade50;
+            borderColor = Colors.green.shade300;
+            textColor = Colors.green.shade800;
+          } else if (isSelected) {
+            backgroundColor = Colors.red.shade50;
+            borderColor = Colors.red.shade300;
+            textColor = Colors.red.shade800;
+          }
+        } else if (isSelected) {
+          backgroundColor = Colors.blue.shade50;
+          borderColor = Colors.blue.shade300;
+          textColor = Colors.blue.shade800;
+        }
+
+        return Container(
+          margin: EdgeInsets.only(bottom: 12),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isAnswered ? null : () {
+                ref.read(quizProvider.notifier).toggleOption(index);
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: isSelected,
+                      onChanged: isAnswered ? null : (_) {
+                        ref.read(quizProvider.notifier).toggleOption(index);
+                      },
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        option.sentence,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: textColor,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildIdentifyWords(QuizSentence sentence, QuizState quizState) {
+    final selected = <int>{};
+    for (var i = 0; i < sentence.options.length; i++) {
+      if (ref.read(quizProvider.notifier).isOptionSelected(i)) {
+        selected.add(i);
+      }
+    }
+    return IdentifyWordsQuestion(
+      options: sentence.options,
+      selected: selected,
+      submitted: quizState.isAnswered,
+      onToggle: (idx) => ref.read(quizProvider.notifier).toggleOption(idx),
+    );
+  }
+
+  Widget _buildBottomButton(QuizSentence sentence, QuizState quizState) {
+    final isExplanation = sentence.questionType == QuizQuestionType.explanation;
+    final isWordSearch = sentence.questionType == QuizQuestionType.wordSearch;
+    final isTyping = sentence.questionType == QuizQuestionType.typing;
+    final isMultiple = sentence.questionType == QuizQuestionType.multipleChoice;
+    final isIdentify = sentence.questionType == QuizQuestionType.identifyWords;
+
+    if (!quizState.isAnswered && (isExplanation || isMultiple || isWordSearch || isTyping || isIdentify)) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            ref.read(quizProvider.notifier).submitAnswer();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade600,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            (isExplanation || isWordSearch || isTyping) ? 'Continue' : 'Check Answer',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+      );
+    }
+
+    if (quizState.isAnswered) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () async {
+            if (quizState.isLastQuestion) {
+              await ref.read(quizProvider.notifier).saveResults();
+              _showQuizSummary(context, quizState);
+            } else {
+              ref.read(quizProvider.notifier).nextQuestion();
+              if (widget.autoPlaySound) {
+                Future.delayed(Duration(milliseconds: 500), () {
+                  if (mounted) {
+                    ref.read(quizProvider.notifier).playAudio(normal: true);
+                  }
+                });
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade600,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            quizState.isLastQuestion ? 'Finish Quiz' : 'Next Question',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+      );
+    }
+
+    // Default spacing placeholder
+    return const SizedBox(height: 8);
   }
 
   void _showQuizSummary(BuildContext context, QuizState quizState) {
