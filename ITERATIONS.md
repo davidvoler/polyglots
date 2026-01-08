@@ -274,8 +274,38 @@ The previous Iteration was all about thoughts and experiments
 
 Now let's generate some data to match above implementation - and test it. 
 
+- [] Generate data from the new question types
+- [] 
+
+- [] decide on the structure for each question type
+    - [] correct as the first options - or correct in separate field - let client do formatting - as we want to select different options 
+- [] decide on structure in DB
 
 
+
+1. explanation
+- [] sentence structure
+- [] what is a particle in japanese 
+- [] Japanese writing system
+- [] auxiliary
+
+2. single choice - all - can be used for grammar too 
+- [Done] - we have only this one
+3. multiple choice - all - can be used for grammar too 
+- [] for advanced lessons - select only sentences with multiple translation
+- [] in alphabet there are multiple translations 
+4. identify words - listening
+- [] can be created almost for every sentences 
+5. words in array - reading
+- [] for almost every word we teach we can create it
+6. memory game - reading/alphabet - can be used for letters but also for words
+- [] great for alphabet teaching - use a small amount of letters 
+- [] use letters we have already learned 
+7. type text - writing/alphabet 
+- [] for words and short phrases 
+8. identify letter in words
+- [Done] we have it with single choice 
+- [] add multiple choice
 
 
 ## Iteration 4 - Simple student UI

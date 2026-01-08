@@ -4,8 +4,8 @@ class Question(BaseModel):
     id: int
     lesson_id: int
     course_id: int
-    lang: str: str = ''
-    to_lang: str: str = ''
+    lang: str = ''
+    to_lang: str = ''
 
 class Option(BaseModel):
     text: str = ''
@@ -50,6 +50,13 @@ class MemoryGameQuestion(Question):
     sentence: str
     letters: str
     view_seconds: int = 5
+
+class LetterInWords(Question):
+    qtype = 'letter_in_word'
+    question: str
+    letters: list[str]
+    view_seconds: int = 5
+
 
 class TypeQuestion(Question):
     qtype = 'type'

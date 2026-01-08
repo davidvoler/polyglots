@@ -24,6 +24,7 @@ Seems that I have now around 7 different question types
 5. words in array - reading
 6. memory game - reading/alphabet - can be used for letters but also for words
 7. type text - writing/alphabet 
+8. identify letter in words
 
 
 general purpose | listening | reading     | writing | grammar
