@@ -140,11 +140,7 @@ A. Always - Use sound with text or without it
 - [done] Group lessons into modules
 - [ ] Load from files to database 
 
-## Iteration 2 - The student side
-
-
-
-
+## Iteration 2 - The student side - question types - planning
 
 #### Structure of course and exercise 
 
@@ -256,9 +252,6 @@ Is it all translated to how we structure the course?
 
 
 
-
-
-
 ### Take away from the manual part 
 
 The ui parts should include the following steps
@@ -272,13 +265,34 @@ The ui parts should include the following steps
 7. allow the author to close a module and start a new one 
 
 
+## Iteration 3 - Question type data - generate
+
+The previous Iteration was all about thoughts and experiments 
+- Question types
+- Structure in DB
+- Simplify quiz data - no formatting while loading 
+
+Now let's generate some data to match above implementation - and test it. 
 
 
-## Iteration 3 - Editor UI
 
 
+
+## Iteration 4 - Simple student UI
+
+We should simplify the functionality of student
+- [] choose languages 
+- [] course course
+Login - maybe we can skip it for now 
+
+## Iteration 5 - Annotated sentence
+
+## Iteration 6 - Questions types in student
+
+## Iteration 7 - Student ready for first deploy even if it is only Japanese - English
+
+## Iteration 8 - Editor UI
 The following tasks will help improve editor ui
-
 - [ ]  Summary so far
 - [ ]  UI for Editor - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
 - [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
@@ -286,12 +300,16 @@ The following tasks will help improve editor ui
 - [ ] UI with cursor is quite simple - 
 - [ ] It is good I had some work to do with the manual part - Now I understand the structure I need 
 
+## Iteration 8 - Editor UI
 
-
-
+## Iteration 9
+## Iteration 10
+## Iteration 11
+## Iteration 12
+## Iteration 13
+## Iteration 14
 
 ## Iteration 14 - English for my kids - optional
-
 - Say in a year from now - I could think of an app that will help with vocabulary 
 - reading and sound 
 
