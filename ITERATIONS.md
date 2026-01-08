@@ -142,17 +142,13 @@ A. Always - Use sound with text or without it
 
 ## Iteration 2 - The student side
 
-- [ ] Summary so far - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
-- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
-- [ ] As I have only one stage left let me do it as it is now. 
-- [ ] UI with cursor is quite simple - 
-- [ ] It is good I had some work to do with the manual part - Now I understand the structure I need 
+
 
 
 
 #### Structure of course and exercise 
 
-- [ ] now I think get_quiz should be simple - the simplest if possible
+- [InProgress] now I think get_quiz should be simple - the simplest if possible
 ```sql
 select * from exercise where lesson_id = %s
 ```
@@ -193,9 +189,15 @@ offered structure for exercise table
 }
 ```
 
+### multiple question type
+
+- [Done] - UI/UX design multiple question type 
+- [InProgress] - Data design of question types 
+- [ ] - start implementing the new question type 
+
 
 ### Results structure
-- [ ] design the structure 
+- [Done] design the structure 
 - [ ] refresh based on results 
 
 claude.ai recomends using 3 words 
@@ -269,20 +271,36 @@ The ui parts should include the following steps
 6. allow generating explained lessons - gen with ai
 7. allow the author to close a module and start a new one 
 
-## Iteration 3 - Hebrew English - optional
-- given that I find some some solution for transliteration - nikud and maybe context
 
-## Iteration 4 - English for my kids - optional
+
+
+## Iteration 3 - Editor UI
+
+
+The following tasks will help improve editor ui
+
+- [ ]  Summary so far
+- [ ]  UI for Editor - Maybe we do need UI - The manual part took a few days - and it is not yet completed. 
+- [ ] With ui it would be simple to select or delete sentences - we could do it word by word - use select all and such  
+- [ ] As I have only one stage left let me do it as it is now. 
+- [ ] UI with cursor is quite simple - 
+- [ ] It is good I had some work to do with the manual part - Now I understand the structure I need 
+
+
+
+
+
+## Iteration 14 - English for my kids - optional
 
 - Say in a year from now - I could think of an app that will help with vocabulary 
 - reading and sound 
 
-## Iteration 5 - Arabic for myself - optional 
+## Iteration 15 - Arabic for myself - optional 
 - Assuming I have solved the transliteration issue for arabic and found a model like Spacy with morphological analyzer.
 - Even only transliteration would be good 
 - If not consider doing a simple course with a simpler learning process   
 
-## Iteration 6 - Course Editor - Make it Production ready
+## Iteration 16 - Course Editor - Make it Production ready
 
 
-## Iteration 7 - Student side - Make it Production ready
+## Iteration 17 - Student side - Make it Production ready
