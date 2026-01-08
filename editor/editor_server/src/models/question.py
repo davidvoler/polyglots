@@ -18,15 +18,15 @@ class ExplanationQuestion(Question):
     title: str
     text: str
 
-class SentenceQuestion(Question):
-    qtype = 'sentence'
+class SingleChoiceQuestion(Question):
+    qtype = 'single_choice'
     sentence: str
     options: list[Option]
     voice: str = ''
     annotated_sentence: dict = {}
 
 class MultipleChoiceQuestion(Question):
-    qtype = 'sentence'
+    qtype = 'multiple_choice'
     sentence: str
     options: list[Option]
     voice: str = ''

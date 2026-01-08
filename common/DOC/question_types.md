@@ -15,7 +15,47 @@ Annotation links
 Build a sentence from 2/3 parts. - very similar to Duolingo
 
 
+Seems that I have now around 7 different question types
 
+1. explanation
+2. single choice - all - can be used for grammar too 
+3. multiple choice - all - can be used for grammar too 
+4. identify words - listening
+5. words in array - reading
+6. memory game - reading/alphabet - can be used for letters but also for words
+7. type text - writing/alphabet 
+
+
+general purpose | listening | reading     | writing | grammar
+------------------------------------------------------------- 
+1,2,3           | 2,3,4     | all         | 7       | all 
+
+
+### Break down by functionality 
+
+2. or 3. 
+a. play audio, selection
+b. play audio, show text, show selection
+c. play audio, options are hidden, show option one by one
+d. Play audio, show option in learned languages
+
+
+We have the same data as above sentence but we act differently in the ui
+We can do it randomly in the ui - it does not have to be part of the data. with some limitations 
+- play audio -> read sentences - makes sense only if student has learned to read enough of the letters in the sentences - or we add transliteration 
+- show the options one by one require testing - especially how does it feel.
+
+
+### Future questions 
+- video with quiz - can be all the above question types 
+8. select words or phrases  when you hear them - extension of identify words 
+
+
+### Sentence annotation
+Play word sound
+Show word meaning and structure
+Link to other sentences with this word
+Link to explanation - particles, auxiliary
 
 ## Reading 
 
