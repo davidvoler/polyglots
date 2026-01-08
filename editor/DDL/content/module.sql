@@ -1,9 +1,4 @@
--- course."module" definition
-
--- Drop table
-
--- DROP TABLE course."module";
-
+DROP TABLE content.module;
 CREATE TABLE content."module" (
 	module_id serial4 NOT NULL,
 	course_id int8 NOT NULL,
@@ -16,6 +11,7 @@ CREATE TABLE content."module" (
     exercise_count int2 DEFAULT 0 NULL,
     weight int2 DEFAULT 0 NULL,
 	words _varchar NULL,
+	words_in_sentences _varchar NULL,
 	verbs _varchar NULL,
 	nouns _varchar NULL,
 	adjectives _varchar NULL,

@@ -1,8 +1,4 @@
--- course.lesson definition
-
--- Drop table
-
--- DROP TABLE course.lesson;
+drop table if exists content.lesson;
 
 CREATE TABLE content.lesson (
 	lesson_id serial4 NOT NULL,

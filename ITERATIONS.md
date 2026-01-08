@@ -288,24 +288,23 @@ Now let's generate some data to match above implementation - and test it.
 - [] what is a particle in japanese 
 - [] Japanese writing system
 - [] auxiliary
-
 2. single choice - all - can be used for grammar too 
 - [Done] - we have only this one
 3. multiple choice - all - can be used for grammar too 
-- [] for advanced lessons - select only sentences with multiple translation
-- [] in alphabet there are multiple translations 
+- [/] for advanced lessons - select only sentences with multiple translation
+- [/] in alphabet - more than one word 
 4. identify words - listening
-- [] can be created almost for every sentences 
+- [/] can be created almost for every sentences 
 5. words in array - reading
-- [] for almost every word we teach we can create it
+- [/] for almost every word we teach we can create it
 6. memory game - reading/alphabet - can be used for letters but also for words
-- [] great for alphabet teaching - use a small amount of letters 
-- [] use letters we have already learned 
+- [/] great for alphabet teaching - use a small amount of letters 
+- [/] use letters we have already learned 
 7. type text - writing/alphabet 
-- [] for words and short phrases 
+- [/] for words and short phrases 
 8. identify letter in words
 - [Done] we have it with single choice 
-- [] add multiple choice
+- [/] add multiple choice
 
 
 ## Iteration 4 - Simple student UI

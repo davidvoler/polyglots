@@ -1,3 +1,5 @@
+drop table if exists content.course;
+
 CREATE TABLE content.course (
 	course_id serial4 NOT NULL,
 	lang varchar(12) NOT NULL,
