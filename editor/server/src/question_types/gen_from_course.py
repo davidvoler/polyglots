@@ -7,6 +7,8 @@ from question_types.sentences_multiple_choice import sentences_multiple_choice
 from question_types.sentences_single_choice import sentences_single_choice
 from question_types.type_text import type_text
 from question_types.words_in_grid import words_in_grid
+from question_types.excercise_model import ExerciseModel
+
 import random
 
 WORDS_SO_FAR = set()
@@ -36,19 +38,29 @@ async def augment_alphabet_exercise(exercise: dict, new_course_id: int, new_modu
     elif ab_type == "kanji":
         KANJI_SO_FAR.add(lesson_word)
 async def augment_greeting_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_word: str):
-    pass 
+    sql = """
+    select * from content.exercise where lesson_id = %s and exercise_type = 'greeting'
+    """
+    results = await get_query_results(sql, (new_lesson_id,))
+    for r in results:
+        await augment_exercise(r, new_course_id, new_module_id, new_lesson_id, "greeting", lesson_word)
 
 
 async def augment_words_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_word: str):
     words_count = len(WORDS_SO_FAR)
-    if words_count > 10:
-        pass 
+    if words_count > 15:
+        identify_words_in_speech(lesson_word, WORDS_SO_FAR)
     if words_count > 50:
-        pass 
-    if words_count > 100:
-        pass 
+        words_in_grid(lesson_word, WORDS_SO_FAR)
+    if words_count > 300:
+        sentences_multiple_choice(lesson_word, WORDS_SO_FAR)
 
-async def save_exercise_new_format(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_type: str, lesson_word: str):
+
+async def save_exercise_new_format(exercise: ExerciseModel):
+    sql = """
+    INSERT INTO content.exercise(lesson_id, module_id, course_id, exercise_type, lang, to_lang, title, instruction, sentence, extra_data, word, letter, verb, verb_lemma, noun, adjective, auxiliary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """
+    await run_query(sql, (exercise.lesson_id, exercise.module_id, exercise.course_id, exercise.exercise_type, exercise.lang, exercise.to_lang, exercise.title, exercise.instruction, exercise.sentence, exercise.extra_data, exercise.word, exercise.letter, exercise.verb, exercise.verb_lemma, exercise.noun, exercise.adjective, exercise.auxiliary))
     pass
 
 

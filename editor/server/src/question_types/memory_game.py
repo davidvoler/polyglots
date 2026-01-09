@@ -1,5 +1,6 @@
 import random
 from typing import List, Any
+from question_types.excercise_model import ExerciseModel
 
 
 def create_memory_game(elements: List[Any], width: int = 8, height: int = 8) -> List[List[Any]]:
