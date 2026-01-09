@@ -7,6 +7,7 @@ from generators.exctract_aux import (
     letter_in_words,
     )
 from question_types.gen_from_course import gen_from_course
+from question_types.create_course_from_file import create_course_from_file
 os.environ["POSTGRES_PORT"] = "5433"  
 
 
@@ -18,4 +19,4 @@ if __name__ == '__main__':
     # asyncio.run(extract_aux())
     # asyncio.run(identify_words(22554842))
     # asyncio.run(letter_in_words())
-    asyncio.run(gen_from_course(30))
+    asyncio.run(create_course_from_file('../courses/japanese_english/edited', 'ja', 'en', 'Japanese English', 'Japanese English'))

@@ -199,7 +199,7 @@ async def gen_from_module(module: dict, new_course_id: int):
         new_module_id = res[0].get('module_id')
         await gen_from_lesson(r, new_course_id, new_module_id)
 
-async def gen_from_course(course_id: int):
+async def gen_from_course(folder_name: str, file_name: str):
     sql = """
     SELECT * FROM course.course WHERE id = %s
     """
