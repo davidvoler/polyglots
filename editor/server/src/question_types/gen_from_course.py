@@ -1,84 +1,91 @@
-from editor.server.src.generators.course_from_file_question_types import WORDS_IN_SENTENCE
 from utils.db import get_query_results, run_query
-from question_types.identify_words_in_speech import identify_words_in_speech
-from question_types.letter_in_words import letter_in_words
 from question_types.memory_game import create_memory_game
-from question_types.sentences_multiple_choice import sentences_multiple_choice
-from question_types.sentences_single_choice import sentences_single_choice
-from question_types.type_text import type_text
-from question_types.words_in_grid import words_in_grid
 from question_types.excercise_model import ExerciseModel
 
 import random
+import json
+
 
 WORDS_SO_FAR = set()
 WORDS_IN_SENTENCE = set()
-HIRAGANA_SO_FAR = set()
-KATAKANA_SO_FAR = set()
-KANJI_SO_FAR = set()
+HIRAGANA_SO_FAR = []
+KATAKANA_SO_FAR = []
+KANJI_SO_FAR = []
 MIN_CHANGE_DIRECTION = 30
 
+REPEAT_AFTER_KANA = 10
+REPEAT_AFTER_KANJI = 20
+
+HIRAGANA_REPEAT = []
+KATAKANA_REPEAT = []
+KANJI_REPEAT = []
+
+
+async def augment_alphabet_lesson_mem_game(exercise:ExerciseModel,ab_type: str, ab_letter: str,letter_collection:list):
+    letters = letter_collection.copy()
+    try:
+        letters.remove(ab_letter)
+    except:
+        pass
+    grid = create_memory_game(letters[:7]+[ab_letter], 4, 4)
+    exercise.extra_data['memory_game'] = grid
+    exercise.type = "memory_game"
+    exercise.title = f"Memory Game - {ab_letter}"
+    exercise.word = ''
+    exercise.letter = ab_letter
+    exercise.ab_type = ab_type
+    exercise.correct_options = []
+    exercise.wrong_options = []
+    exercise.annotated_sentence = {}
+    await save_exercise_new_format(exercise)
 
 
 
+async def augment_alphabet_lesson_letter_in_words(exercise:ExerciseModel,ab_type: str, ab_letter: str,words_collection:list):
+    words_with_letter = []
+    words_without_letter = []
+    for word in words_collection:
+        if ab_letter in word:
+            words_with_letter.append(word)
+        else:
+            words_without_letter.append(word)
+    exercise.type = "letters_in_words"
+    exercise.word = ''
+    exercise.correct_options = words_with_letter
+    exercise.wrong_options = words_without_letter[:6]
+    exercise.letter = ab_letter
+    await save_exercise_new_format(exercise)
 
 
-async def augment_alphabet_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, ab_type: str, ab_letter: str):
-    if ab_type == "hiragana":
-        if len(HIRAGANA_SO_FAR) > 6:
-            letters = list(HIRAGANA_SO_FAR)
-            random.shuffle(letters)
-            try:
-                letters.remove(ab_letter)
-            except:
-                pass
-            memory_game = create_memory_game(letters[:6]+[ab_letter], 4, 4)
-    elif ab_type == "katakana":
-        KATAKANA_SO_FAR.add(lesson_word)
-    elif ab_type == "kanji":
-        KANJI_SO_FAR.add(lesson_word)
-async def augment_greeting_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_word: str):
-    sql = """
-    select * from content.exercise where lesson_id = %s and exercise_type = 'greeting'
-    """
-    results = await get_query_results(sql, (new_lesson_id,))
-    for r in results:
-        await augment_exercise(r, new_course_id, new_module_id, new_lesson_id, "greeting", lesson_word)
-
-
-async def augment_words_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_word: str):
-    words_count = len(WORDS_SO_FAR)
-    if words_count > 15:
-        identify_words_in_speech(lesson_word, WORDS_SO_FAR)
-    if words_count > 50:
-        words_in_grid(lesson_word, WORDS_SO_FAR)
-    if words_count > 300:
-        sentences_multiple_choice(lesson_word, WORDS_SO_FAR)
 
 
 async def save_exercise_new_format(exercise: ExerciseModel):
     sql = """
-    INSERT INTO content.exercise(lesson_id, module_id, course_id, exercise_type, lang, to_lang, title, instruction, sentence, extra_data, word, letter, verb, verb_lemma, noun, adjective, auxiliary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    INSERT INTO content.exercise(lesson_id, module_id, course_id, exercise_type, lang, to_lang, title, instruction, sentence, extra_data, annotated_sentence, word, letter, verb, 
+    verb_lemma, noun, adjective, auxiliary, ab_type, sentence_id, to_sentence_id, correct_options, wrong_options, audio_link)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
-    await run_query(sql, (exercise.lesson_id, exercise.module_id, exercise.course_id, exercise.exercise_type, exercise.lang, exercise.to_lang, exercise.title, exercise.instruction, exercise.sentence, exercise.extra_data, exercise.word, exercise.letter, exercise.verb, exercise.verb_lemma, exercise.noun, exercise.adjective, exercise.auxiliary))
-    pass
+    await run_query(sql, (exercise.lesson_id, exercise.module_id, exercise.course_id, exercise.exercise_type, exercise.lang, exercise.to_lang, exercise.title, exercise.instruction, exercise.sentence,
+    json.dumps(exercise.extra_data), json.dumps(exercise.annotated_sentence), exercise.word, exercise.letter, exercise.verb, exercise.verb_lemma, exercise.noun, exercise.adjective, exercise.auxiliary, 
+    exercise.ab_type, exercise.sentence_id, exercise.to_sentence_id, exercise.correct_options, exercise.wrong_options, exercise.audio_link))
 
-
-async def augment_exercise(exercise: dict, new_course_id: int, new_module_id: int, new_lesson_id: int, lesson_type: str, lesson_word: str, ab_type: str):
-    if lesson_type == "alphabet":
-        await augment_alphabet_exercise(exercise, new_course_id, new_module_id, new_lesson_id, ab_type)
-    elif lesson_type == "greeting": 
-        await augment_greeting_exercise(exercise, new_course_id, new_module_id, new_lesson_id, lesson_word)
-    elif lesson_type == "words":
-        await augment_words_exercise(exercise, new_course_id, new_module_id, new_lesson_id, lesson_word)
-    await save_exercise_new_format(exercise, new_course_id, new_module_id, new_lesson_id, lesson_type, lesson_word)
-
+async def augment_exercise(old_exercise: dict, new_exercise: ExerciseModel):
+    words_count = len(WORDS_SO_FAR)
+    print(words_count)
+   
 
 async def augment_lesson(lesson: dict,new_course_id: int, new_module_id: int, new_lesson_id: int):
     title = lesson.get('title')
     lesson_type = ""
     lesson_word = ""
     ab_type = ""
+    exercise = ExerciseModel(
+        lesson_id=new_lesson_id,
+        module_id=new_module_id,
+        course_id=new_course_id,
+        lang=lesson.get('lang'),
+        to_lang=lesson.get('to_lang'),
+    )
     if "greeting" in title.lower():
         l = title.split(" ")
         lesson_type = "greeting"
@@ -89,26 +96,72 @@ async def augment_lesson(lesson: dict,new_course_id: int, new_module_id: int, ne
         lesson_word = l[2]
         ab_type = l[1]
         if ab_type == "hiragana":
-            HIRAGANA_SO_FAR.add(lesson_word)
+            HIRAGANA_SO_FAR.append(lesson_word)
+            await augment_alphabet_lesson_mem_game(exercise, ab_type, lesson_word, list(HIRAGANA_SO_FAR))
+            await augment_alphabet_lesson_letter_in_words(exercise, ab_type, lesson_word, list(WORDS_SO_FAR))
+            HIRAGANA_REPEAT.append(lesson_word)
+            if len(HIRAGANA_REPEAT) >= REPEAT_AFTER_KANA:
+                ab_letter = HIRAGANA_REPEAT[0]
+                HIRAGANA_REPEAT = HIRAGANA_REPEAT[1:]
+                await augment_alphabet_lesson_mem_game(exercise, ab_type, ab_letter, HIRAGANA_SO_FAR)
+                await augment_alphabet_lesson_letter_in_words(exercise, ab_type, ab_letter, list(WORDS_SO_FAR))
         elif ab_type == "katakana":
-            KATAKANA_SO_FAR.add(lesson_word)
+            KATAKANA_SO_FAR.append(lesson_word)
+            await augment_alphabet_lesson_mem_game(exercise, ab_type, lesson_word, KATAKANA_SO_FAR)
+            await augment_alphabet_lesson_letter_in_words(exercise, ab_type, lesson_word, list(WORDS_SO_FAR))
+            KATAKANA_REPEAT.append(lesson_word)
+            if len(KATAKANA_REPEAT) >= REPEAT_AFTER_KANA:
+                ab_letter = KATAKANA_REPEAT[0]
+                KATAKANA_REPEAT = KATAKANA_REPEAT[1:]
+                await augment_alphabet_lesson_mem_game(exercise, ab_type, ab_letter, KATAKANA_SO_FAR)
+                await augment_alphabet_lesson_letter_in_words(exercise, ab_type, ab_letter, list(WORDS_SO_FAR))
         elif ab_type == "kanji":
-            KANJI_SO_FAR.add(lesson_word)
+            KANJI_SO_FAR.append(lesson_word)
+            await augment_alphabet_lesson_mem_game(exercise, ab_type, lesson_word, KANJI_SO_FAR)
+            await augment_alphabet_lesson_letter_in_words(exercise, ab_type, lesson_word, list(WORDS_SO_FAR))
+            KANJI_REPEAT.append(lesson_word)
+            if len(KANJI_REPEAT) >= REPEAT_AFTER_KANJI:
+                ab_letter = KANJI_REPEAT[0]
+                KANJI_REPEAT = KANJI_REPEAT[1:]
+                await augment_alphabet_lesson_mem_game(exercise, ab_type, ab_letter, KANJI_SO_FAR)
+                await augment_alphabet_lesson_letter_in_words(exercise, ab_type, ab_letter, list(WORDS_SO_FAR))        
+    
     else:
         lesson_type = "words"
         lesson_word = title
-    
+        WORDS_SO_FAR.add(lesson_word)
     sql = """
     select * from course.exercise where lesson_id = %s
     """
     old_lesson_id = lesson.get('id')
     results = await get_query_results(sql, (old_lesson_id,))
+    exercise = ExerciseModel(
+        lesson_id=new_lesson_id,
+        module_id=new_module_id,
+        course_id=new_course_id,
+        lang=lesson.get('lang'),
+        to_lang=lesson.get('to_lang'),
+    )
     for r in results:
-        await augment_exercise(r,new_course_id, new_module_id, new_lesson_id, lesson_type, lesson_word,ab_type)
-
+        if lesson_type == "alphabet":
+            exercise.exercise_type = 'letter_in_words_single_choice'
+            exercise.letter = lesson_word
+            exercise.ab_type = ab_type
+        else:
+            exercise.exercise_type = 'sentence_single_choice'
+            exercise.word = lesson_word
+            exercise.sentence_id = r.get('sentence_id')
+            exercise.to_sentence_id = r.get('to_sentence_id')
+            exercise.annotated_sentence = r.get('annotated_sentence')
+        exercise.correct_options = [r.get('to_sentence')]
+        exercise.wrong_options = r.get('to_options')
+        exercise.audio_link = r.get('audio_link')
+        await save_exercise_new_format(exercise)
+        if lesson_type == "words":
+            await augment_exercise(r, exercise)
 
 async def gen_from_lesson(lesson: dict,new_course_id: int, new_module_id: int):
-    old_module_id = lesson.get('module_id')
+    old_module_id = lesson.get('id')
     old_course_id = lesson.get('course_id')
     sql = """
     SELECT * FROM course.lesson WHERE course_id = %s and module_id = %s
@@ -128,7 +181,7 @@ async def gen_from_lesson(lesson: dict,new_course_id: int, new_module_id: int):
         await augment_lesson(r, new_course_id, new_module_id, new_lesson_id)
   
 async def gen_from_module(module: dict, new_course_id: int):
-    old_course_id = module.get('course_id')
+    old_course_id = module.get('id')
     sql = """
     SELECT * FROM course.module WHERE course_id = %s
     """
@@ -156,11 +209,11 @@ async def gen_from_course(course_id: int):
     to_lang = course.get('to_lang')
     title = course.get('title')
     description = course.get('description')
-    
     sql = """
-    SELECT insert into content.course(lang,to_lang,title,description) values (%s,%s,%s,%s)
-    returning course_id
+    insert into content.course (lang,to_lang,title,description) values (%s,%s,%s,%s) returning course_id
     """
+    print(sql)
+    print(lang, to_lang, title, description)
     results = await get_query_results(sql, (lang, to_lang, title, description))
     new_course_id = results[0].get('course_id')
     await gen_from_module(course, new_course_id)

@@ -1,4 +1,4 @@
-DROP TABLE course.exercise;
+DROP TABLE content.exercise;
 
 CREATE TABLE content.exercise (
 	exercise_id serial4 NOT NULL,
@@ -27,6 +27,8 @@ CREATE TABLE content.exercise (
     adjective varchar(100) NULL,
     auxiliary varchar(100) NULL,
 	letter varchar(10) NULL,
+	ab_type varchar(10) DEFAULT '' NULL,
+	word varchar(100) DEFAULT '' NULL,
 	-- authoring data 
     sentence_id int8 NULL,
     to_sentence_id int8 NULL,

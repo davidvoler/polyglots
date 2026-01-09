@@ -2,7 +2,7 @@ import random
 from question_types.excercise_model import ExerciseModel
 
 
-def letters_in_words(letter:str,words_collection:list, words_with_letter:list=[])->ExerciseModel:
+def letter_in_words(letter:str,words_collection:list, words_with_letter:list=[])->ExerciseModel:
     
     rnd = random.choices(words_collection, k=6)
     incorrect = []
