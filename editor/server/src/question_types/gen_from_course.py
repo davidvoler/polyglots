@@ -1,6 +1,6 @@
 from utils.db import get_query_results, run_query
 from question_types.memory_game import create_memory_game
-from question_types.excercise_model import ExerciseModel
+from question_types.exercise_model import ExerciseModel
 
 import random
 import json
