@@ -20,8 +20,7 @@ async def create_identify_words_in_speech_exercise(exercise:ExerciseModel, words
     for ic in rnd:
         if ic not in text:
             incorrect.append(ic)
-    exercise.extra_data["words"] = words
-    exercise.extra_data["text"] = text
-    exercise.extra_data["incorrect"] = incorrect
     exercise.exercise_type = 'identify_words_in_speech'
+    exercise.correct_options = words
+    exercise.wrong_options = incorrect
     await save_exercise_new_format(exercise)
