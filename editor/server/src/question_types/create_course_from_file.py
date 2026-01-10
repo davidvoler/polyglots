@@ -198,7 +198,7 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                 title = " ".join(l[1:]).replace("by_words","").strip()
                 lesson_id = await create_lesson(lang, to_lang, title, title, course_id,module_id)
                 await create_lesson_word_exercise(lang, to_lang,course_id, module_id,lesson_id, word)
-            elif l[1] in ["kanji","katakana",'hiragana']:
+            elif l[2] in ["kanji","katakana",'hiragana']:
                 letter = l[3]
                 ab_type = l[2]
                 if ab_type == "hiragana":
@@ -227,13 +227,17 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                         await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(KANJI_SO_FAR))
         elif l[0] == "S":
             if l[1] ==  "kanji":
+                print( "kanji", l[1], l[2], l[3:])
                 await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KANJI_SO_FAR) )
             elif l[1] == "katakana":
+                print( "katakana", l[1], l[2], l[3:])
                 await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KATAKANA_SO_FAR) )
             elif l[1] == "hiragana":
+                print( "hiragana", l[1], l[2], l[3:])
                 await create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, l[1], l[2], l[3:], list(HIRAGANA_SO_FAR) )
             else:
-               await create_sentence_exercise(lang, to_lang,course_id, module_id,lesson_id, l[2], l[5], l[1])
+                print( "sentence", l[1], l[2], l[3:])
+                await create_sentence_exercise(lang, to_lang,course_id, module_id,lesson_id, l[2], l[5], l[1])
 
 
 
