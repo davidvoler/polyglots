@@ -1,5 +1,6 @@
 import random
 from typing import List, Tuple
+from question_types.exercise_model import ExerciseModel, save_exercise_new_format
 
 def generate_grid(
     words: List[str],
@@ -80,6 +81,13 @@ def generate_grid(
                 grid[r][c] = random.choice(filler_chars)
 
     return grid, placements
+
+async def create_words_in_grid_exercise(exercise:ExerciseModel,words: List[str], filler_chars: str, width: int = 8, height: int = 8, overlap: bool = False):
+    grid, placements = generate_grid(words, filler_chars, width, height, overlap)
+    exercise.extra_data["grid"] = grid
+    exercise.extra_data["placements"] = placements
+    exercise.exercise_type = 'words_in_grid'
+    await save_exercise_new_format(exercise)
 
 # Example
 if __name__ == "__main__":

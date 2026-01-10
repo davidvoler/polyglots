@@ -1,6 +1,6 @@
 import random
 from typing import List, Any
-from question_types.excercise_model import ExerciseModel
+from question_types.exercise_model import ExerciseModel, save_exercise_new_format
 
 
 def create_memory_game(elements: List[Any], width: int = 8, height: int = 8) -> List[List[Any]]:
@@ -61,9 +61,14 @@ def create_memory_game(elements: List[Any], width: int = 8, height: int = 8) -> 
         row = pool[idx : idx + chosen_width]
         grid.append(row)
         idx += chosen_width
-
     return grid
 
+
+async def create_memory_game_exercise(exercise:ExerciseModel, elements: List[Any], width: int = 8, height: int = 8):
+    grid = create_memory_game(elements, width, height)
+    exercise.extra_data["grid"] = grid
+    exercise.exercise_type = 'memory_game'
+    await save_exercise_new_format(exercise)
 
 if __name__ == "__main__":
     sample = ["A", "B", "C", "D", "E", "F", "G", "H", "I",'bb','cc','dd','ee','ff','gg','hh','ii']
