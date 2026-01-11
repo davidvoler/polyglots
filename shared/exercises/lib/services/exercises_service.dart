@@ -68,7 +68,7 @@ class ExercisesService {
         },
       },
       {
-        'exercise_type': ExerciseType.sentence_multiple_choice.asKey,
+        'exercise_type': ExerciseType.sentenceMultipleChoice.asKey,
         'title': 'Fill the blank',
         'instruction': 'Choose the correct word.',
         'word': 'cat',
@@ -76,7 +76,7 @@ class ExercisesService {
         'wrong_options': ['dog', 'bird', 'fish'],
       },
       {
-        'exercise_type': ExerciseType.sentence_single_choice.asKey,
+        'exercise_type': ExerciseType.sentenceSingleChoice.asKey,
         'title': 'Choose the right sentence',
         'instruction': 'Pick the translated sentence.',
         'sentence': 'El gato duerme.',
