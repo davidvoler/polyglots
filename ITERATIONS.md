@@ -320,7 +320,7 @@ Login - maybe we can skip it for now
 
 - [Done] - started by creating a new UI - shared/exercise
 - [Done] - Loading data into the client - currently loading all possible types from server
-- [] - review code structure 
+- [Done] - review code structure - Simple structure
 - [] - improve ui for each type 
 
 ## Iteration 5 - Annotated sentence
