@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'models/models.dart';
 import 'providers/exercises_provider.dart';
+import 'providers/quiz_providers.dart';
+import 'widgets/exercises/exercise_switcher.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -33,34 +35,80 @@ class ExercisesPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exercises'),
+        title: const Text('Exercises Quiz'),
       ),
       body: exercisesAsync.when(
         data: (items) {
           if (items.isEmpty) {
-            return const Center(
-              child: Text('No exercises found'),
-            );
+            return const Center(child: Text('No exercises found'));
           }
-          return ListView.separated(
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final exercise = items[index];
-              return ListTile(
-                title: Text(
-                  exercise.title.isNotEmpty
-                      ? exercise.title
-                      : exercise.type.asKey,
+
+          final index = ref.watch(currentExerciseIndexProvider);
+          final clampedIndex = index.clamp(0, items.length - 1);
+          // If the state drifts beyond the available range, snap it back.
+          if (clampedIndex != index) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(currentExerciseIndexProvider.notifier).state =
+                  clampedIndex;
+            });
+          }
+          final exercise = items[clampedIndex];
+
+          return Column(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Exercise ${clampedIndex + 1} of ${items.length}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(exercise.type.asKey),
+                  ],
                 ),
-                subtitle: Text(
-                  exercise.instruction.isNotEmpty
-                      ? exercise.instruction
-                      : _subtitleFor(exercise),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ExerciseSwitcher(exercise: exercise),
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: clampedIndex > 0
+                            ? () => ref
+                                .read(currentExerciseIndexProvider.notifier)
+                                .state = clampedIndex - 1
+                            : null,
+                        child: const Text('Previous'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: clampedIndex < items.length - 1
+                            ? () => ref
+                                .read(currentExerciseIndexProvider.notifier)
+                                .state = clampedIndex + 1
+                            : null,
+                        child: Text(
+                          clampedIndex < items.length - 1
+                              ? 'Next'
+                              : 'Done',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                trailing: Text(exercise.type.asKey),
-              );
-            },
+              ),
+            ],
           );
         },
         error: (error, stackTrace) => Center(
@@ -69,32 +117,5 @@ class ExercisesPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
-  }
-
-  String _subtitleFor(Exercise exercise) {
-    switch (exercise.type) {
-      case ExerciseType.identifyWordsInSpeech:
-        final typed = exercise as IdentifyWordsInSpeechExercise;
-        return 'Tap the words in: ${typed.text}';
-      case ExerciseType.letterInWords:
-        final typed = exercise as LetterInWordsExercise;
-        return 'Find letter "${typed.letter}"';
-      case ExerciseType.memoryGame:
-        final typed = exercise as MemoryGameExercise;
-        final rows = typed.grid.length;
-        final cols = typed.grid.isNotEmpty ? typed.grid.first.length : 0;
-        return 'Memory grid ${rows}x$cols';
-      case ExerciseType.sentenceMultipleChoice:
-        final typed = exercise as SentenceMultipleChoiceExercise;
-        return 'Choose: ${typed.word}';
-      case ExerciseType.sentenceSingleChoice:
-        final typed = exercise as SentenceSingleChoiceExercise;
-        return 'Translate: ${typed.sentence}';
-      case ExerciseType.typeQuestion:
-        final typed = exercise as TypeQuestionExercise;
-        return 'Type: ${typed.word}';
-      case ExerciseType.unknown:
-        return 'Unknown exercise type';
-    }
   }
 }
