@@ -6,7 +6,7 @@ router = APIRouter()
 async def get_exercise():
    sql = """
    SELECT * FROM content.exercise
-   limit 100
+   where exercise_id in (29,800,2281,2,1,3361)
    """
    res = await get_query_results(sql, None)
    return res
