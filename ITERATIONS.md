@@ -307,12 +307,21 @@ Now let's generate some data to match above implementation - and test it.
 - [/] add multiple choice
 
 
+### Summary
+- [Done] - Loaded new data - with more exercise types
+
 ## Iteration 4 - Simple student UI
 
 We should simplify the functionality of student
 - [] choose languages 
 - [] course course
 Login - maybe we can skip it for now 
+
+
+- [Done] - started by creating a new UI - shared/exercise
+- [Done] - Loading data into the client - currently loading all possible types from server
+- [] - review code structure 
+- [] - improve ui for each type 
 
 ## Iteration 5 - Annotated sentence
 

@@ -20,17 +20,27 @@ class SentenceSingleChoiceWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            exercise.title.isNotEmpty
-                ? exercise.title
-                : 'Choose the right sentence',
+            'Choose the right translation for:',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
-          Text('Sentence: ${exercise.sentence}'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          Text(
+            exercise.sentence,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
           ...options.map(
             (opt) => ListTile(
-              title: Text(opt),
+              title: Text(
+                opt,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontSize: 18),
+              ),
               leading: const Icon(Icons.circle_outlined),
               onTap: () {},
             ),
