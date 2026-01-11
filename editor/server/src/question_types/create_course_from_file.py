@@ -1,3 +1,4 @@
+from typing import Any
 from utils.db import get_query_results
 from question_types.exercise_model import ExerciseModel
 import random
@@ -76,7 +77,7 @@ async def get_audio_link(sentence_id, lang):
 
 
 async def create_sentence_exercise(lang, to_lang, course_id, module_id,lesson_id, sentence_id, to_sentence_id, word):
-    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR
+    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR, WORDS_SO_FAR
     sentence = await load_sentences(sentence_id, lang)
     to_sentence = await load_sentences(to_sentence_id, to_lang)
     audio_link = await get_audio_link(sentence_id, lang)
@@ -108,15 +109,18 @@ async def create_sentence_exercise(lang, to_lang, course_id, module_id,lesson_id
         random.shuffle(words)
         text = sentence.get('text')
         await create_identify_words_in_speech_exercise(exercise, words[:3], text, list(WORDS_SO_FAR))
-    words_for_grid = []
-    for w in words:
-        for c in w:
-            if c in HIRAGANA_SO_FAR or c in KATAKANA_SO_FAR or c in KANJI_SO_FAR:
-                words_for_grid.append(w)
-    if len(words_for_grid) > 1:
+    # words_for_grid = []
+    # for w in words:
+    #     for c in w:
+    #         if c in HIRAGANA_SO_FAR or c in KATAKANA_SO_FAR or c in KANJI_SO_FAR:
+    #             words_for_grid.append(w)
+    # if len(words_for_grid) > 1:
+    letter_so_far = len(HIRAGANA_SO_FAR) + len(KATAKANA_SO_FAR) + len(KANJI_SO_FAR)
+    if len(WORDS_SO_FAR) > 20 and letter_so_far > 10:
+
+        words_for_grid = random.choices(list(WORDS_SO_FAR), k=2) +[word]
         filler = list(HIRAGANA_SO_FAR) + list(KATAKANA_SO_FAR) + list(KANJI_SO_FAR)
-        random.shuffle(filler)
-        filler = filler[:8]
+        print("words_for_grid", words_for_grid, "word", word, "filler", filler)
         await create_words_in_grid_exercise(exercise, words_for_grid, filler)
 
 
@@ -141,6 +145,7 @@ async def create_lesson_word_exercise(lang, to_lang, course_id, module_id,lesson
         word=word,
     )
     filler = list(HIRAGANA_SO_FAR) + list(KATAKANA_SO_FAR) + list(KANJI_SO_FAR)
+
     await type_question(exercise, word, filler)
 
 

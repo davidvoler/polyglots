@@ -5,8 +5,8 @@ from question_types.exercise_model import ExerciseModel, save_exercise_new_forma
 def generate_grid(
     words: List[str],
     filler_chars: str,
-    width: int = 8,
-    height: int = 8,
+    width: int = 6,
+    height: int = 6,
     overlap: bool = False,
 ) -> Tuple[List[List[str]], List[dict]]:
     """
@@ -21,9 +21,11 @@ def generate_grid(
         "coordinates": [(r, c), ...],
     }
     """
-    words = [w.strip() for w in words if w.strip()]
+    words = [w.strip() for w in words if w.strip() if len(w.strip()) <= max(width, height)]
+
     if not words:
         raise ValueError("No words to place")
+    
     longest = max(len(w) for w in words)
     if longest > max(width, height):
         raise ValueError(f"Longest word ({longest}) does not fit in grid {width}x{height}")
@@ -73,8 +75,7 @@ def generate_grid(
 
     for w in words:
         if not place(w):
-            raise RuntimeError(f"Could not place word: {w}")
-
+            print(f"Could not place word: {w}")
     for r in range(height):
         for c in range(width):
             if grid[r][c] == "":
@@ -84,10 +85,14 @@ def generate_grid(
 
 async def create_words_in_grid_exercise(exercise:ExerciseModel,words: List[str], filler_chars: str, width: int = 8, height: int = 8, overlap: bool = False):
     grid, placements = generate_grid(words, filler_chars, width, height, overlap)
-    exercise.extra_data["grid"] = grid
-    exercise.extra_data["placements"] = placements
-    exercise.exercise_type = 'words_in_grid'
-    await save_exercise_new_format(exercise)
+    if len(grid) > 0 and len(placements) > 0:
+        exercise.extra_data["grid"] = grid
+        exercise.extra_data["placements"] = placements
+        exercise.exercise_type = 'words_in_grid'
+        await save_exercise_new_format(exercise)
+    else:
+        print(f"Could not create words in grid exercise for words: {words}")
+        return
 
 # Example
 if __name__ == "__main__":
