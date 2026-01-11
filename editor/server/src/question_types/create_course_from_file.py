@@ -76,6 +76,7 @@ async def get_audio_link(sentence_id, lang):
 
 
 async def create_sentence_exercise(lang, to_lang, course_id, module_id,lesson_id, sentence_id, to_sentence_id, word):
+    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR
     sentence = await load_sentences(sentence_id, lang)
     to_sentence = await load_sentences(to_sentence_id, to_lang)
     audio_link = await get_audio_link(sentence_id, lang)
@@ -120,6 +121,7 @@ async def create_sentence_exercise(lang, to_lang, course_id, module_id,lesson_id
 
 
 async def create_lesson_word_exercise(lang, to_lang, course_id, module_id,lesson_id, word):
+    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR
     learned_chars = 0
     for c in word:
         if c in HIRAGANA_SO_FAR:
@@ -142,7 +144,8 @@ async def create_lesson_word_exercise(lang, to_lang, course_id, module_id,lesson
     await type_question(exercise, word, filler)
 
 
-async def create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, letter, ab_type,word_collection, letter_collection=[]):
+async def create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, letter, ab_type,word_collection, letter_collection=[], latest_letters=[]):
+    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR
     exercise = ExerciseModel(
         lang=lang,
         to_lang=to_lang,
@@ -160,13 +163,10 @@ async def create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, lett
                 break
     word_collection = list(set((word_collection)))
     await create_letter_in_words_exercise(exercise, letter, word_collection, list(WORDS_SO_FAR))
-    if len(letter_collection) > 8:
-        random.shuffle(letter_collection)
-        try:
-            letter_collection.remove(letter)
-        except:
-            pass
-        await create_memory_game_exercise(exercise, letter_collection[:8]+[letter])
+    if len(latest_letters) >= 8:
+        await create_memory_game_exercise(exercise, latest_letters[-8:], width=4, height=4)
+    elif len(latest_letters) >= 6:
+        await create_memory_game_exercise(exercise, latest_letters[-6:], width=3, height=4)
 
 def _load_elements(folder, fname):
     res = []
@@ -178,6 +178,7 @@ def _load_elements(folder, fname):
 
 
 async def create_course_from_file(path,lang, to_lang, title, description):
+    global HIRAGANA_SO_FAR, KATAKANA_SO_FAR, KANJI_SO_FAR, HIRAGANA_REPEAT, KATAKANA_REPEAT, KANJI_REPEAT
     elements = _load_elements(path, "modules")
     course_id = await create_course(lang, to_lang, title, description)
     module_id = 0
@@ -198,9 +199,13 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                 title = " ".join(l[1:]).replace("by_words","").strip()
                 lesson_id = await create_lesson(lang, to_lang, title, title, course_id,module_id)
                 await create_lesson_word_exercise(lang, to_lang,course_id, module_id,lesson_id, word)
-            elif l[2] in ["kanji","katakana",'hiragana']:
-                letter = l[3]
-                ab_type = l[2]
+
+            elif l[1] == "alphabet":
+                print(l)
+                ab_letter = l[2].split()
+                ab_type = ab_letter[0].strip()
+                letter = ab_letter[1].strip()
+                print(ab_type, letter)
                 if ab_type == "hiragana":
                     print( "hiragana", letter)
                     HIRAGANA_SO_FAR.add(letter)
@@ -208,7 +213,7 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                     if len(HIRAGANA_REPEAT) >= REPEAT_AFTER_KANA:
                         letter = HIRAGANA_REPEAT[0]
                         HIRAGANA_REPEAT = HIRAGANA_REPEAT[1:]
-                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(HIRAGANA_SO_FAR))
+                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(HIRAGANA_SO_FAR), HIRAGANA_REPEAT )
                 elif ab_type == "katakana":
                     KATAKANA_SO_FAR.add(letter)
                     print( "katakana", letter)
@@ -216,7 +221,7 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                     if len(KATAKANA_REPEAT) >= REPEAT_AFTER_KANA:
                         letter = KATAKANA_REPEAT[0]
                         KATAKANA_REPEAT = KATAKANA_REPEAT[1:]
-                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(KATAKANA_SO_FAR), )
+                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(KATAKANA_SO_FAR), KATAKANA_REPEAT )
                 elif ab_type == "kanji":
                     KANJI_SO_FAR.add(letter)
                     print( "kanji", letter)
@@ -224,21 +229,26 @@ async def create_course_from_file(path,lang, to_lang, title, description):
                     if len(KANJI_REPEAT) >= REPEAT_AFTER_KANJI:
                         letter = KANJI_REPEAT[0]
                         KANJI_REPEAT = KANJI_REPEAT[1:]
-                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(KANJI_SO_FAR))
+                        await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, letter, ab_type,[], list(KANJI_SO_FAR), KANJI_REPEAT )
         elif l[0] == "S":
             if l[1] ==  "kanji":
                 print( "kanji", l[1], l[2], l[3:])
-                await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KANJI_SO_FAR) )
+                await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KANJI_SO_FAR), KANJI_REPEAT )
             elif l[1] == "katakana":
                 print( "katakana", l[1], l[2], l[3:])
-                await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KATAKANA_SO_FAR) )
+                await create_ab_exercise(lang, to_lang,course_id, module_id,lesson_id, l[1], l[2], l[3:], list(KATAKANA_SO_FAR), KATAKANA_REPEAT )
             elif l[1] == "hiragana":
                 print( "hiragana", l[1], l[2], l[3:])
-                await create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, l[1], l[2], l[3:], list(HIRAGANA_SO_FAR) )
+                await create_ab_exercise(lang, to_lang, course_id, module_id,lesson_id, l[1], l[2], l[3:], list(HIRAGANA_SO_FAR), HIRAGANA_REPEAT )
             else:
                 print( "sentence", l[1], l[2], l[3:])
                 await create_sentence_exercise(lang, to_lang,course_id, module_id,lesson_id, l[2], l[5], l[1])
 
-
+    print(HIRAGANA_SO_FAR)
+    print(KATAKANA_SO_FAR)
+    print(KANJI_SO_FAR)
+    print(HIRAGANA_REPEAT)
+    print(KATAKANA_REPEAT)
+    print(KANJI_REPEAT)
 
 
