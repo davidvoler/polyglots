@@ -9,10 +9,12 @@ class ExercisesService {
     http.Client? client,
     String? baseUrl,
   })  : _client = client ?? http.Client(),
-        baseUrl = baseUrl ?? const String.fromEnvironment(
-          'EXERCISES_BASE_URL',
-          defaultValue: '',
-        );
+        baseUrl = baseUrl ??
+            const String.fromEnvironment(
+              'EXERCISES_BASE_URL',
+              // Default to the local FastAPI exercise endpoint
+              defaultValue: 'http://0.0.0.0:8004/api/v1/exercise/',
+            );
 
   final http.Client _client;
   final String baseUrl;
@@ -22,7 +24,7 @@ class ExercisesService {
       return _loadLocalMock();
     }
 
-    final uri = Uri.parse('$baseUrl/exercises');
+    final uri = Uri.parse(baseUrl);
     final response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw Exception(

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import (
     quiz, results, stats, 
+    exercise,
     # auth,
     course
 )
@@ -58,3 +59,7 @@ app.include_router(course.router,
     prefix="/api/v1/course",
     tags=["course"])
 
+    
+app.include_router(exercise.router,
+    prefix="/api/v1/exercise",
+    tags=["exercise"])
