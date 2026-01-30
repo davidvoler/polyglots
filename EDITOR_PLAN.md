@@ -15,7 +15,7 @@ It should have the following steps
 1. select course options - languages, title, description, question types 
 2. Select/reorder words
   a. show words the user may already know like greeting and polite words 
-  b. show words in the corpus orderd by how common they are - most common in the start 
+  b. show words in the corpus ordered by how common they are - most common in the start 
 3. This is the iterative part where for each word we create a lesson with sentences and question types 
   a. select sentences 
   b. gen question types

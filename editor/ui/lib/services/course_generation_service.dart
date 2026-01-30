@@ -59,9 +59,201 @@ class ModuleWords {
   }
 }
 
+class CourseOption {
+  final String code;
+  final String name;
+  CourseOption({required this.code, required this.name});
+  factory CourseOption.fromJson(Map<String, dynamic> json) =>
+      CourseOption(code: json['code'] ?? '', name: json['name'] ?? '');
+}
+
+class QuestionTypeOption {
+  final String id;
+  final String name;
+  final String description;
+  final String applicableTo;
+  QuestionTypeOption({
+    required this.id,
+    required this.name,
+    this.description = '',
+    this.applicableTo = 'sentence',
+  });
+  factory QuestionTypeOption.fromJson(Map<String, dynamic> json) =>
+      QuestionTypeOption(
+        id: json['id'] ?? '',
+        name: json['name'] ?? '',
+        description: json['description'] ?? '',
+        applicableTo: json['applicable_to'] ?? 'sentence',
+      );
+}
+
+class CourseOptionsResponse {
+  final List<CourseOption> languages;
+  final List<QuestionTypeOption> questionTypes;
+  CourseOptionsResponse({required this.languages, required this.questionTypes});
+  factory CourseOptionsResponse.fromJson(Map<String, dynamic> json) =>
+      CourseOptionsResponse(
+        languages: (json['languages'] as List<dynamic>?)
+            ?.map((e) => CourseOption.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+        questionTypes: (json['question_types'] as List<dynamic>?)
+            ?.map((e) => QuestionTypeOption.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+class WordCount {
+  final String word;
+  final int cnt;
+  WordCount({required this.word, required this.cnt});
+  factory WordCount.fromJson(Map<String, dynamic> json) =>
+      WordCount(word: json['word'] ?? '', cnt: json['cnt'] ?? 0);
+}
+
+class SentenceForWordItem {
+  final int id;
+  final int toId;
+  final String sentence;
+  final String translation;
+  final List<String> options;
+  final int lenElm;
+  SentenceForWordItem({
+    required this.id,
+    this.toId = 0,
+    required this.sentence,
+    required this.translation,
+    this.options = const [],
+    this.lenElm = 0,
+  });
+  factory SentenceForWordItem.fromJson(Map<String, dynamic> json) =>
+      SentenceForWordItem(
+        id: json['id'] ?? 0,
+        toId: json['to_id'] ?? 0,
+        sentence: json['sentence'] ?? '',
+        translation: json['translation'] ?? '',
+        options: (json['options'] as List<dynamic>?)?.cast<String>() ?? [],
+        lenElm: json['len_elm'] ?? 0,
+      );
+}
+
+class SentencesForWordResponse {
+  final String word;
+  final String lang;
+  final String toLang;
+  final List<SentenceForWordItem> sentences;
+  SentencesForWordResponse({
+    required this.word,
+    required this.lang,
+    required this.toLang,
+    required this.sentences,
+  });
+  factory SentencesForWordResponse.fromJson(Map<String, dynamic> json) =>
+      SentencesForWordResponse(
+        word: json['word'] ?? '',
+        lang: json['lang'] ?? '',
+        toLang: json['to_lang'] ?? '',
+        sentences: (json['sentences'] as List<dynamic>?)
+            ?.map((e) => SentenceForWordItem.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
 class CourseGenerationService {
   // TODO: Update this to match your server URL
-  static const String baseUrl = 'http://localhost:8002/api/v1';
+  static const String baseUrl = 'http://localhost:8005/api/v1';
+  
+  /// Step 1: Get course options (languages, question types)
+  static Future<CourseOptionsResponse> getCourseOptions() async {
+    final url = Uri.parse('$baseUrl/generate/course_options');
+    final response = await http.get(url);
+    if (response.statusCode != 200) throw Exception('Failed to load course options: ${response.statusCode}');
+    return CourseOptionsResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Step 2a: Get greeting/polite words for lang
+  static Future<List<ModuleWords>> getGreetingWords({required String lang}) async {
+    final url = Uri.parse('$baseUrl/words_select/greeting_words');
+    final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode({'lang': lang}));
+    if (response.statusCode != 200) throw Exception('Failed to load greeting words: ${response.statusCode}');
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((e) => ModuleWords.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Step 2b: Get common words (most common first)
+  static Future<List<WordCount>> getCommonWords({
+    required String lang,
+    int limit = 200,
+    int offset = 0,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/common_words');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lang': lang, 'limit': limit, 'offset': offset}),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to load common words: ${response.statusCode}');
+    final map = jsonDecode(response.body) as Map<String, dynamic>;
+    final words = map['words'] as List<dynamic>? ?? [];
+    return words.map((e) => WordCount.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Step 3a: Get sentences for a word (for selection)
+  static Future<SentencesForWordResponse> getSentencesForWord({
+    required String lang,
+    required String toLang,
+    required String word,
+    int limit = 30,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/sentences_for_word');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lang': lang, 'to_lang': toLang, 'word': word, 'limit': limit}),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to load sentences: ${response.statusCode}');
+    return SentencesForWordResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Step 3b: Get question types list
+  static Future<List<QuestionTypeOption>> getQuestionTypes() async {
+    final url = Uri.parse('$baseUrl/generate/question_types');
+    final response = await http.get(url);
+    if (response.statusCode != 200) throw Exception('Failed to load question types: ${response.statusCode}');
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((e) => QuestionTypeOption.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Step 4: Create course from editor (words, sentences per word, question types, group into modules)
+  static Future<Map<String, dynamic>> createCourseFromEditor({
+    required String lang,
+    required String toLang,
+    required String title,
+    String description = '',
+    required List<String> selectedWords,
+    required Map<String, List<int>> sentencesPerWord,
+    required List<String> enabledQuestionTypes,
+    bool automateLesson = false,
+    int lessonsPerModule = 10,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/create_course_from_editor');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'lang': lang,
+        'to_lang': toLang,
+        'title': title,
+        'description': description,
+        'selected_words': selectedWords,
+        'sentences_per_word': sentencesPerWord,
+        'enabled_question_types': enabledQuestionTypes,
+        'automate_lesson': automateLesson,
+        'lessons_per_module': lessonsPerModule,
+      }),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to create course: ${response.statusCode} - ${response.body}');
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
   
   /// Select words for modules using the word selection API
   ///

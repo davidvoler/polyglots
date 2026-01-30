@@ -136,3 +136,59 @@ class CourseTemplateRequest(BaseModel):
     reading_module: bool = False
     reading_exercises: bool = False
     writing_exercises: bool = False
+
+
+# --- Editor flow: course options, words, sentences, question types ---
+
+class LanguageOption(BaseModel):
+    code: str
+    name: str
+
+
+class QuestionTypeOption(BaseModel):
+    id: str
+    name: str
+    description: str = ''
+    applicable_to: str = 'sentence'  # 'sentence' | 'alphabet'
+
+
+class CourseOptionsResponse(BaseModel):
+    """Available languages and question types for course creation"""
+    languages: list[LanguageOption] = []
+    question_types: list[QuestionTypeOption] = []
+
+
+class SentencesForWordRequest(BaseModel):
+    lang: str
+    to_lang: str
+    word: str
+    limit: int = 30
+
+
+class SentenceForWordItem(BaseModel):
+    id: int
+    to_id: int = 0
+    sentence: str
+    translation: str
+    options: list[str] = []
+    len_elm: int = 0  # sentence length for ordering
+
+
+class SentencesForWordResponse(BaseModel):
+    word: str
+    lang: str
+    to_lang: str
+    sentences: list[SentenceForWordItem] = []
+
+
+class CreateCourseFromEditorRequest(BaseModel):
+    """Create course from editor: options, words, sentences per word, question types, grouping"""
+    title: str = ''
+    description: str = ''
+    lang: str
+    to_lang: str
+    selected_words: list[str] = []  # ordered list of words
+    sentences_per_word: dict[str, list[int]] = {}  # word -> list of sentence ids (from sentence_elements.id)
+    enabled_question_types: list[str] = []
+    automate_lesson: bool = False  # if True: 15 shortest sentences, 15 single_choice + 5 identify_words
+    lessons_per_module: int = 10  # group lessons into modules of this size

@@ -80,9 +80,9 @@
       - --port
       - "8004"
       - --reload
-  editor_server_server:
-    container_name: editor_server_server
-    image: student_server:polyglots
+  editor_server:
+    container_name: editor_server
+    image: editor_server:polyglots
     build:
       context: editor/server
       dockerfile: Dockerfile.dev

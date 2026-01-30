@@ -4,6 +4,7 @@ import 'lessons_screen.dart';
 import 'schools_screen.dart';
 import 'review_screen.dart';
 import 'generate_course_wizard_screen.dart';
+import 'editor_flow_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -25,6 +26,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title: 'Generate Course',
       icon: Icons.auto_awesome,
       screenBuilder: () => const GenerateCourseWizardScreen(),
+    ),
+    DashboardMenuItem(
+      title: 'Create course (4 steps)',
+      icon: Icons.edit_note,
+      screenBuilder: () => const EditorFlowScreen(),
     ),
     DashboardMenuItem(
       title: 'Courses',
