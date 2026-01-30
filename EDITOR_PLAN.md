@@ -6,22 +6,35 @@
 **Existing Editor Code:**
 
 We have a server and UI
-Server in python 
-UI if flutter 
+Server in Python
+UI in Flutter
+On the client side we have a course generated with AI
+We should improve it in the following way.
+
+It should have the following steps 
+1. select course options - languages, title, description, question types 
+2. Select/reorder words
+  a. show words the user may already know like greeting and polite words 
+  b. show words in the corpus orderd by how common they are - most common in the start 
+3. This is the iterative part where for each word we create a lesson with sentences and question types 
+  a. select sentences 
+  b. gen question types
+  c. Allow the user to automate lesson creation - we will simply select the shortest 15 sentences per lesson, create 15 single select, and 5 identify words  
+4. Group lessons into modules 
 
 
 
 
-**Your process (5 parts):**
 
+**Your process (overview):**
 1. **Select and order words** — Server returns words ordered by how common they are in the content (most common first).
 2. **User selects words and reorders them** — The course editor chooses which words to include and in what order.
 3. **For each word, offer sentences and translations** — User sees candidate sentences (with translation) for that word and chooses which to use.
-4. **Show the user all sentences for the word ordered by sentences length with translation and option** — Let the user choose the best sentences for the current lesson 
-5. **Generate question types automatically; user chooses what is applicable** — System generates the possible question types (single choice, multiple choice, identify words, letter-in-words, memory game, etc.); user enables/disables per lesson or globally.
-6. **For each lesson show words so far** - For each lesson show words that were used in previous lessons - this will help the user to choose the sentences that contain them
-7. **If the course is teaching alphabet - show letters so far** - show the letters used so far and how many times for each lesson
-8. **In the case of Japanese - Choose also the letter type Hirgana, Katakana or Kanji** - add ab_type for the letters 
+4. **Show the user all sentences for the word ordered by sentence length with translation and options** — Let the user choose the best sentences for the current lesson.
+5. **Generate question types automatically; user chooses what is applicable** — System generates the possible question types (single choice, multiple choice, identify words, letter-in-words, memory game, type a word etc.); user enables/disables per lesson or globally.
+6. **For each lesson show words so far** — For each lesson show words that were used in previous lessons; this will help the user choose sentences that contain them.
+7. **If the course is teaching alphabet — show letters so far** — Show the letters used so far and how many times for each lesson.
+8. **In the case of Japanese — choose also the letter type: Hiragana, Katakana or Kanji** — Add ab_type for the letters.
 ---
 
 ## Current state (summary)
