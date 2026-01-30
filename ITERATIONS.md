@@ -275,8 +275,6 @@ The previous Iteration was all about thoughts and experiments
 Now let's generate some data to match above implementation - and test it. 
 
 - [] Generate data from the new question types
-- [] 
-
 - [] decide on the structure for each question type
     - [] correct as the first options - or correct in separate field - let client do formatting - as we want to select different options 
 - [] decide on structure in DB
@@ -321,7 +319,30 @@ Login - maybe we can skip it for now
 - [Done] - started by creating a new UI - shared/exercise
 - [Done] - Loading data into the client - currently loading all possible types from server
 - [Done] - review code structure - Simple structure
-- [] - improve ui for each type 
+- [/] - improve ui for each type 
+- [] - create manually multiple choice sentences
+- [] - create manually explanation 
+
+
+#### New Client?
+
+- On Boarding - single page - simple questions 
+- Configuration - languages course 
+- courses page 
+    - list of all courses 
+    - list my courses 
+- course page - learning page 
+    - current module lesson 
+    - change to a new module
+    - skip - learn - practice 
+
+
+
+
+
+
+
+
 
 ## Iteration 5 - Annotated sentence
 
