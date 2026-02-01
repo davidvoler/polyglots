@@ -11,6 +11,8 @@ UI in Flutter
 On the client side we have a course generated with AI
 We should improve it in the following way.
 
+**Start with the wizard**
+
 It should have the following steps 
 1. select course options - languages, title, description, question types 
 2. Select/reorder words
@@ -23,6 +25,18 @@ It should have the following steps
 4. Group lessons into modules 
 
 
+
+
+**Correct Wizard step**
+
+1. Create course first step - by default learning language should be Japanese - Native should be English
+2. Question types should be selected by default
+3. load words from all_words - it will return greeting words + corpus words 
+4. In the word show all words elements (in the python model)
+5. enable delete a word - so it is not included in the course
+6. enable sorting with drag and drop
+7. show a long list of words
+8. Once done sent a post command with the list of words - with weight indicating the sorting 
 
 
 

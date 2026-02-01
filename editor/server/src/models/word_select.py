@@ -9,6 +9,7 @@ class WordSelect(BaseModel):
     min_wcount: int= 0
     sentences_count: int = 0
     root_count: int = 0
+    greeting: bool = False
     def key(self):
         return f"{self.lang}-{self.pos} "
 

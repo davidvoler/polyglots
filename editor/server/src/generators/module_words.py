@@ -82,7 +82,7 @@ async def load_greetings(lang,words):
     placehoders = ",".join(['%s' for i in range(len(words))])
     
     sql = f"""
-    select lang, word, pos, min(wcount) as min_wcount, min(wcount) as max_wcount ,sum(root_count) as root_count, sum(sentences_count) as sentences_count
+    select lang, word, pos, min(wcount) as min_wcount, min(wcount) as max_wcount ,sum(root_count) as root_count, sum(sentences_count) as sentences_count, true as greeting
     from content_raw.words_pos1
     where lang = %s and word in ({placehoders})
     group by 1,2,3
@@ -94,7 +94,6 @@ async def load_greetings(lang,words):
         # print(r)
         w = WordSelect(**r)
         words.append(w)
-    # print(words)
     return words
 
 async def select_greetings_words(req:WordSelectRequest) ->list[WordSelect]:
