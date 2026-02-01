@@ -32,8 +32,8 @@ async def greeting_words(req: WordSelectRequest) -> list:
 async def all_words(req: WordSelectRequest) -> list:
     """Correct Wizard step 3: Return greeting words + corpus words (all WordSelect elements)."""
     greeting_list = await select_greetings_words(req)
-    corpus_list = await select_corpus_words(req)
-    return [w.model_dump() for w in greeting_list] + [w.model_dump() for w in corpus_list]
+    corpus_list = await select_corpus_words(req, weight_start = len(greeting_list))
+    return greeting_list + corpus_list
 
 
 @router.post("/submit_words")

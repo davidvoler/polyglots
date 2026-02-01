@@ -90,9 +90,12 @@ async def load_greetings(lang,words):
     print(sql,[lang]+ words )
     results = await get_query_results(sql,[lang]+ words)
     words = []
+    i = 0
     for r in results:
         # print(r)
-        w = WordSelect(**r)
+        i+=1
+        w = WordSelect(**r, weight = i)
+        w.weight = i
         words.append(w)
     return words
 
@@ -107,9 +110,13 @@ async def select_greetings_words(req:WordSelectRequest) ->list[WordSelect]:
 
 
 
-async def select_corpus_words(req:WordSelectRequest) ->list[WordSelect]:
+async def select_corpus_words(req:WordSelectRequest, weight_start:int = 0) ->list[WordSelect]:
     all_words = await get_words_pos(req.lang)
     all_words = all_words[req.skip_count:]
+    i = weight_start
+    for w in all_words:
+        w.weight = i
+        i+=1
     return all_words
 
 

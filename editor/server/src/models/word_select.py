@@ -10,6 +10,7 @@ class WordSelect(BaseModel):
     sentences_count: int = 0
     root_count: int = 0
     greeting: bool = False
+    weight: int = 0
     def key(self):
         return f"{self.lang}-{self.pos} "
 
