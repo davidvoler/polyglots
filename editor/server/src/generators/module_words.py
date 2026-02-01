@@ -91,11 +91,13 @@ async def load_greetings(lang,words):
     results = await get_query_results(sql,[lang]+ words)
     words = []
     for r in results:
+        # print(r)
         w = WordSelect(**r)
         words.append(w)
+    # print(words)
     return words
 
-async def select_greetings_words(req:WordSelectRequest) ->list[ModuleWords]:
+async def select_greetings_words(req:WordSelectRequest) ->list[WordSelect]:
     if req.lang == 'en':
         words = await load_greetings(req.lang, EN_GREETING_WORDS)
     elif req.lang == 'ja':
@@ -106,14 +108,19 @@ async def select_greetings_words(req:WordSelectRequest) ->list[ModuleWords]:
 
 
 
-    
+async def select_corpus_words(req:WordSelectRequest) ->list[WordSelect]:
+    all_words = await get_words_pos(req.lang)
+    all_words = all_words[req.skip_count:]
+    return all_words
+
+
 
 async def select_module_words(req:WordSelectRequest) ->list[ModuleWords]:
     """Select words for a module based on the template"""
     all_words = await get_words_pos(req.lang)
     all_words = all_words[req.skip_count:]
     greeting_words = await select_greetings_words(req)
-    print(greeting_words)
+    # print(greeting_words)
     modules = []
     for i in range(10):
         if len(greeting_words) == 0 :
