@@ -301,53 +301,58 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   }
 
   Widget _buildStep2() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      children: [
+        // Fixed header section
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton(
-                onPressed: _loadingWords ? null : () => _loadWords(),
-                child: Text(_loadingWords ? 'Loading...' : 'Load words (all_words: greeting + corpus)'),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _loadingWords ? null : () => _loadWords(),
+                    child: Text(_loadingWords ? 'Loading...' : 'Load words (all_words: greeting + corpus)'),
+                  ),
+                ],
               ),
+              if (_wordsError != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_wordsError!, style: const TextStyle(color: Colors.red))),
+              const SizedBox(height: 16),
+              Text('Words: ${_allWords.length}. Drag to reorder, delete to exclude.', style: TextStyle(color: Colors.grey[600])),
             ],
           ),
-          if (_wordsError != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_wordsError!, style: const TextStyle(color: Colors.red))),
-          const SizedBox(height: 16),
-          Text('Words: ${_allWords.length}. Drag to reorder, delete to exclude.', style: TextStyle(color: Colors.grey[600])),
-          const SizedBox(height: 8),
-          if (_allWords.isEmpty)
-            const Text('Load words to see list.')
-          else
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _allWords.length,
-              onReorder: _onReorder,
-              itemBuilder: (context, index) {
-                final w = _allWords[index];
-                return Card(
-                  key: ValueKey('${w.word}_$index'),
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: const Icon(Icons.drag_handle),
-                    title: Text(w.word, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                      'pos: ${w.pos} | min/max wcount: ${w.minWcount}-${w.maxWcount} | sentences: ${w.sentencesCount} | root_count: ${w.rootCount}${w.greeting ? ' | greeting' : ''}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () => _removeWord(index),
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
+        ),
+        // Scrollable list section
+        Expanded(
+          child: _allWords.isEmpty
+              ? const Center(child: Text('Load words to see list.'))
+              : ReorderableListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: _allWords.length,
+                  onReorder: _onReorder,
+                  itemBuilder: (context, index) {
+                    final w = _allWords[index];
+                    return Card(
+                      key: ValueKey(w.word),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: ListTile(
+                        leading: const Icon(Icons.drag_handle),
+                        title: Text(w.word, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                          'pos: ${w.pos} | min/max wcount: ${w.minWcount}-${w.maxWcount} | sentences: ${w.sentencesCount} | root_count: ${w.rootCount}${w.greeting ? ' | greeting' : ''}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _removeWord(index),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 
@@ -390,7 +395,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
         children: [
           const Text('4. Group lessons into modules and create course', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Text('Words: ${_allWords.length}. Modules: ${(_allWords.length / _lessonsPerModule).ceil()} (${_lessonsPerModule} lessons per module).'),
+          Text('Words: ${_allWords.length}. Modules: ${(_allWords.length / _lessonsPerModule).ceil()} ($_lessonsPerModule lessons per module).'),
           const SizedBox(height: 24),
           if (_createResult != null) Padding(padding: const EdgeInsets.only(bottom: 16), child: Text(_createResult!)),
           SizedBox(
