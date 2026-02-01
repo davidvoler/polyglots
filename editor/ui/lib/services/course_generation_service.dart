@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// Models for word selection
+// Models for word selection (matches Python WordSelect: word, pos, min_wcount, max_wcount, sentences_count, root_count, greeting)
 class WordSelect {
   final String lang;
   final String word;
@@ -10,6 +10,7 @@ class WordSelect {
   final int minWcount;
   final int sentencesCount;
   final int rootCount;
+  final bool greeting;
 
   WordSelect({
     required this.lang,
@@ -19,6 +20,7 @@ class WordSelect {
     required this.minWcount,
     required this.sentencesCount,
     required this.rootCount,
+    this.greeting = false,
   });
 
   factory WordSelect.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class WordSelect {
       minWcount: json['min_wcount'] ?? 0,
       sentencesCount: json['sentences_count'] ?? 0,
       rootCount: json['root_count'] ?? 0,
+      greeting: json['greeting'] ?? false,
     );
   }
 }
@@ -110,6 +113,12 @@ class WordCount {
       WordCount(word: json['word'] ?? '', cnt: json['cnt'] ?? 0);
 }
 
+class WordWithWeight {
+  final String word;
+  final int weight;
+  WordWithWeight({required this.word, required this.weight});
+}
+
 class SentenceForWordItem {
   final int id;
   final int toId;
@@ -177,6 +186,35 @@ class CourseGenerationService {
     if (response.statusCode != 200) throw Exception('Failed to load greeting words: ${response.statusCode}');
     final List<dynamic> data = jsonDecode(response.body);
     return data.map((e) => ModuleWords.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Correct Wizard step 3: Load all words (greeting + corpus) from all_words
+  static Future<List<WordSelect>> getAllWords({required String lang, int skipCount = 0}) async {
+    final url = Uri.parse('$baseUrl/words_select/all_words');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lang': lang, 'skip_count': skipCount}),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to load words: ${response.statusCode}');
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((e) => WordSelect.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Correct Wizard step 8: Submit ordered list of words with weight (sort order)
+  static Future<Map<String, dynamic>> submitWords({
+    required String lang,
+    String toLang = '',
+    required List<WordWithWeight> words,
+  }) async {
+    final url = Uri.parse('$baseUrl/words_select/submit_words');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lang': lang, 'to_lang': toLang, 'words': words.map((w) => {'word': w.word, 'weight': w.weight}).toList()}),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to submit words: ${response.statusCode}');
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   /// Step 2b: Get common words (most common first)

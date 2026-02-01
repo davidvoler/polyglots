@@ -24,10 +24,8 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   bool _loadingOptions = true;
   String? _optionsError;
 
-  // Step 2: Words (greetings + common)
-  List<WordSelect> _greetingWords = [];
-  List<WordCount> _commonWords = [];
-  final List<String> _selectedWords = [];
+  // Step 2: Words (all_words = greeting + corpus); reorderable, deletable
+  List<WordSelect> _allWords = [];
   bool _loadingWords = false;
   String? _wordsError;
 
@@ -64,8 +62,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       setState(() {
         _languages = res.languages;
         _questionTypes = res.questionTypes;
-        _langCode ??= _languages.isNotEmpty ? _languages.first.code : null;
-        _toLangCode ??= _languages.length > 1 ? _languages[1].code : _languages.first.code;
+        _langCode ??= 'ja';
+        _toLangCode ??= 'en';
+        _selectedQuestionTypeIds.addAll(_questionTypes.map((qt) => qt.id));
         _loadingOptions = false;
       });
     } catch (e) {
@@ -83,15 +82,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       _wordsError = null;
     });
     try {
-      final greetingModules = await CourseGenerationService.getGreetingWords(lang: _langCode!);
-      final common = await CourseGenerationService.getCommonWords(lang: _langCode!, limit: 200);
-      List<WordSelect> greeting = [];
-      for (final m in greetingModules) {
-        greeting.addAll(m.words);
-      }
+      final all = await CourseGenerationService.getAllWords(lang: _langCode!);
       setState(() {
-        _greetingWords = greeting;
-        _commonWords = common;
+        _allWords = all;
         _loadingWords = false;
       });
     } catch (e) {
@@ -102,14 +95,28 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
     }
   }
 
-  void _toggleWord(String word) {
+  void _removeWord(int index) {
     setState(() {
-      if (_selectedWords.contains(word)) {
-        _selectedWords.remove(word);
-      } else {
-        _selectedWords.add(word);
-      }
+      if (index >= 0 && index < _allWords.length) _allWords.removeAt(index);
     });
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex--;
+      final item = _allWords.removeAt(oldIndex);
+      _allWords.insert(newIndex, item);
+    });
+  }
+
+  Future<void> _submitWords() async {
+    if (_langCode == null) return;
+    try {
+      final wordsWithWeight = _allWords.asMap().entries.map((e) => WordWithWeight(word: e.value.word, weight: e.key)).toList();
+      await CourseGenerationService.submitWords(lang: _langCode!, toLang: _toLangCode ?? '', words: wordsWithWeight);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Submit words: $e')));
+    }
   }
 
   void _toggleQuestionType(String id) {
@@ -123,9 +130,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   }
 
   Future<void> _createCourse() async {
-    if (_langCode == null || _toLangCode == null || _selectedWords.isEmpty) {
+    if (_langCode == null || _toLangCode == null || _allWords.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Set languages and select at least one word.')),
+        const SnackBar(content: Text('Set languages and load at least one word.')),
       );
       return;
     }
@@ -134,12 +141,13 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       _createResult = null;
     });
     try {
+      final selectedWords = _allWords.map((w) => w.word).toList();
       final result = await CourseGenerationService.createCourseFromEditor(
         lang: _langCode!,
         toLang: _toLangCode!,
         title: _titleController.text.trim().isEmpty ? 'New course' : _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        selectedWords: _selectedWords,
+        selectedWords: selectedWords,
         sentencesPerWord: _sentencesPerWord,
         enabledQuestionTypes: _selectedQuestionTypeIds.toList(),
         automateLesson: _automateLesson,
@@ -302,29 +310,41 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             children: [
               ElevatedButton(
                 onPressed: _loadingWords ? null : () => _loadWords(),
-                child: Text(_loadingWords ? 'Loading...' : 'Load words'),
+                child: Text(_loadingWords ? 'Loading...' : 'Load words (all_words: greeting + corpus)'),
               ),
             ],
           ),
           if (_wordsError != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_wordsError!, style: const TextStyle(color: Colors.red))),
           const SizedBox(height: 16),
-          const Text('2a. Greeting / polite words', style: TextStyle(fontWeight: FontWeight.bold)),
-          ..._greetingWords.map((w) => ListTile(
-                title: Text(w.word),
-                trailing: Icon(_selectedWords.contains(w.word) ? Icons.check_circle : Icons.radio_button_unchecked),
-                onTap: () => _toggleWord(w.word),
-              )),
-          const SizedBox(height: 16),
-          const Text('2b. Common words (most common first)', style: TextStyle(fontWeight: FontWeight.bold)),
-          ..._commonWords.take(100).map((w) => ListTile(
-                title: Text('${w.word} (${w.cnt})'),
-                trailing: Icon(_selectedWords.contains(w.word) ? Icons.check_circle : Icons.radio_button_unchecked),
-                onTap: () => _toggleWord(w.word),
-              )),
-          if (_selectedWords.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text('Selected: ${_selectedWords.length} words', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('Words: ${_allWords.length}. Drag to reorder, delete to exclude.', style: TextStyle(color: Colors.grey[600])),
+          const SizedBox(height: 8),
+          if (_allWords.isEmpty)
+            const Text('Load words to see list.')
+          else
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _allWords.length,
+              onReorder: _onReorder,
+              itemBuilder: (context, index) {
+                final w = _allWords[index];
+                return Card(
+                  key: ValueKey('${w.word}_$index'),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    leading: const Icon(Icons.drag_handle),
+                    title: Text(w.word, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      'pos: ${w.pos} | min/max wcount: ${w.minWcount}-${w.maxWcount} | sentences: ${w.sentencesCount} | root_count: ${w.rootCount}${w.greeting ? ' | greeting' : ''}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _removeWord(index),
+                    ),
+                  ),
+                );
+              },
             ),
         ],
       ),
@@ -346,7 +366,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             onChanged: (v) => setState(() => _automateLesson = v ?? false),
           ),
           const SizedBox(height: 16),
-          Text('Selected words: ${_selectedWords.length}. Sentence selection per word can be added in a follow-up (open each word → load sentences → pick ~10).', style: TextStyle(color: Colors.grey[600])),
+          Text('Words: ${_allWords.length}. Sentence selection per word can be added in a follow-up (open each word → load sentences → pick ~10).', style: TextStyle(color: Colors.grey[600])),
           const SizedBox(height: 16),
           const Text('Lessons per module (step 4)', style: TextStyle(fontWeight: FontWeight.bold)),
           TextField(
@@ -370,7 +390,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
         children: [
           const Text('4. Group lessons into modules and create course', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Text('Words: ${_selectedWords.length}. Modules: ${(_selectedWords.length / _lessonsPerModule).ceil()} (${_lessonsPerModule} lessons per module).'),
+          Text('Words: ${_allWords.length}. Modules: ${(_allWords.length / _lessonsPerModule).ceil()} (${_lessonsPerModule} lessons per module).'),
           const SizedBox(height: 24),
           if (_createResult != null) Padding(padding: const EdgeInsets.only(bottom: 16), child: Text(_createResult!)),
           SizedBox(
@@ -403,8 +423,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             const SizedBox(),
           if (_step < 3)
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_step == 0 && _langCode != null) _loadWords();
+                if (_step == 1 && _allWords.isNotEmpty) await _submitWords();
                 _pageController.nextPage(duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
                 setState(() => _step++);
               },
