@@ -40,6 +40,23 @@ It should have the following steps
 
 
 
+**Wizard Lesson Steps**
+
+1. Save to the database wizard process - so you can go back to any course started earlier and get to the last selected position 
+2. for each word in the previous selected and order words create the following step
+a. collect sentences - a list of sentences containing the word
+b. Get from the server the list of sentences with a single or multiple translation
+c. Let the user select the sentences with translation
+4. Now that we have sentences with translation - send to the server to generate question for each sentences 
+5. generate mostly single choice and some of the other type of question - say for 10% of the sentences 
+6. let the user choose the questions from the list and and save the lesson
+7. move to the next word 
+
+
+
+
+
+
 **Your process (overview):**
 1. **Select and order words** — Server returns words ordered by how common they are in the content (most common first).
 2. **User selects words and reorders them** — The course editor chooses which words to include and in what order.

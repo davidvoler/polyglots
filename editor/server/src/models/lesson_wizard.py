@@ -15,9 +15,14 @@ class SentencesWizardRequest(BaseModel):
     to_lang: str
     words_so_far: list[str] = []
 
+class Translation(BaseModel):
+    sentence_id: int
+    sentence: str
+    options: list[str]
+
 class SentencesWizardResponse(BaseModel):
     sentence_id: int
     sentence: str
-    translation_id: int
-    translation: str
-    options: list[str]
+    translations: list[Translation]
+
+
