@@ -192,3 +192,105 @@ class CreateCourseFromEditorRequest(BaseModel):
     enabled_question_types: list[str] = []
     automate_lesson: bool = False  # if True: 15 shortest sentences, 15 single_choice + 5 identify_words
     lessons_per_module: int = 10  # group lessons into modules of this size
+
+
+# --- Editor draft: save/resume wizard at last position ---
+
+class EditorDraftWord(BaseModel):
+    word: str
+    weight: int
+
+
+class SaveEditorDraftRequest(BaseModel):
+    """Save or update editor wizard state."""
+    title: str = ''
+    description: str = ''
+    lang: str
+    to_lang: str
+    selected_question_type_ids: list[str] = []
+    words_with_weight: list[EditorDraftWord] = []  # ordered by weight
+    step: int = 0
+    automate_lesson: bool = False
+    lessons_per_module: int = 10
+    sentences_per_word: dict[str, list[int]] = {}
+
+
+class EditorDraftResponse(BaseModel):
+    """Full draft for resuming."""
+    id: int
+    created_at: str = ''
+    updated_at: str = ''
+    title: str = ''
+    description: str = ''
+    lang: str
+    to_lang: str
+    selected_question_type_ids: list[str] = []
+    words_with_weight: list[EditorDraftWord] = []
+    step: int = 0
+    automate_lesson: bool = False
+    lessons_per_module: int = 10
+    sentences_per_word: dict[str, list[int]] = {}
+
+
+class EditorDraftListItem(BaseModel):
+    """Summary for list of drafts."""
+    id: int
+    title: str
+    updated_at: str
+    step: int
+    lang: str
+    to_lang: str
+
+
+# --- Lesson wizard: generate questions from selected sentences, save lesson ---
+
+class SentenceIdPair(BaseModel):
+    sentence_id: int
+    to_id: int
+
+
+class GenerateQuestionsRequest(BaseModel):
+    """Selected sentences for a word; server returns preview of generated exercises."""
+    lang: str
+    to_lang: str
+    word: str
+    sentences: list[SentenceIdPair]  # user-selected sentence + translation ids
+
+
+class GeneratedExercisePreview(BaseModel):
+    """One exercise as preview (not yet saved)."""
+    exercise_type: str  # sentence_single_choice, identify_words_in_speech, etc.
+    sentence: str = ''
+    to_sentence: str = ''
+    correct_options: list[str] = []
+    wrong_options: list[str] = []
+    sentence_id: int = 0
+    to_sentence_id: int = 0
+    extra_data: dict = {}
+
+
+class GenerateQuestionsResponse(BaseModel):
+    word: str
+    exercises: list[GeneratedExercisePreview] = []
+
+
+class SaveLessonRequest(BaseModel):
+    """Save one lesson (word) with selected exercises. Create course/module if course_id is 0."""
+    course_id: int = 0  # 0 = create new course and module
+    module_id: int = 0
+    lang: str
+    to_lang: str
+    word: str
+    title: str = ''  # default to word
+    description: str = ''
+    course_title: str = ''  # used when creating course
+    course_description: str = ''
+    lessons_per_module: int = 10
+    word_index: int = 0  # which word in the list (for module placement)
+    exercises: list[GeneratedExercisePreview] = []  # user-selected subset
+
+
+class SaveLessonResponse(BaseModel):
+    course_id: int
+    module_id: int
+    lesson_id: int
