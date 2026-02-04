@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import '../services/course_generation_service.dart';
 
 /// Editor flow: 1) Course options  2) Select/reorder words  3) Sentences + question types  4) Group into modules & create
+/// Optional [draftId] resumes a saved draft from the database.
+/// Optional [onBackToList] when set shows a back button to return to the draft list.
 class EditorFlowScreen extends StatefulWidget {
-  const EditorFlowScreen({super.key});
+  const EditorFlowScreen({super.key, this.draftId, this.onBackToList});
+
+  final int? draftId;
+  final VoidCallback? onBackToList;
 
   @override
   State<EditorFlowScreen> createState() => _EditorFlowScreenState();
@@ -12,6 +17,9 @@ class EditorFlowScreen extends StatefulWidget {
 class _EditorFlowScreenState extends State<EditorFlowScreen> {
   int _step = 0;
   final PageController _pageController = PageController();
+
+  /// Set when we create or resume a draft; used for update vs create on save.
+  int? _draftId;
 
   // Step 1: Course options
   List<CourseOption> _languages = [];
@@ -41,6 +49,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   @override
   void initState() {
     super.initState();
+    _draftId = widget.draftId;
     _loadCourseOptions();
   }
 
@@ -67,11 +76,49 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
         _selectedQuestionTypeIds.addAll(_questionTypes.map((qt) => qt.id));
         _loadingOptions = false;
       });
+      if (_draftId != null) await _loadDraft();
     } catch (e) {
       setState(() {
         _optionsError = e.toString();
         _loadingOptions = false;
       });
+    }
+  }
+
+  /// Load draft from server and restore wizard state (call after options loaded).
+  Future<void> _loadDraft() async {
+    if (_draftId == null) return;
+    try {
+      final draft = await CourseGenerationService.getDraft(_draftId!);
+      if (!mounted) return;
+      _titleController.text = draft.title;
+      _descriptionController.text = draft.description;
+      setState(() {
+        _langCode = draft.lang;
+        _toLangCode = draft.toLang;
+        _selectedQuestionTypeIds.clear();
+        _selectedQuestionTypeIds.addAll(draft.selectedQuestionTypeIds);
+        _allWords = draft.wordsWithWeight
+            .map((w) => WordSelect(
+                  lang: draft.lang,
+                  word: w.word,
+                  pos: '',
+                  minWcount: 0,
+                  maxWcount: 0,
+                  sentencesCount: 0,
+                  rootCount: 0,
+                  greeting: false,
+                ))
+            .toList();
+        _step = draft.step.clamp(0, 3);
+        _automateLesson = draft.automateLesson;
+        _lessonsPerModule = draft.lessonsPerModule;
+        _sentencesPerWord.clear();
+        _sentencesPerWord.addAll(draft.sentencesPerWord);
+      });
+      _pageController.jumpToPage(_step);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load draft: $e')));
     }
   }
 
@@ -116,6 +163,46 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       await CourseGenerationService.submitWords(lang: _langCode!, toLang: _toLangCode ?? '', words: wordsWithWeight);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Submit words: $e')));
+    }
+  }
+
+  /// Persist wizard state to DB (create or update draft).
+  Future<void> _saveDraft() async {
+    if (_langCode == null || _toLangCode == null) return;
+    final wordsWithWeight = _allWords.asMap().entries.map((e) => WordWithWeight(word: e.value.word, weight: e.key)).toList();
+    try {
+      if (_draftId != null) {
+        await CourseGenerationService.updateDraft(
+          _draftId!,
+          title: _titleController.text.trim().isEmpty ? 'New course' : _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          lang: _langCode!,
+          toLang: _toLangCode!,
+          selectedQuestionTypeIds: _selectedQuestionTypeIds.toList(),
+          wordsWithWeight: wordsWithWeight,
+          step: _step,
+          automateLesson: _automateLesson,
+          lessonsPerModule: _lessonsPerModule,
+          sentencesPerWord: Map.from(_sentencesPerWord),
+        );
+      } else {
+        final draft = await CourseGenerationService.saveDraft(
+          title: _titleController.text.trim().isEmpty ? 'New course' : _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          lang: _langCode!,
+          toLang: _toLangCode!,
+          selectedQuestionTypeIds: _selectedQuestionTypeIds.toList(),
+          wordsWithWeight: wordsWithWeight,
+          step: _step,
+          automateLesson: _automateLesson,
+          lessonsPerModule: _lessonsPerModule,
+          sentencesPerWord: Map.from(_sentencesPerWord),
+        );
+        setState(() => _draftId = draft.id);
+      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Draft saved. You can resume later.')));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save draft: $e')));
     }
   }
 
@@ -179,6 +266,13 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       appBar: AppBar(
         title: const Text('Create course (4 steps)'),
         elevation: 0,
+        actions: [
+          TextButton.icon(
+            onPressed: (_langCode == null || _toLangCode == null) ? null : () async => await _saveDraft(),
+            icon: const Icon(Icons.save_outlined, size: 20),
+            label: const Text('Save draft'),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -418,9 +512,10 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
         children: [
           if (_step > 0)
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 _pageController.previousPage(duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
                 setState(() => _step--);
+                await _saveDraft();
               },
               child: const Text('Back'),
             )
@@ -433,6 +528,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
                 if (_step == 1 && _allWords.isNotEmpty) await _submitWords();
                 _pageController.nextPage(duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
                 setState(() => _step++);
+                await _saveDraft();
               },
               child: const Text('Next'),
             )
