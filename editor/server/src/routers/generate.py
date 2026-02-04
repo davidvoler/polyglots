@@ -437,14 +437,16 @@ async def save_lesson(request: SaveLessonRequest):
         if not mod_rows:
             raise HTTPException(status_code=500, detail="Failed to create module")
         module_id = mod_rows[0]["id"]
-    elif module_id <= 0:
-        mod_idx = (request.word_index // n) + 1
+    elif module_id <= 0 and course_id > 0:
+        count_sql = "SELECT COUNT(*) AS c FROM course.module WHERE course_id = %s"
+        cnt = await get_query_results(count_sql, (course_id,))
+        mod_num = (cnt[0]["c"] + 1) if cnt else 1
         sql_mod = """
         INSERT INTO course.module (course_id, lang, to_lang, title, description)
         VALUES (%s, %s, %s, %s, %s) RETURNING id
         """
         mod_rows = await get_query_results(
-            sql_mod, (course_id, lang, to_lang, f"Module {mod_idx}", f"Module {mod_idx}")
+            sql_mod, (course_id, lang, to_lang, f"Module {mod_num}", f"Module {mod_num}")
         )
         if not mod_rows:
             raise HTTPException(status_code=500, detail="Failed to create module")

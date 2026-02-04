@@ -260,6 +260,72 @@ class SentencesForWordResponse {
       );
 }
 
+/// Lesson wizard: generate questions from selected sentences, save lesson
+class SentenceIdPair {
+  final int sentenceId;
+  final int toId;
+  SentenceIdPair({required this.sentenceId, required this.toId});
+  Map<String, dynamic> toJson() => {'sentence_id': sentenceId, 'to_id': toId};
+}
+
+class GeneratedExercisePreview {
+  final String exerciseType;
+  final String sentence;
+  final String toSentence;
+  final List<String> correctOptions;
+  final List<String> wrongOptions;
+  final int sentenceId;
+  final int toSentenceId;
+  final Map<String, dynamic> extraData;
+  GeneratedExercisePreview({
+    required this.exerciseType,
+    this.sentence = '',
+    this.toSentence = '',
+    this.correctOptions = const [],
+    this.wrongOptions = const [],
+    this.sentenceId = 0,
+    this.toSentenceId = 0,
+    this.extraData = const {},
+  });
+  factory GeneratedExercisePreview.fromJson(Map<String, dynamic> json) =>
+      GeneratedExercisePreview(
+        exerciseType: json['exercise_type'] ?? '',
+        sentence: json['sentence'] ?? '',
+        toSentence: json['to_sentence'] ?? '',
+        correctOptions: (json['correct_options'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        wrongOptions: (json['wrong_options'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        sentenceId: json['sentence_id'] ?? 0,
+        toSentenceId: json['to_sentence_id'] ?? 0,
+        extraData: Map<String, dynamic>.from(json['extra_data'] as Map? ?? {}),
+      );
+}
+
+class GenerateQuestionsResponse {
+  final String word;
+  final List<GeneratedExercisePreview> exercises;
+  GenerateQuestionsResponse({required this.word, required this.exercises});
+  factory GenerateQuestionsResponse.fromJson(Map<String, dynamic> json) =>
+      GenerateQuestionsResponse(
+        word: json['word'] ?? '',
+        exercises: (json['exercises'] as List<dynamic>?)
+            ?.map((e) => GeneratedExercisePreview.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+class SaveLessonResponse {
+  final int courseId;
+  final int moduleId;
+  final int lessonId;
+  SaveLessonResponse({required this.courseId, required this.moduleId, required this.lessonId});
+  factory SaveLessonResponse.fromJson(Map<String, dynamic> json) =>
+      SaveLessonResponse(
+        courseId: json['course_id'] ?? 0,
+        moduleId: json['module_id'] ?? 0,
+        lessonId: json['lesson_id'] ?? 0,
+      );
+}
+
 class CourseGenerationService {
   // TODO: Update this to match your server URL
   static const String baseUrl = 'http://localhost:8005/api/v1';
@@ -352,6 +418,72 @@ class CourseGenerationService {
     if (response.statusCode != 200) throw Exception('Failed to load question types: ${response.statusCode}');
     final List<dynamic> data = jsonDecode(response.body);
     return data.map((e) => QuestionTypeOption.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Lesson wizard: generate questions from selected sentences (preview)
+  static Future<GenerateQuestionsResponse> generateQuestionsForSentences({
+    required String lang,
+    required String toLang,
+    required String word,
+    required List<SentenceIdPair> sentences,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/questions_for_sentences');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'lang': lang,
+        'to_lang': toLang,
+        'word': word,
+        'sentences': sentences.map((s) => s.toJson()).toList(),
+      }),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to generate questions: ${response.statusCode} - ${response.body}');
+    return GenerateQuestionsResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Lesson wizard: save one lesson (word) with selected exercises
+  static Future<SaveLessonResponse> saveLesson({
+    int courseId = 0,
+    int moduleId = 0,
+    required String lang,
+    required String toLang,
+    required String word,
+    String title = '',
+    String description = '',
+    String courseTitle = '',
+    String courseDescription = '',
+    int lessonsPerModule = 10,
+    int wordIndex = 0,
+    required List<GeneratedExercisePreview> exercises,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/save_lesson');
+    final body = {
+      'course_id': courseId,
+      'module_id': moduleId,
+      'lang': lang,
+      'to_lang': toLang,
+      'word': word,
+      'title': title.isEmpty ? word : title,
+      'description': description,
+      'course_title': courseTitle,
+      'course_description': courseDescription,
+      'lessons_per_module': lessonsPerModule,
+      'word_index': wordIndex,
+      'exercises': exercises.map((e) => {
+        'exercise_type': e.exerciseType,
+        'sentence': e.sentence,
+        'to_sentence': e.toSentence,
+        'correct_options': e.correctOptions,
+        'wrong_options': e.wrongOptions,
+        'sentence_id': e.sentenceId,
+        'to_sentence_id': e.toSentenceId,
+        'extra_data': e.extraData,
+      }).toList(),
+    };
+    final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    if (response.statusCode != 200) throw Exception('Failed to save lesson: ${response.statusCode} - ${response.body}');
+    return SaveLessonResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   /// Step 4: Create course from editor (words, sentences per word, question types, group into modules)

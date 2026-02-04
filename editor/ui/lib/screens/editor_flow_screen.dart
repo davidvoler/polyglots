@@ -37,10 +37,21 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   bool _loadingWords = false;
   String? _wordsError;
 
-  // Step 3: Sentences per word (simplified: we store word -> count or use automate)
+  // Step 3: Sentences per word (automate or per-word wizard)
   bool _automateLesson = false;
   final Map<String, List<int>> _sentencesPerWord = {};
   int _lessonsPerModule = 10;
+  // Per-word lesson wizard state
+  int _lessonWordIndex = 0;
+  List<SentenceForWordItem> _sentencesForCurrentWord = [];
+  final Set<String> _selectedSentenceKeys = {};  // "id_toId" for selected sentences
+  List<GeneratedExercisePreview> _generatedExercises = [];
+  final Set<int> _selectedExerciseIndices = {};
+  int _savedCourseId = 0;
+  int _savedModuleId = 0;
+  bool _loadingSentences = false;
+  bool _loadingQuestions = false;
+  String? _lessonWizardError;
 
   // Step 4: Create
   bool _creating = false;
@@ -454,13 +465,50 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   }
 
   Widget _buildStep3() {
+    if (_automateLesson) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('3. For each word: select sentences & question types', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              title: const Text('Automate lesson creation'),
+              subtitle: const Text('Use shortest 15 sentences, 15 single choice + 5 identify words'),
+              value: _automateLesson,
+              onChanged: (v) => setState(() => _automateLesson = v ?? false),
+            ),
+            const SizedBox(height: 16),
+            Text('Words: ${_allWords.length}. Sentence selection per word can be added in a follow-up (open each word → load sentences → pick ~10).', style: TextStyle(color: Colors.grey[600])),
+            const SizedBox(height: 16),
+            const Text('Lessons per module (step 4)', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+              keyboardType: TextInputType.number,
+              onChanged: (s) => setState(() => _lessonsPerModule = int.tryParse(s) ?? 10),
+              decoration: InputDecoration(
+                hintText: '$_lessonsPerModule',
+                suffixText: 'lessons per module',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    // Per-word wizard: sentences → generate questions → choose → save lesson → next word
+    if (_allWords.isEmpty) {
+      return const Center(child: Text('Load words in step 2 first.'));
+    }
+    final wordIndex = _lessonWordIndex.clamp(0, _allWords.length - 1);
+    final currentWord = _allWords[wordIndex];
+    final totalWords = _allWords.length;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('3. For each word: select sentences & question types', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
+          Text('3. Lesson for word ${wordIndex + 1} of $totalWords: ${currentWord.word}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: 16),
           CheckboxListTile(
             title: const Text('Automate lesson creation'),
             subtitle: const Text('Use shortest 15 sentences, 15 single choice + 5 identify words'),
@@ -468,12 +516,83 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             onChanged: (v) => setState(() => _automateLesson = v ?? false),
           ),
           const SizedBox(height: 16),
-          Text('Words: ${_allWords.length}. Sentence selection per word can be added in a follow-up (open each word → load sentences → pick ~10).', style: TextStyle(color: Colors.grey[600])),
+          const Text('a. Load and select sentences (~10)', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _loadingSentences ? null : () => _loadSentencesForCurrentWord(),
+            child: Text(_loadingSentences ? 'Loading...' : 'Load sentences for "${currentWord.word}"'),
+          ),
+          if (_lessonWizardError != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_lessonWizardError!, style: const TextStyle(color: Colors.red))),
+          if (_sentencesForCurrentWord.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Select sentences (${_selectedSentenceKeys.length} selected):', style: TextStyle(color: Colors.grey[700])),
+            const SizedBox(height: 4),
+            ...List.generate(_sentencesForCurrentWord.length, (i) {
+              final s = _sentencesForCurrentWord[i];
+              final key = '${s.id}_${s.toId}';
+              return CheckboxListTile(
+                value: _selectedSentenceKeys.contains(key),
+                onChanged: (v) {
+                  setState(() {
+                    if (v == true) _selectedSentenceKeys.add(key);
+                    else _selectedSentenceKeys.remove(key);
+                  });
+                },
+                title: Text(s.sentence, style: const TextStyle(fontSize: 14)),
+                subtitle: Text(s.translation, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              );
+            }),
+          ],
+          const SizedBox(height: 24),
+          const Text('b. Generate questions from selected sentences', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: (_loadingQuestions || _selectedSentenceKeys.isEmpty) ? null : () => _generateQuestionsForCurrentWord(),
+            child: Text(_loadingQuestions ? 'Generating...' : 'Generate questions (${_selectedSentenceKeys.length} sentences)'),
+          ),
+          if (_generatedExercises.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Select questions to keep (${_selectedExerciseIndices.length} selected):', style: TextStyle(color: Colors.grey[700])),
+            const SizedBox(height: 4),
+            ...List.generate(_generatedExercises.length, (i) {
+              final ex = _generatedExercises[i];
+              return CheckboxListTile(
+                value: _selectedExerciseIndices.contains(i),
+                onChanged: (v) {
+                  setState(() {
+                    if (v == true) _selectedExerciseIndices.add(i);
+                    else _selectedExerciseIndices.remove(i);
+                  });
+                },
+                title: Text('${ex.exerciseType}: ${ex.sentence}', style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                subtitle: Text(ex.toSentence, style: TextStyle(fontSize: 12, color: Colors.grey[600]), maxLines: 1, overflow: TextOverflow.ellipsis),
+              );
+            }),
+          ],
+          const SizedBox(height: 24),
+          const Text('c. Save lesson and move to next word', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _selectedExerciseIndices.isEmpty ? null : () => _saveLessonForCurrentWord(),
+                child: const Text('Save lesson'),
+              ),
+              const SizedBox(width: 16),
+              if (wordIndex < totalWords - 1)
+                ElevatedButton(
+                  onPressed: () => _nextLessonWord(),
+                  child: const Text('Next word'),
+                )
+              else
+                Text('No more words.', style: TextStyle(color: Colors.grey[600])),
+            ],
+          ),
           const SizedBox(height: 16),
-          const Text('Lessons per module (step 4)', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Lessons per module (for step 4)', style: TextStyle(fontWeight: FontWeight.bold)),
           TextField(
             keyboardType: TextInputType.number,
-            onChanged: (s) => _lessonsPerModule = int.tryParse(s) ?? 10,
+            onChanged: (s) => setState(() => _lessonsPerModule = int.tryParse(s) ?? 10),
             decoration: InputDecoration(
               hintText: '$_lessonsPerModule',
               suffixText: 'lessons per module',
@@ -482,6 +601,106 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _loadSentencesForCurrentWord() async {
+    if (_langCode == null || _toLangCode == null || _allWords.isEmpty) return;
+    final word = _allWords[_lessonWordIndex.clamp(0, _allWords.length - 1)].word;
+    setState(() {
+      _loadingSentences = true;
+      _lessonWizardError = null;
+    });
+    try {
+      final res = await CourseGenerationService.getSentencesForWord(lang: _langCode!, toLang: _toLangCode!, word: word, limit: 30);
+      if (mounted) setState(() {
+        _sentencesForCurrentWord = res.sentences;
+        _loadingSentences = false;
+        _selectedSentenceKeys.clear();
+      });
+    } catch (e) {
+      if (mounted) setState(() {
+        _lessonWizardError = e.toString();
+        _loadingSentences = false;
+      });
+    }
+  }
+
+  Future<void> _generateQuestionsForCurrentWord() async {
+    if (_langCode == null || _toLangCode == null || _selectedSentenceKeys.isEmpty) return;
+    final word = _allWords[_lessonWordIndex.clamp(0, _allWords.length - 1)].word;
+    final pairs = <SentenceIdPair>[];
+    for (final s in _sentencesForCurrentWord) {
+      final key = '${s.id}_${s.toId}';
+      if (_selectedSentenceKeys.contains(key)) pairs.add(SentenceIdPair(sentenceId: s.id, toId: s.toId));
+    }
+    setState(() {
+      _loadingQuestions = true;
+      _lessonWizardError = null;
+    });
+    try {
+      final res = await CourseGenerationService.generateQuestionsForSentences(
+        lang: _langCode!,
+        toLang: _toLangCode!,
+        word: word,
+        sentences: pairs,
+      );
+      if (mounted) setState(() {
+        _generatedExercises = res.exercises;
+        _loadingQuestions = false;
+        _selectedExerciseIndices.clear();
+        for (int i = 0; i < res.exercises.length; i++) _selectedExerciseIndices.add(i);
+      });
+    } catch (e) {
+      if (mounted) setState(() {
+        _lessonWizardError = e.toString();
+        _loadingQuestions = false;
+      });
+    }
+  }
+
+  Future<void> _saveLessonForCurrentWord() async {
+    if (_langCode == null || _toLangCode == null || _selectedExerciseIndices.isEmpty) return;
+    final word = _allWords[_lessonWordIndex.clamp(0, _allWords.length - 1)].word;
+    final exercises = _selectedExerciseIndices.map((i) => _generatedExercises[i]).toList();
+    setState(() => _lessonWizardError = null);
+    try {
+      final res = await CourseGenerationService.saveLesson(
+        courseId: _savedCourseId,
+        moduleId: _savedModuleId,
+        lang: _langCode!,
+        toLang: _toLangCode!,
+        word: word,
+        title: word,
+        courseTitle: _titleController.text.trim().isEmpty ? 'New course' : _titleController.text.trim(),
+        courseDescription: _descriptionController.text.trim(),
+        lessonsPerModule: _lessonsPerModule,
+        wordIndex: _lessonWordIndex,
+        exercises: exercises,
+      );
+      if (mounted) {
+        setState(() {
+          _savedCourseId = res.courseId;
+          _savedModuleId = res.moduleId;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lesson saved: ${res.lessonId}')));
+      }
+    } catch (e) {
+      if (mounted) setState(() => _lessonWizardError = e.toString());
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Save failed: $e')));
+    }
+  }
+
+  void _nextLessonWord() {
+    if (_lessonWordIndex < _allWords.length - 1) {
+      setState(() {
+        _lessonWordIndex++;
+        _sentencesForCurrentWord = [];
+        _selectedSentenceKeys.clear();
+        _generatedExercises = [];
+        _selectedExerciseIndices.clear();
+        _lessonWizardError = null;
+      });
+    }
   }
 
   Widget _buildStep4() {
