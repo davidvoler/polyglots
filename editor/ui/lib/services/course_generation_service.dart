@@ -117,6 +117,99 @@ class WordWithWeight {
   final String word;
   final int weight;
   WordWithWeight({required this.word, required this.weight});
+  Map<String, dynamic> toJson() => {'word': word, 'weight': weight};
+}
+
+/// Editor draft: save/resume wizard at last position
+class EditorDraftWord {
+  final String word;
+  final int weight;
+  EditorDraftWord({required this.word, required this.weight});
+  factory EditorDraftWord.fromJson(Map<String, dynamic> json) =>
+      EditorDraftWord(word: json['word'] ?? '', weight: json['weight'] ?? 0);
+}
+
+class EditorDraftListItem {
+  final int id;
+  final String title;
+  final String updatedAt;
+  final int step;
+  final String lang;
+  final String toLang;
+  EditorDraftListItem({
+    required this.id,
+    required this.title,
+    required this.updatedAt,
+    required this.step,
+    required this.lang,
+    required this.toLang,
+  });
+  factory EditorDraftListItem.fromJson(Map<String, dynamic> json) =>
+      EditorDraftListItem(
+        id: json['id'] ?? 0,
+        title: json['title'] ?? '',
+        updatedAt: json['updated_at']?.toString() ?? '',
+        step: json['step'] ?? 0,
+        lang: json['lang'] ?? '',
+        toLang: json['to_lang'] ?? '',
+      );
+}
+
+class EditorDraft {
+  final int id;
+  final String createdAt;
+  final String updatedAt;
+  final String title;
+  final String description;
+  final String lang;
+  final String toLang;
+  final List<String> selectedQuestionTypeIds;
+  final List<EditorDraftWord> wordsWithWeight;
+  final int step;
+  final bool automateLesson;
+  final int lessonsPerModule;
+  final Map<String, List<int>> sentencesPerWord;
+  EditorDraft({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.title,
+    required this.description,
+    required this.lang,
+    required this.toLang,
+    required this.selectedQuestionTypeIds,
+    required this.wordsWithWeight,
+    required this.step,
+    required this.automateLesson,
+    required this.lessonsPerModule,
+    required this.sentencesPerWord,
+  });
+  factory EditorDraft.fromJson(Map<String, dynamic> json) {
+    final words = json['words_with_weight'] as List<dynamic>?;
+    final spw = json['sentences_per_word'] as Map<String, dynamic>?;
+    final sentenceIds = <String, List<int>>{};
+    if (spw != null) {
+      for (final e in spw.entries) {
+        final list = e.value as List<dynamic>?;
+        sentenceIds[e.key] = list?.map((x) => x as int).toList() ?? [];
+      }
+    }
+    return EditorDraft(
+      id: json['id'] ?? 0,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      lang: json['lang'] ?? '',
+      toLang: json['to_lang'] ?? '',
+      selectedQuestionTypeIds: (json['selected_question_type_ids'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      wordsWithWeight: words?.map((e) => EditorDraftWord.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      step: json['step'] ?? 0,
+      automateLesson: json['automate_lesson'] ?? false,
+      lessonsPerModule: json['lessons_per_module'] ?? 10,
+      sentencesPerWord: sentenceIds,
+    );
+  }
 }
 
 class SentenceForWordItem {
@@ -292,7 +385,87 @@ class CourseGenerationService {
     if (response.statusCode != 200) throw Exception('Failed to create course: ${response.statusCode} - ${response.body}');
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
-  
+
+  /// List editor drafts (for resume).
+  static Future<List<EditorDraftListItem>> listDrafts() async {
+    final url = Uri.parse('$baseUrl/generate/drafts');
+    final response = await http.get(url);
+    if (response.statusCode != 200) throw Exception('Failed to list drafts: ${response.statusCode}');
+    final list = jsonDecode(response.body) as List<dynamic>;
+    return list.map((e) => EditorDraftListItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Get full draft by id (for resuming).
+  static Future<EditorDraft> getDraft(int draftId) async {
+    final url = Uri.parse('$baseUrl/generate/draft/$draftId');
+    final response = await http.get(url);
+    if (response.statusCode != 200) throw Exception('Failed to get draft: ${response.statusCode}');
+    return EditorDraft.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Create a new editor draft.
+  static Future<EditorDraft> saveDraft({
+    required String title,
+    required String description,
+    required String lang,
+    required String toLang,
+    required List<String> selectedQuestionTypeIds,
+    required List<WordWithWeight> wordsWithWeight,
+    required int step,
+    bool automateLesson = false,
+    int lessonsPerModule = 10,
+    Map<String, List<int>> sentencesPerWord = const {},
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/draft');
+    final body = {
+      'title': title,
+      'description': description,
+      'lang': lang,
+      'to_lang': toLang,
+      'selected_question_type_ids': selectedQuestionTypeIds,
+      'words_with_weight': wordsWithWeight.map((w) => w.toJson()).toList(),
+      'step': step,
+      'automate_lesson': automateLesson,
+      'lessons_per_module': lessonsPerModule,
+      'sentences_per_word': sentencesPerWord,
+    };
+    final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    if (response.statusCode != 200) throw Exception('Failed to save draft: ${response.statusCode} - ${response.body}');
+    return EditorDraft.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Update existing editor draft.
+  static Future<EditorDraft> updateDraft(
+    int draftId, {
+    required String title,
+    required String description,
+    required String lang,
+    required String toLang,
+    required List<String> selectedQuestionTypeIds,
+    required List<WordWithWeight> wordsWithWeight,
+    required int step,
+    bool automateLesson = false,
+    int lessonsPerModule = 10,
+    Map<String, List<int>> sentencesPerWord = const {},
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/draft/$draftId');
+    final body = {
+      'title': title,
+      'description': description,
+      'lang': lang,
+      'to_lang': toLang,
+      'selected_question_type_ids': selectedQuestionTypeIds,
+      'words_with_weight': wordsWithWeight.map((w) => w.toJson()).toList(),
+      'step': step,
+      'automate_lesson': automateLesson,
+      'lessons_per_module': lessonsPerModule,
+      'sentences_per_word': sentencesPerWord,
+    };
+    final response = await http.put(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    if (response.statusCode != 200) throw Exception('Failed to update draft: ${response.statusCode} - ${response.body}');
+    return EditorDraft.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
   /// Select words for modules using the word selection API
   ///
   /// [lang] - Language code

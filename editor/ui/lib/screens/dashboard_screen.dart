@@ -30,7 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DashboardMenuItem(
       title: 'Create course (4 steps)',
       icon: Icons.edit_note,
-      screenBuilder: () => const EditorFlowScreen(),
+      screenBuilder: () => const EditorCreateCourseScreen(),
     ),
     DashboardMenuItem(
       title: 'Courses',

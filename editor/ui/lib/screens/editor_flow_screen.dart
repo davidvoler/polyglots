@@ -264,6 +264,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBackToList != null
+            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBackToList)
+            : null,
         title: const Text('Create course (4 steps)'),
         elevation: 0,
         actions: [
@@ -535,6 +538,142 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
           else
             const SizedBox(),
         ],
+      ),
+    );
+  }
+}
+
+/// Wrapper: show "Start new" + list of drafts, or EditorFlowScreen when user chooses.
+class EditorCreateCourseScreen extends StatefulWidget {
+  const EditorCreateCourseScreen({super.key});
+
+  @override
+  State<EditorCreateCourseScreen> createState() => _EditorCreateCourseScreenState();
+}
+
+class _EditorCreateCourseScreenState extends State<EditorCreateCourseScreen> {
+  bool _showFlow = false;
+  int? _draftId;
+
+  void _startNew() => setState(() {
+    _showFlow = true;
+    _draftId = null;
+  });
+
+  void _resumeDraft(int id) => setState(() {
+    _showFlow = true;
+    _draftId = id;
+  });
+
+  void _backToList() => setState(() {
+    _showFlow = false;
+    _draftId = null;
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showFlow) {
+      return EditorFlowScreen(draftId: _draftId, onBackToList: _backToList);
+    }
+    return _EditorDraftListContent(onStartNew: _startNew, onResumeDraft: _resumeDraft);
+  }
+}
+
+class _EditorDraftListContent extends StatefulWidget {
+  const _EditorDraftListContent({required this.onStartNew, required this.onResumeDraft});
+
+  final VoidCallback onStartNew;
+  final void Function(int draftId) onResumeDraft;
+
+  @override
+  State<_EditorDraftListContent> createState() => _EditorDraftListContentState();
+}
+
+class _EditorDraftListContentState extends State<_EditorDraftListContent> {
+  List<EditorDraftListItem> _drafts = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDrafts();
+  }
+
+  Future<void> _loadDrafts() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final list = await CourseGenerationService.listDrafts();
+      if (mounted) setState(() {
+        _drafts = list;
+        _loading = false;
+      });
+    } catch (e) {
+      if (mounted) setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create course'),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Start a new course or resume a saved draft.', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: widget.onStartNew,
+                icon: const Icon(Icons.add_circle_outline),
+                label: const Text('Start new course'),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text('Resume draft', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            if (_loading)
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+            else if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(_error!, style: const TextStyle(color: Colors.red)),
+              )
+            else if (_drafts.isEmpty)
+              Text('No drafts yet. Start a new course and use "Save draft" to resume later.', style: TextStyle(color: Colors.grey[600]))
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _drafts.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final d = _drafts[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(d.title.isEmpty ? 'Untitled' : d.title),
+                      subtitle: Text('Step ${d.step + 1} · ${d.lang} → ${d.toLang} · ${d.updatedAt}'),
+                      trailing: const Icon(Icons.arrow_forward),
+                      onTap: () => widget.onResumeDraft(d.id),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
