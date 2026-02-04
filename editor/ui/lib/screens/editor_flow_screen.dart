@@ -518,7 +518,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
           const SizedBox(height: 16),
           const Text('1. Select the sentences and translations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 4),
-          Text('Load sentences for this word, then select which ones (with translation) to include.', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+          Text('Load sentences for this word, then select which ones (with translation) to include. Sentences are ordered by length (shortest first).', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: _loadingSentences ? null : () => _loadSentencesForCurrentWord(),
@@ -575,7 +575,16 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
                   });
                 },
                 title: Text('${ex.exerciseType}: ${ex.sentence}', style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
-                subtitle: Text(ex.toSentence, style: TextStyle(fontSize: 12, color: Colors.grey[600]), maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (ex.toSentence.isNotEmpty) Text('Translation: ${ex.toSentence}', style: TextStyle(fontSize: 12, color: Colors.grey[700]), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    if (ex.correctOptions.isNotEmpty) Text('Correct options: ${ex.correctOptions.join(', ')}', style: TextStyle(fontSize: 11, color: Colors.green[700]), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    if (ex.wrongOptions.isNotEmpty) Text('Incorrect options: ${ex.wrongOptions.join(', ')}', style: TextStyle(fontSize: 11, color: Colors.red[700]), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+                isThreeLine: true,
               );
             }),
           ],
