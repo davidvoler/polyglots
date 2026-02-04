@@ -516,7 +516,9 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             onChanged: (v) => setState(() => _automateLesson = v ?? false),
           ),
           const SizedBox(height: 16),
-          const Text('a. Load and select sentences (~10)', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('1. Select the sentences and translations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text('Load sentences for this word, then select which ones (with translation) to include.', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: _loadingSentences ? null : () => _loadSentencesForCurrentWord(),
@@ -525,7 +527,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
           if (_lessonWizardError != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_lessonWizardError!, style: const TextStyle(color: Colors.red))),
           if (_sentencesForCurrentWord.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text('Select sentences (${_selectedSentenceKeys.length} selected):', style: TextStyle(color: Colors.grey[700])),
+            Text('Sentences and translations (${_selectedSentenceKeys.length} selected):', style: TextStyle(color: Colors.grey[700])),
             const SizedBox(height: 4),
             ...List.generate(_sentencesForCurrentWord.length, (i) {
               final s = _sentencesForCurrentWord[i];
@@ -534,8 +536,11 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
                 value: _selectedSentenceKeys.contains(key),
                 onChanged: (v) {
                   setState(() {
-                    if (v == true) _selectedSentenceKeys.add(key);
-                    else _selectedSentenceKeys.remove(key);
+                    if (v == true) {
+                      _selectedSentenceKeys.add(key);
+                    } else {
+                      _selectedSentenceKeys.remove(key);
+                    }
                   });
                 },
                 title: Text(s.sentence, style: const TextStyle(fontSize: 14)),
@@ -544,15 +549,17 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             }),
           ],
           const SizedBox(height: 24),
-          const Text('b. Generate questions from selected sentences', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('2. Show the lessons created from the sentences', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text('Generate exercises from your selected sentences. Then review and deselect any you do not want.', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: (_loadingQuestions || _selectedSentenceKeys.isEmpty) ? null : () => _generateQuestionsForCurrentWord(),
-            child: Text(_loadingQuestions ? 'Generating...' : 'Generate questions (${_selectedSentenceKeys.length} sentences)'),
+            child: Text(_loadingQuestions ? 'Generating...' : 'Create lessons from ${_selectedSentenceKeys.length} sentences'),
           ),
           if (_generatedExercises.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text('Select questions to keep (${_selectedExerciseIndices.length} selected):', style: TextStyle(color: Colors.grey[700])),
+            const SizedBox(height: 12),
+            Text('Lessons created from the selected sentences. All included by default; deselect the questions you do not want to include (${_selectedExerciseIndices.length} selected).', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
             const SizedBox(height: 4),
             ...List.generate(_generatedExercises.length, (i) {
               final ex = _generatedExercises[i];
@@ -560,8 +567,11 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
                 value: _selectedExerciseIndices.contains(i),
                 onChanged: (v) {
                   setState(() {
-                    if (v == true) _selectedExerciseIndices.add(i);
-                    else _selectedExerciseIndices.remove(i);
+                    if (v == true) {
+                      _selectedExerciseIndices.add(i);
+                    } else {
+                      _selectedExerciseIndices.remove(i);
+                    }
                   });
                 },
                 title: Text('${ex.exerciseType}: ${ex.sentence}', style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -570,7 +580,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
             }),
           ],
           const SizedBox(height: 24),
-          const Text('c. Save lesson and move to next word', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('3. Save lesson and move to next word', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
           Row(
             children: [
