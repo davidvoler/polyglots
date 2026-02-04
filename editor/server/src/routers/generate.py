@@ -1,3 +1,5 @@
+import json
+import random
 from fastapi import APIRouter, HTTPException
 from models.generate import (
     ByWordsRequest,
@@ -12,6 +14,15 @@ from models.generate import (
     SentencesForWordResponse,
     SentenceForWordItem,
     CreateCourseFromEditorRequest,
+    SaveEditorDraftRequest,
+    EditorDraftResponse,
+    EditorDraftListItem,
+    EditorDraftWord,
+    GenerateQuestionsRequest,
+    GenerateQuestionsResponse,
+    GeneratedExercisePreview,
+    SaveLessonRequest,
+    SaveLessonResponse,
 )
 from generators.course_template import CourseTemplate
 from generators.generate import gen_course
@@ -206,6 +217,261 @@ async def create_course_from_editor(request: CreateCourseFromEditorRequest):
         lesson_id = lesson_rows[0]["id"]
         # TODO: create exercises (single_choice, identify_words when automate_lesson; else from sentences_per_word + enabled_question_types)
     return {"course_id": course_id, "lang": request.lang, "to_lang": request.to_lang, "title": request.title}
+
+
+# --- Editor draft: save / list / get / update ---
+
+def _draft_from_row(r) -> EditorDraftResponse:
+    words = r.get("words_with_weight") or []
+    if isinstance(words, str):
+        words = json.loads(words) if words else []
+    spw = r.get("sentences_per_word") or {}
+    if isinstance(spw, str):
+        spw = json.loads(spw) if spw else {}
+    return EditorDraftResponse(
+        id=r["id"],
+        created_at=str(r.get("created_at", "")),
+        updated_at=str(r.get("updated_at", "")),
+        title=r.get("title") or "",
+        description=r.get("description") or "",
+        lang=r["lang"],
+        to_lang=r["to_lang"],
+        selected_question_type_ids=list(r.get("selected_question_type_ids") or []),
+        words_with_weight=[EditorDraftWord(word=x["word"], weight=x.get("weight", 0)) for x in words],
+        step=int(r.get("step", 0)),
+        automate_lesson=bool(r.get("automate_lesson", False)),
+        lessons_per_module=int(r.get("lessons_per_module", 10)),
+        sentences_per_word=dict(spw),
+    )
+
+
+@router.post("/draft", response_model=EditorDraftResponse)
+async def save_draft(request: SaveEditorDraftRequest):
+    """Create a new editor draft (wizard state)."""
+    words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
+    sentences_json = json.dumps(request.sentences_per_word)
+    sql = """
+    INSERT INTO course.editor_draft (
+        title, description, lang, to_lang, selected_question_type_ids,
+        words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
+    ) VALUES (%s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s::jsonb)
+    RETURNING id, created_at, updated_at, title, description, lang, to_lang,
+              selected_question_type_ids, words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
+    """
+    rows = await get_query_results(
+        sql,
+        (
+            request.title, request.description, request.lang, request.to_lang,
+            request.selected_question_type_ids, words_json, request.step,
+            request.automate_lesson, request.lessons_per_module, sentences_json,
+        ),
+    )
+    if not rows:
+        raise HTTPException(status_code=500, detail="Failed to create draft")
+    return _draft_from_row(rows[0])
+
+
+@router.get("/drafts", response_model=list[EditorDraftListItem])
+async def list_drafts():
+    """List editor drafts (for resume)."""
+    sql = """
+    SELECT id, title, updated_at, step, lang, to_lang
+    FROM course.editor_draft
+    ORDER BY updated_at DESC
+    LIMIT 50
+    """
+    rows = await get_query_results(sql, ())
+    return [
+        EditorDraftListItem(
+            id=r["id"],
+            title=r.get("title") or "",
+            updated_at=str(r.get("updated_at", "")),
+            step=int(r.get("step", 0)),
+            lang=r.get("lang", ""),
+            to_lang=r.get("to_lang", ""),
+        )
+        for r in rows
+    ]
+
+
+@router.get("/draft/{draft_id}", response_model=EditorDraftResponse)
+async def get_draft(draft_id: int):
+    """Get full draft by id (for resuming)."""
+    sql = """
+    SELECT id, created_at, updated_at, title, description, lang, to_lang,
+           selected_question_type_ids, words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
+    FROM course.editor_draft
+    WHERE id = %s
+    """
+    rows = await get_query_results(sql, (draft_id,))
+    if not rows:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return _draft_from_row(rows[0])
+
+
+@router.put("/draft/{draft_id}", response_model=EditorDraftResponse)
+async def update_draft(draft_id: int, request: SaveEditorDraftRequest):
+    """Update existing draft (save wizard state)."""
+    words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
+    sentences_json = json.dumps(request.sentences_per_word)
+    sql = """
+    UPDATE course.editor_draft SET
+        updated_at = now(),
+        title = %s, description = %s, lang = %s, to_lang = %s,
+        selected_question_type_ids = %s, words_with_weight = %s::jsonb, step = %s,
+        automate_lesson = %s, lessons_per_module = %s, sentences_per_word = %s::jsonb
+    WHERE id = %s
+    RETURNING id, created_at, updated_at, title, description, lang, to_lang,
+              selected_question_type_ids, words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
+    """
+    rows = await get_query_results(
+        sql,
+        (
+            request.title, request.description, request.lang, request.to_lang,
+            request.selected_question_type_ids, words_json, request.step,
+            request.automate_lesson, request.lessons_per_module, sentences_json,
+            draft_id,
+        ),
+    )
+    if not rows:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return _draft_from_row(rows[0])
+
+
+# --- Lesson wizard: generate questions from sentences, save lesson ---
+
+async def _load_sentence_pair(lang: str, to_lang: str, sentence_id: int, to_id: int) -> tuple[dict, dict] | None:
+    """Load sentence from sentence_elements and translation from sentences. Returns (sentence_row, to_row) or None."""
+    sql = """
+    SELECT l.id, l.lang, l.text, l.word1, l.word2, l.word3, l.word4
+    FROM content_raw.sentence_elements l
+    WHERE l.lang = %s AND l.id = %s
+    """
+    rows = await get_query_results(sql, (lang, sentence_id))
+    if not rows:
+        return None
+    sentence_row = dict(rows[0])
+    sql_to = """
+    SELECT id, lang, text
+    FROM content_raw.sentences t
+    WHERE t.lang = %s AND t.id = %s
+    """
+    to_rows = await get_query_results(sql_to, (to_lang, to_id))
+    if not to_rows:
+        return None
+    to_row = dict(to_rows[0])
+    opts = to_row.get("options")
+    to_row["options"] = list(opts) if isinstance(opts, (list, tuple)) and opts else []
+    return (sentence_row, to_row)
+
+
+@router.post("/questions_for_sentences", response_model=GenerateQuestionsResponse)
+async def generate_questions_for_sentences(request: GenerateQuestionsRequest):
+    """Generate mostly single_choice + ~10% other type (e.g. identify_words) as preview. Plan step 4–5."""
+    exercises: list[GeneratedExercisePreview] = []
+    for pair in request.sentences:
+        loaded = await _load_sentence_pair(request.lang, request.to_lang, pair.sentence_id, pair.to_id)
+        if not loaded:
+            continue
+        sentence_row, to_row = loaded
+        sentence_text = sentence_row.get("text") or ""
+        to_text = to_row.get("text") or ""
+        options = to_row.get("options") or []
+        wrong = list(options) if isinstance(options, (list, tuple)) else []
+        exercises.append(GeneratedExercisePreview(
+            exercise_type="sentence_single_choice",
+            sentence=sentence_text,
+            to_sentence=to_text,
+            correct_options=[to_text],
+            wrong_options=wrong[:6],
+            sentence_id=pair.sentence_id,
+            to_sentence_id=pair.to_id,
+        ))
+        words = []
+        for k in ("word1", "word2", "word3", "word4"):
+            w = sentence_row.get(k)
+            if w and w not in words:
+                words.append(w)
+        if len(words) >= 2 and random.random() < 0.10:
+            correct = words[:3] if len(words) >= 3 else words
+            exercises.append(GeneratedExercisePreview(
+                exercise_type="identify_words_in_speech",
+                sentence=sentence_text,
+                to_sentence=to_text,
+                correct_options=correct,
+                wrong_options=[],
+                sentence_id=pair.sentence_id,
+                to_sentence_id=pair.to_id,
+                extra_data={"words": correct},
+            ))
+    return GenerateQuestionsResponse(word=request.word, exercises=exercises)
+
+
+@router.post("/save_lesson", response_model=SaveLessonResponse)
+async def save_lesson(request: SaveLessonRequest):
+    """Save one lesson (one word) with selected exercises. Create course and module if course_id is 0. Plan step 6."""
+    course_id = request.course_id
+    module_id = request.module_id
+    lang = request.lang
+    to_lang = request.to_lang
+    word = request.word
+    title = request.title or word
+    n = request.lessons_per_module or 10
+    if course_id <= 0:
+        sql_course = """
+        INSERT INTO course.course (lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s) RETURNING id
+        """
+        rows = await get_query_results(
+            sql_course,
+            (lang, to_lang, request.course_title or title, request.course_description or ""),
+        )
+        if not rows:
+            raise HTTPException(status_code=500, detail="Failed to create course")
+        course_id = rows[0]["id"]
+        sql_mod = """
+        INSERT INTO course.module (course_id, lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s, %s) RETURNING id
+        """
+        mod_rows = await get_query_results(sql_mod, (course_id, lang, to_lang, "Module 1", "Module 1"))
+        if not mod_rows:
+            raise HTTPException(status_code=500, detail="Failed to create module")
+        module_id = mod_rows[0]["id"]
+    elif module_id <= 0:
+        mod_idx = (request.word_index // n) + 1
+        sql_mod = """
+        INSERT INTO course.module (course_id, lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s, %s) RETURNING id
+        """
+        mod_rows = await get_query_results(
+            sql_mod, (course_id, lang, to_lang, f"Module {mod_idx}", f"Module {mod_idx}")
+        )
+        if not mod_rows:
+            raise HTTPException(status_code=500, detail="Failed to create module")
+        module_id = mod_rows[0]["id"]
+    sql_lesson = """
+    INSERT INTO course.lesson (course_id, module_id, lang, to_lang, title, description)
+    VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+    """
+    lesson_rows = await get_query_results(sql_lesson, (course_id, module_id, lang, to_lang, title, request.description or ""))
+    if not lesson_rows:
+        raise HTTPException(status_code=500, detail="Failed to create lesson")
+    lesson_id = lesson_rows[0]["id"]
+    for ex in request.exercises:
+        opts = ex.wrong_options or []
+        to_opts = ex.correct_options or []
+        sql_ex = """
+        INSERT INTO course.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, sentence_id, sentence, options, to_sentence_id, to_sentence, to_options)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        await run_query(
+            sql_ex,
+            (
+                course_id, module_id, lesson_id, lang, to_lang, ex.exercise_type,
+                ex.sentence_id, ex.sentence or "", opts, ex.to_sentence_id, ex.to_sentence or "", to_opts,
+            ),
+        )
+    return SaveLessonResponse(course_id=course_id, module_id=module_id, lesson_id=lesson_id)
 
 
 @router.post("/course", response_model=GeneratedCourse)
