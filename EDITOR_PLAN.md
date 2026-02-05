@@ -68,6 +68,27 @@ Sentences should be ordered by length of the sentences
 Lesson created should show the sentences, correct options and incorrect options 
 
 
+**Manual Code - routes/gen_lesson**
+Handled code for generating a complete lesson for a word 
+It should include words so far
+
+**Following Manual Code - routes/gen_lesson**
+
+1. endpoint to get lesson from a words 
+2. the request should include words so far
+3. That mens that when saving a course we should save
+a. the order of words
+b. words so far for each stage
+c. the stage that we are in in the lesson
+d. letters so far 
+4. now that we have implemented all the above
+
+The lesson generation should look like that 
+We should see al the words on the left pane 
+We should see the words we are now working on
+We should save after each word generation
+  
+
 **Your process (overview):**
 1. **Select and order words** — Server returns words ordered by how common they are in the content (most common first).
 2. **User selects words and reorders them** — The course editor chooses which words to include and in what order.
