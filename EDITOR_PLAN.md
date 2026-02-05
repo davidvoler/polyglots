@@ -54,7 +54,18 @@ c. Let the user select the sentences with translation
 
 
 
+**Wizard Lesson Steps part 2**
+Let's split the sentence creation into the following steps
+1. Select the sentences and translations
+2. Show the lessons created from the sentences 
+3. The checkbox for exercise should be selected - so user should only deselect the questions he does not want to include
 
+
+
+**Wizard Lesson Steps part 3**
+
+Sentences should be ordered by length of the sentences 
+Lesson created should show the sentences, correct options and incorrect options 
 
 
 **Your process (overview):**

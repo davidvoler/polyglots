@@ -70,7 +70,7 @@ async def get_question_types():
 
 @router.post("/sentences_for_word", response_model=SentencesForWordResponse)
 async def sentences_for_word(request: SentencesForWordRequest):
-    """Step 3a: Return candidate sentences (with translation and options) for a word, ordered by length."""
+    """Step 3a: Return candidate sentences (with translation and options) for a word, ordered by sentence length (shortest first)."""
     sql = """
     SELECT l.id AS id, l.lang AS lang, l.text AS sentence, t.text AS translation, t.id AS to_id,
            t.lang AS to_lang, l.len_elm AS len_elm
@@ -79,7 +79,7 @@ async def sentences_for_word(request: SentencesForWordRequest):
     JOIN content_raw.sentences t ON tl.to_lang = t.lang AND tl.to_id = t.id
     WHERE tl.lang = %s AND tl.to_lang = %s
       AND (l.root = %s OR l.word1 = %s OR l.word2 = %s OR l.word3 = %s)
-    ORDER BY l.len_elm
+    ORDER BY l.len_elm ASC NULLS LAST
     LIMIT %s
     """
     rows = await get_query_results(sql, (request.lang, request.to_lang, request.word, request.word, request.word, request.word, request.limit))
