@@ -281,13 +281,84 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
           ),
         ],
       ]),
-      subtitle: ex.toSentence.isNotEmpty
-          ? Text(
-              ex.toSentence,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-              overflow: TextOverflow.ellipsis,
-            )
-          : null,
+      subtitle: _buildExerciseSubtitle(ex),
+    );
+  }
+
+  Widget? _buildExerciseSubtitle(GeneratedExercisePreview ex) {
+    final isIdentify = ex.exerciseType == 'identify_words_in_speech';
+    final identifyWords = isIdentify ? ex.correctOptions : <String>[];
+    final wrongOpts = isIdentify ? <String>[] : ex.wrongOptions;
+    final hasContent = identifyWords.isNotEmpty || wrongOpts.isNotEmpty || ex.toSentence.isNotEmpty;
+    if (!hasContent) return null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (ex.toSentence.isNotEmpty)
+          Text(
+            ex.toSentence,
+            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+            overflow: TextOverflow.ellipsis,
+          ),
+        // Identify words: show words to identify with label
+        if (identifyWords.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('identify: ', style: TextStyle(fontSize: 10, color: Colors.purple[400], fontWeight: FontWeight.w600)),
+              Expanded(
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 3,
+                  children: identifyWords.map((w) => _wordChip(w)).toList(),
+                ),
+              ),
+            ],
+          ),
+        ],
+        // Wrong options for single-choice
+        if (wrongOpts.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 4,
+            runSpacing: 3,
+            children: wrongOpts.map((opt) => _optionChip(opt, correct: false)).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _wordChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.purple[50],
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.purple[200]!),
+      ),
+      child: Text(text, style: TextStyle(fontSize: 10, color: Colors.purple[700])),
+    );
+  }
+
+  Widget _optionChip(String text, {required bool correct}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: correct ? Colors.green[50] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: correct ? Colors.green[300]! : Colors.grey[300]!),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 10,
+          color: correct ? Colors.green[700] : Colors.grey[600],
+        ),
+      ),
     );
   }
 

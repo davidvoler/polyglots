@@ -81,7 +81,7 @@ async def sentences_for_word(request: SentencesForWordRequest):
     """Step 3a: Return candidate sentences (with translation and options) for a word, ordered by sentence length (shortest first)."""
     sql = """
     SELECT l.id AS id, l.lang AS lang, l.text AS sentence, t.text AS translation, t.id AS to_id,
-           t.lang AS to_lang, l.len_elm AS len_elm
+           t.lang AS to_lang, l.len_elm AS len_elm, t.options AS options
     FROM content_raw.sentence_elements l
     JOIN content_raw.translation_links tl ON l.lang = tl.lang AND l.id = tl.id
     JOIN content_raw.sentences t ON tl.to_lang = t.lang AND tl.to_id = t.id
@@ -360,7 +360,7 @@ async def _load_sentence_pair(lang: str, to_lang: str, sentence_id: int, to_id: 
         return None
     sentence_row = dict(rows[0])
     sql_to = """
-    SELECT id, lang, text
+    SELECT id, lang, text, options
     FROM content_raw.sentences t
     WHERE t.lang = %s AND t.id = %s
     """
