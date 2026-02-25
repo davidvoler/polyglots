@@ -194,35 +194,35 @@ async def create_course_from_editor(request: CreateCourseFromEditorRequest):
         raise HTTPException(status_code=400, detail="selected_words is required")
     # Insert course
     sql_course = """
-    INSERT INTO course.course (lang, to_lang, title, description)
+    INSERT INTO content.course (lang, to_lang, title, description)
     VALUES (%s, %s, %s, %s) RETURNING id
     """
     rows = await get_query_results(sql_course, (request.lang, request.to_lang, request.title or "New course", request.description or ""))
     if not rows:
         raise HTTPException(status_code=500, detail="Failed to create course")
-    course_id = rows[0]["id"]
+    course_id = rows[0]["course_id"]
     n = request.lessons_per_module or 10
     words = request.selected_words
     module_id = None
     for i, word in enumerate(words):
         if i % n == 0:
             sql_mod = """
-            INSERT INTO course.module (course_id, lang, to_lang, title, description)
-            VALUES (%s, %s, %s, %s, %s) RETURNING id
+            INSERT INTO content.module (course_id, lang, to_lang, title, description)
+            VALUES (%s, %s, %s, %s, %s) RETURNING module_id
             """
             title = f"Module {i // n + 1}"
             mod_rows = await get_query_results(sql_mod, (course_id, request.lang, request.to_lang, title, title))
             if not mod_rows:
                 raise HTTPException(status_code=500, detail="Failed to create module")
-            module_id = mod_rows[0]["id"]
+            module_id = mod_rows[0]["module_id"]
         sql_lesson = """
-        INSERT INTO course.lesson (course_id, module_id, lang, to_lang, title, description)
-        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO content.lesson (course_id, module_id, lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s, %s, %s) RETURNING lesson_id
         """
         lesson_rows = await get_query_results(sql_lesson, (course_id, module_id, request.lang, request.to_lang, word, word))
         if not lesson_rows:
             raise HTTPException(status_code=500, detail="Failed to create lesson")
-        lesson_id = lesson_rows[0]["id"]
+        lesson_id = lesson_rows[0]["lesson_id"]
         # TODO: create exercises (single_choice, identify_words when automate_lesson; else from sentences_per_word + enabled_question_types)
     return {"course_id": course_id, "lang": request.lang, "to_lang": request.to_lang, "title": request.title}
 
@@ -259,7 +259,7 @@ async def save_draft(request: SaveEditorDraftRequest):
     words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
     sentences_json = json.dumps(request.sentences_per_word)
     sql = """
-    INSERT INTO course.editor_draft (
+    INSERT INTO content.editor_draft (
         title, description, lang, to_lang, selected_question_type_ids,
         words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
     ) VALUES (%s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s::jsonb)
@@ -284,7 +284,7 @@ async def list_drafts():
     """List editor drafts (for resume)."""
     sql = """
     SELECT id, title, updated_at, step, lang, to_lang
-    FROM course.editor_draft
+    FROM content.editor_draft
     ORDER BY updated_at DESC
     LIMIT 50
     """
@@ -308,7 +308,7 @@ async def get_draft(draft_id: int):
     sql = """
     SELECT id, created_at, updated_at, title, description, lang, to_lang,
            selected_question_type_ids, words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
-    FROM course.editor_draft
+    FROM content.editor_draft
     WHERE id = %s
     """
     rows = await get_query_results(sql, (draft_id,))
@@ -323,7 +323,7 @@ async def update_draft(draft_id: int, request: SaveEditorDraftRequest):
     words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
     sentences_json = json.dumps(request.sentences_per_word)
     sql = """
-    UPDATE course.editor_draft SET
+    UPDATE content.editor_draft SET
         updated_at = now(),
         title = %s, description = %s, lang = %s, to_lang = %s,
         selected_question_type_ids = %s, words_with_weight = %s::jsonb, step = %s,
@@ -427,8 +427,8 @@ async def save_lesson(request: SaveLessonRequest):
     n = request.lessons_per_module or 10
     if course_id <= 0:
         sql_course = """
-        INSERT INTO course.course (lang, to_lang, title, description)
-        VALUES (%s, %s, %s, %s) RETURNING id
+        INSERT INTO content.course (lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s) RETURNING course_id
         """
         rows = await get_query_results(
             sql_course,
@@ -436,32 +436,32 @@ async def save_lesson(request: SaveLessonRequest):
         )
         if not rows:
             raise HTTPException(status_code=500, detail="Failed to create course")
-        course_id = rows[0]["id"]
+        course_id = rows[0]["course_id"]
         sql_mod = """
-        INSERT INTO course.module (course_id, lang, to_lang, title, description)
-        VALUES (%s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO content.module (course_id, lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s, %s) RETURNING module_id
         """
         mod_rows = await get_query_results(sql_mod, (course_id, lang, to_lang, "Module 1", "Module 1"))
         if not mod_rows:
             raise HTTPException(status_code=500, detail="Failed to create module")
-        module_id = mod_rows[0]["id"]
+        module_id = mod_rows[0]["module_id"]
     elif module_id <= 0 and course_id > 0:
-        count_sql = "SELECT COUNT(*) AS c FROM course.module WHERE course_id = %s"
+        count_sql = "SELECT COUNT(*) AS c FROM content.module WHERE course_id = %s"
         cnt = await get_query_results(count_sql, (course_id,))
         mod_num = (cnt[0]["c"] + 1) if cnt else 1
         sql_mod = """
-        INSERT INTO course.module (course_id, lang, to_lang, title, description)
-        VALUES (%s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO content.module (course_id, lang, to_lang, title, description)
+        VALUES (%s, %s, %s, %s, %s) RETURNING module_id
         """
         mod_rows = await get_query_results(
             sql_mod, (course_id, lang, to_lang, f"Module {mod_num}", f"Module {mod_num}")
         )
         if not mod_rows:
             raise HTTPException(status_code=500, detail="Failed to create module")
-        module_id = mod_rows[0]["id"]
+        module_id = mod_rows[0]["module_id"]
     sql_lesson = """
-    INSERT INTO course.lesson (course_id, module_id, lang, to_lang, title, description)
-    VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+    INSERT INTO content.lesson (course_id, module_id, lang, to_lang, title, description)
+    VALUES (%s, %s, %s, %s, %s, %s) RETURNING lesson_id
     """
     lesson_rows = await get_query_results(sql_lesson, (course_id, module_id, lang, to_lang, title, request.description or ""))
     if not lesson_rows:
@@ -471,7 +471,7 @@ async def save_lesson(request: SaveLessonRequest):
         opts = ex.wrong_options or []
         to_opts = ex.correct_options or []
         sql_ex = """
-        INSERT INTO course.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, sentence_id, sentence, options, to_sentence_id, to_sentence, to_options)
+        INSERT INTO content.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, sentence_id, sentence, options, to_sentence_id, to_sentence, to_options)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         await run_query(
@@ -554,25 +554,25 @@ async def module_exercises(request: ModuleExercisesRequest):
 async def get_course_detail(course_id: int):
     """Return full course tree (modules → lessons → exercises) for review screen."""
     course_rows = await get_query_results(
-        "SELECT id, title, description, lang, to_lang FROM course.course WHERE id = %s", (course_id,)
+        "SELECT id, title, description, lang, to_lang FROM content.course WHERE id = %s", (course_id,)
     )
     if not course_rows:
         raise HTTPException(status_code=404, detail="Course not found")
     c = course_rows[0]
     module_rows = await get_query_results(
-        "SELECT id, title FROM course.module WHERE course_id = %s ORDER BY id", (course_id,)
+        "SELECT id, title FROM content.module WHERE course_id = %s ORDER BY id", (course_id,)
     )
     modules = []
     for mod in module_rows:
         lesson_rows = await get_query_results(
-            "SELECT id, title FROM course.lesson WHERE module_id = %s ORDER BY id", (mod["id"],)
+            "SELECT id, title FROM content.lesson WHERE module_id = %s ORDER BY id", (mod["id"],)
         )
         lessons = []
         for lesson in lesson_rows:
             ex_rows = await get_query_results(
                 """SELECT id, exercise_type, sentence, to_sentence, sentence_id, to_sentence_id,
                           options, to_options
-                   FROM course.exercise WHERE lesson_id = %s ORDER BY id""",
+                   FROM content.exercise WHERE lesson_id = %s ORDER BY id""",
                 (lesson["id"],),
             )
             exercises = [
@@ -606,7 +606,7 @@ async def delete_exercises(request: DeleteExercisesRequest):
     if not request.exercise_ids:
         return {"deleted": 0}
     placeholders = ",".join(["%s"] * len(request.exercise_ids))
-    await run_query(f"DELETE FROM course.exercise WHERE id IN ({placeholders})", tuple(request.exercise_ids))
+    await run_query(f"DELETE FROM content.exercise WHERE id IN ({placeholders})", tuple(request.exercise_ids))
     return {"deleted": len(request.exercise_ids)}
 
 

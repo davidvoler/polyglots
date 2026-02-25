@@ -103,7 +103,7 @@ async def replace_ab_exercises(lang,to_lang, _id, lesson_id, course_id, module_i
         if a[0] == ab_type and a[1] == ab:
             quizes.append(a)
     insert_sql = """
-    insert into course.exercise(lang,to_lang,course_id, module_id,lesson_id,exercise_type,sentence, options) values (%s,%s,%s,%s,%s,%s,%s,%s)    
+    insert into content.exercise(lang,to_lang,course_id, module_id,lesson_id,exercise_type,sentence, options) values (%s,%s,%s,%s,%s,%s,%s,%s)    
     """
     for q in quizes:
         params = (lang,to_lang,course_id, module_id,lesson_id,"alphabet",q[3],q[4:])
@@ -111,7 +111,7 @@ async def replace_ab_exercises(lang,to_lang, _id, lesson_id, course_id, module_i
         await run_query(insert_sql, params)
 
     delete_sql = """
-    delete from course.exercise where id = %s
+    delete from content.exercise where id = %s
     """
     print(delete_sql, (_id,))
     await run_query(delete_sql, (_id,))
@@ -123,7 +123,7 @@ async def replace_ab_exercises(lang,to_lang, _id, lesson_id, course_id, module_i
 
 async def gen_alphabet_exercise(folder, lang,to_lang):
     sql = """
-    SELECT id,lesson_id,course_id, module_id, extra_data from course.exercise 
+    SELECT id,lesson_id,course_id, module_id, extra_data from content.exercise 
     where lang = %s and to_lang = %s and exercise_type = 'alphabet'
     """
     res = await get_query_results(sql, (lang, to_lang))
@@ -145,12 +145,12 @@ async def gen_alphabet_exercise(folder, lang,to_lang):
 
 async def fix_alphabet_exercise(lang,to_lang):
     sql = """
-    SELECT * from course.exercise 
+    SELECT * from content.exercise 
     where lang = %s and to_lang = %s and exercise_type = 'alphabet'
     """
     res = await get_query_results(sql, (lang, to_lang))
     update_sql = """
-    update course.exercise 
+    update content.exercise 
     set options = %s,
     to_sentence = %s
     where id = %s
