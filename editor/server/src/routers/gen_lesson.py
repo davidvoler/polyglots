@@ -27,6 +27,31 @@ class GenLessonRequest(BaseModel):
     letters_so_far: list[any]
     is_alphabet: bool = False
 
+class SelectSentencesRequest(BaseModel):
+    words: list[str]
+    lang: str
+    to_lang: str
+    words_so_far: list[str]
+    words_so_far_in_sentences: list[str]
+    letters_so_far: list[any]
+    is_alphabet: bool = False
+
+class SelectSentencesItem(BaseModel):
+    id: int = 0
+    to_id: int = 0
+    sentence: str = ''
+    translation: str = ''
+    to_options: list[str] = []
+    len_elm: int = 0
+    selected: bool = True
+    duplicate: bool = False
+    single_choice: bool = True
+    identify_words: bool = False
+    type_question: bool = False
+    single_choice_reversed: bool = False
+
+class SelectSentencesResponse(BaseModel):
+    sentences: dict[str, list[SelectSentencesItem]]
 
 async def get_sentences(word: str, lang: str, to_lang: str):
     sql = """
@@ -44,13 +69,25 @@ async def get_sentences(word: str, lang: str, to_lang: str):
     JOIN content_raw.sentences t ON tl.to_lang = t.lang AND tl.to_id = t.id
     WHERE tl.lang = %s AND tl.to_lang = %s
       AND (l.root = %s OR l.word1 = %s OR l.word2 = %s OR l.word3 = %s)
-    ORDER BY l.len_elm ASC
-    LIMIT 15
+    ORDER BY l.len_elm ASC l.sentence ASC
+    LIMIT 30
     """
-
     result = await get_query_results(sql, (lang, to_lang, word, word, word))
     # order sentences
-    return result
+    sentences_ids = {}
+    for row in result:
+        sid = row.get('id')
+        if sid not in sentences_ids:
+            sentences_ids[sid] = 1
+        else:
+            sentences_ids[sid] += 1
+    sentences = []
+    for row in result:
+        sid = row.get('id')
+        if sentences_ids[sid] > 1:
+            row['duplicate'] = True
+        sentences.append(SelectSentencesItem(**row))
+    return sentences
 
 
 def gen_single_choice_exercise(sentence: dict, voice: str, gen_request: GenLessonRequest):
@@ -176,3 +213,10 @@ async def gen_lesson(request: GenLessonRequest):
     return exercises
 
 
+
+@router.post("/select_sentences")
+async def select_sentences(request: SelectSentencesRequest) -> SelectSentencesResponse:
+    sentences = {}
+    for word in request.words:
+        sentences[word] = await get_sentences(word, request.lang, request.to_lang)
+    return SelectSentencesResponse(sentences=sentences)

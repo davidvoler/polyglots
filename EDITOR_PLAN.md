@@ -84,10 +84,57 @@ d. letters so far
 4. now that we have implemented all the above
 
 The lesson generation should look like that 
-We should see al the words on the left pane 
+We should see all the words on the left pane 
 We should see the words we are now working on
 We should save after each word generation
-  
+
+
+We can do the following:
+1. Select sentences first 
+2. decide what to do with duplicates 
+a. multiple choice
+b. elect only one of them - let the use select 
+c. for simplicity select unique sentences/translation
+
+We can implement multiple words in one go - say 5 word
+
+Let's redefine the process
+1. select next 5 words 
+2. create a lesson for each word in the server - return 5 lessons
+3. each lesson may contain say 20 questions - all question will be selected by default
+4. user can unselect exercises 
+5. pres save and next button 
+
+Save to databases
+- save lesson
+- save questions 
+- Save in course the last location
+
+
+-- DONE -- I am here - implement the client code for this:
+
+**Select sentences/Multiple words***
+
+1. Create an end point for selecting sentences per word
+2. Implement the above sentence selection for multiple words
+3. Show selected sentences and translation - All selected by default 
+4. Let the user select/unselect - send to server to generate a module/lesson
+5. next to each lesson show the types of questions we will generate - with default - let the user change
+5. Generate question according to above selection
+
+So the steps are 
+- Select the number of words per module (default 4)
+- Select sentences 
+- Generate question
+
+
+
+**Simplify lesson creation by creating multiple words at once**
+
+We could simplify the process by creating multiple words at once. 
+
+
+
 
 **Your process (overview):**
 1. **Select and order words** — Server returns words ordered by how common they are in the content (most common first).
