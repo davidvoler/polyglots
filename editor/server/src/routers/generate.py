@@ -23,6 +23,14 @@ from models.generate import (
     GeneratedExercisePreview,
     SaveLessonRequest,
     SaveLessonResponse,
+    ModuleExercisesRequest,
+    ModuleExercisesResponse,
+    WordExercisesResult,
+    CourseDetail,
+    ModuleDetail,
+    LessonDetail,
+    ExerciseDetail,
+    DeleteExercisesRequest,
 )
 from generators.course_template import CourseTemplate
 from generators.generate import gen_course
@@ -474,6 +482,132 @@ async def save_lesson(request: SaveLessonRequest):
             ),
         )
     return SaveLessonResponse(course_id=course_id, module_id=module_id, lesson_id=lesson_id)
+
+
+@router.post("/module_exercises", response_model=ModuleExercisesResponse)
+async def module_exercises(request: ModuleExercisesRequest):
+    """Generate exercises for all words in a module at once. Flags duplicate translations."""
+    sql = """
+    SELECT l.id AS id, l.lang, l.text AS sentence, t.text AS translation, t.id AS to_id,
+           l.len_elm, l.word1, l.word2, l.word3, l.word4
+    FROM content_raw.sentence_elements l
+    JOIN content_raw.translation_links tl ON l.lang = tl.lang AND l.id = tl.id
+    JOIN content_raw.sentences t ON tl.to_lang = t.lang AND tl.to_id = t.id
+    WHERE tl.lang = %s AND tl.to_lang = %s
+      AND (l.root = %s OR l.word1 = %s OR l.word2 = %s OR l.word3 = %s)
+    ORDER BY l.len_elm ASC NULLS LAST
+    LIMIT %s
+    """
+    enabled = set(request.question_types) if request.question_types else None
+    # Collect all exercises per word before duplicate detection
+    word_exercises_raw: list[tuple[str, list[GeneratedExercisePreview]]] = []
+    to_id_counts: dict[int, int] = {}
+
+    for word in request.words:
+        rows = await get_query_results(
+            sql, (request.lang, request.to_lang, word, word, word, word, request.sentences_per_word)
+        )
+        exercises: list[GeneratedExercisePreview] = []
+        for r in rows:
+            sentence_text = r.get("sentence") or ""
+            to_text = r.get("translation") or ""
+            to_id = r.get("to_id", 0)
+            s_id = r.get("id", 0)
+            if not enabled or "sentence_single_choice" in enabled:
+                exercises.append(GeneratedExercisePreview(
+                    exercise_type="sentence_single_choice",
+                    sentence=sentence_text,
+                    to_sentence=to_text,
+                    correct_options=[to_text],
+                    wrong_options=[],
+                    sentence_id=s_id,
+                    to_sentence_id=to_id,
+                ))
+                to_id_counts[to_id] = to_id_counts.get(to_id, 0) + 1
+            words_in_s = [r.get(k) for k in ("word1", "word2", "word3", "word4") if r.get(k)]
+            if len(words_in_s) >= 2 and (not enabled or "identify_words_in_speech" in enabled):
+                correct = words_in_s[:3]
+                exercises.append(GeneratedExercisePreview(
+                    exercise_type="identify_words_in_speech",
+                    sentence=sentence_text,
+                    to_sentence=to_text,
+                    correct_options=correct,
+                    wrong_options=[],
+                    sentence_id=s_id,
+                    to_sentence_id=to_id,
+                    extra_data={"words": correct},
+                ))
+        word_exercises_raw.append((word, exercises))
+
+    # Mark duplicates (same to_sentence_id across all words in the module)
+    results = []
+    for word, exercises in word_exercises_raw:
+        for ex in exercises:
+            if ex.exercise_type == "sentence_single_choice" and to_id_counts.get(ex.to_sentence_id, 0) > 1:
+                ex.is_duplicate = True
+        results.append(WordExercisesResult(word=word, exercises=exercises))
+
+    return ModuleExercisesResponse(lang=request.lang, to_lang=request.to_lang, results=results)
+
+
+@router.get("/course/{course_id}/detail", response_model=CourseDetail)
+async def get_course_detail(course_id: int):
+    """Return full course tree (modules → lessons → exercises) for review screen."""
+    course_rows = await get_query_results(
+        "SELECT id, title, description, lang, to_lang FROM course.course WHERE id = %s", (course_id,)
+    )
+    if not course_rows:
+        raise HTTPException(status_code=404, detail="Course not found")
+    c = course_rows[0]
+    module_rows = await get_query_results(
+        "SELECT id, title FROM course.module WHERE course_id = %s ORDER BY id", (course_id,)
+    )
+    modules = []
+    for mod in module_rows:
+        lesson_rows = await get_query_results(
+            "SELECT id, title FROM course.lesson WHERE module_id = %s ORDER BY id", (mod["id"],)
+        )
+        lessons = []
+        for lesson in lesson_rows:
+            ex_rows = await get_query_results(
+                """SELECT id, exercise_type, sentence, to_sentence, sentence_id, to_sentence_id,
+                          options, to_options
+                   FROM course.exercise WHERE lesson_id = %s ORDER BY id""",
+                (lesson["id"],),
+            )
+            exercises = [
+                ExerciseDetail(
+                    id=r["id"],
+                    exercise_type=r.get("exercise_type") or "",
+                    sentence=r.get("sentence") or "",
+                    to_sentence=r.get("to_sentence") or "",
+                    sentence_id=r.get("sentence_id") or 0,
+                    to_sentence_id=r.get("to_sentence_id") or 0,
+                    correct_options=list(r.get("to_options") or []),
+                    wrong_options=list(r.get("options") or []),
+                )
+                for r in ex_rows
+            ]
+            lessons.append(LessonDetail(id=lesson["id"], title=lesson["title"] or "", exercises=exercises))
+        modules.append(ModuleDetail(id=mod["id"], title=mod["title"] or "", lessons=lessons))
+    return CourseDetail(
+        id=c["id"],
+        title=c.get("title") or "",
+        description=c.get("description") or "",
+        lang=c["lang"],
+        to_lang=c["to_lang"],
+        modules=modules,
+    )
+
+
+@router.delete("/course/exercises")
+async def delete_exercises(request: DeleteExercisesRequest):
+    """Remove exercises by ID (for review screen edits)."""
+    if not request.exercise_ids:
+        return {"deleted": 0}
+    placeholders = ",".join(["%s"] * len(request.exercise_ids))
+    await run_query(f"DELETE FROM course.exercise WHERE id IN ({placeholders})", tuple(request.exercise_ids))
+    return {"deleted": len(request.exercise_ids)}
 
 
 @router.post("/course", response_model=GeneratedCourse)

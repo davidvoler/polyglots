@@ -277,6 +277,7 @@ class GeneratedExercisePreview {
   final int sentenceId;
   final int toSentenceId;
   final Map<String, dynamic> extraData;
+  final bool isDuplicate;
   GeneratedExercisePreview({
     required this.exerciseType,
     this.sentence = '',
@@ -286,6 +287,7 @@ class GeneratedExercisePreview {
     this.sentenceId = 0,
     this.toSentenceId = 0,
     this.extraData = const {},
+    this.isDuplicate = false,
   });
   factory GeneratedExercisePreview.fromJson(Map<String, dynamic> json) =>
       GeneratedExercisePreview(
@@ -297,6 +299,125 @@ class GeneratedExercisePreview {
         sentenceId: json['sentence_id'] ?? 0,
         toSentenceId: json['to_sentence_id'] ?? 0,
         extraData: Map<String, dynamic>.from(json['extra_data'] as Map? ?? {}),
+        isDuplicate: json['is_duplicate'] ?? false,
+      );
+}
+
+// --- Module exercises: generate all exercises for a module at once ---
+
+class WordExercisesResult {
+  final String word;
+  final List<GeneratedExercisePreview> exercises;
+  WordExercisesResult({required this.word, required this.exercises});
+  factory WordExercisesResult.fromJson(Map<String, dynamic> json) =>
+      WordExercisesResult(
+        word: json['word'] ?? '',
+        exercises: (json['exercises'] as List<dynamic>?)
+            ?.map((e) => GeneratedExercisePreview.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+class ModuleExercisesResponse {
+  final String lang;
+  final String toLang;
+  final List<WordExercisesResult> results;
+  ModuleExercisesResponse({required this.lang, required this.toLang, required this.results});
+  factory ModuleExercisesResponse.fromJson(Map<String, dynamic> json) =>
+      ModuleExercisesResponse(
+        lang: json['lang'] ?? '',
+        toLang: json['to_lang'] ?? '',
+        results: (json['results'] as List<dynamic>?)
+            ?.map((e) => WordExercisesResult.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+// --- Course detail models for review screen ---
+
+class ExerciseDetail {
+  final int id;
+  final String exerciseType;
+  final String sentence;
+  final String toSentence;
+  final int sentenceId;
+  final int toSentenceId;
+  final List<String> correctOptions;
+  final List<String> wrongOptions;
+  ExerciseDetail({
+    required this.id,
+    required this.exerciseType,
+    this.sentence = '',
+    this.toSentence = '',
+    this.sentenceId = 0,
+    this.toSentenceId = 0,
+    this.correctOptions = const [],
+    this.wrongOptions = const [],
+  });
+  factory ExerciseDetail.fromJson(Map<String, dynamic> json) => ExerciseDetail(
+        id: json['id'] ?? 0,
+        exerciseType: json['exercise_type'] ?? '',
+        sentence: json['sentence'] ?? '',
+        toSentence: json['to_sentence'] ?? '',
+        sentenceId: json['sentence_id'] ?? 0,
+        toSentenceId: json['to_sentence_id'] ?? 0,
+        correctOptions: (json['correct_options'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        wrongOptions: (json['wrong_options'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      );
+}
+
+class LessonDetail {
+  final int id;
+  final String title;
+  final List<ExerciseDetail> exercises;
+  LessonDetail({required this.id, required this.title, this.exercises = const []});
+  factory LessonDetail.fromJson(Map<String, dynamic> json) => LessonDetail(
+        id: json['id'] ?? 0,
+        title: json['title'] ?? '',
+        exercises: (json['exercises'] as List<dynamic>?)
+            ?.map((e) => ExerciseDetail.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+class ModuleDetail {
+  final int id;
+  final String title;
+  final List<LessonDetail> lessons;
+  ModuleDetail({required this.id, required this.title, this.lessons = const []});
+  factory ModuleDetail.fromJson(Map<String, dynamic> json) => ModuleDetail(
+        id: json['id'] ?? 0,
+        title: json['title'] ?? '',
+        lessons: (json['lessons'] as List<dynamic>?)
+            ?.map((e) => LessonDetail.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      );
+}
+
+class CourseDetail {
+  final int id;
+  final String title;
+  final String description;
+  final String lang;
+  final String toLang;
+  final List<ModuleDetail> modules;
+  CourseDetail({
+    required this.id,
+    required this.title,
+    this.description = '',
+    required this.lang,
+    required this.toLang,
+    this.modules = const [],
+  });
+  factory CourseDetail.fromJson(Map<String, dynamic> json) => CourseDetail(
+        id: json['id'] ?? 0,
+        title: json['title'] ?? '',
+        description: json['description'] ?? '',
+        lang: json['lang'] ?? '',
+        toLang: json['to_lang'] ?? '',
+        modules: (json['modules'] as List<dynamic>?)
+            ?.map((e) => ModuleDetail.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
       );
 }
 
@@ -702,6 +823,57 @@ class CourseGenerationService {
     } catch (e) {
       throw Exception('Error generating course: $e');
     }
+  }
+
+  /// Generate exercises for all words in a module at once.
+  static Future<ModuleExercisesResponse> generateModuleExercises({
+    required String lang,
+    required String toLang,
+    required List<String> words,
+    List<String> questionTypes = const [],
+    int sentencesPerWord = 20,
+  }) async {
+    final url = Uri.parse('$baseUrl/generate/module_exercises');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'lang': lang,
+        'to_lang': toLang,
+        'words': words,
+        'question_types': questionTypes,
+        'sentences_per_word': sentencesPerWord,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to generate module exercises: ${response.statusCode} - ${response.body}');
+    }
+    return ModuleExercisesResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Get full course detail (modules → lessons → exercises) for review screen.
+  static Future<CourseDetail> getCourseDetail(int courseId) async {
+    final url = Uri.parse('$baseUrl/generate/course/$courseId/detail');
+    final response = await http.get(url);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to get course detail: ${response.statusCode} - ${response.body}');
+    }
+    return CourseDetail.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Delete exercises by ID (for review screen edits).
+  static Future<int> deleteExercises(List<int> exerciseIds) async {
+    final url = Uri.parse('$baseUrl/generate/course/exercises');
+    final response = await http.delete(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'exercise_ids': exerciseIds}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete exercises: ${response.statusCode} - ${response.body}');
+    }
+    final result = jsonDecode(response.body) as Map<String, dynamic>;
+    return result['deleted'] as int? ?? 0;
   }
 
   /// Convert language name to language code

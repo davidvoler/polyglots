@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'create_course_screen.dart';
-import 'generate_course_wizard_screen.dart';
+import 'editor_flow_screen.dart';
 // TODO: Create course_module_editor_screen.dart
 // import 'course_module_editor_screen.dart';
 
@@ -50,12 +50,12 @@ class CoursesScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const GenerateCourseWizardScreen(),
+                    builder: (context) => const EditorCreateCourseScreen(),
                   ),
                 );
               },
               icon: const Icon(Icons.auto_awesome),
-              label: const Text('Generate Course with AI'),
+              label: const Text('Create Course'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -75,7 +75,7 @@ class CoursesScreen extends StatelessWidget {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Create New Course'),
+              label: const Text('Create Course (legacy)'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

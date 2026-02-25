@@ -267,6 +267,7 @@ class GeneratedExercisePreview(BaseModel):
     sentence_id: int = 0
     to_sentence_id: int = 0
     extra_data: dict = {}
+    is_duplicate: bool = False  # True when another exercise shares the same to_sentence_id in the module
 
 
 class GenerateQuestionsResponse(BaseModel):
@@ -294,3 +295,63 @@ class SaveLessonResponse(BaseModel):
     course_id: int
     module_id: int
     lesson_id: int
+
+
+# --- Module exercises: generate all exercises for a module in one call ---
+
+class ModuleExercisesRequest(BaseModel):
+    """Generate exercises for a whole module (multiple words) at once."""
+    lang: str
+    to_lang: str
+    words: list[str]
+    question_types: list[str] = []  # empty = all types
+    sentences_per_word: int = 20
+
+
+class WordExercisesResult(BaseModel):
+    word: str
+    exercises: list[GeneratedExercisePreview] = []
+
+
+class ModuleExercisesResponse(BaseModel):
+    lang: str
+    to_lang: str
+    results: list[WordExercisesResult] = []
+
+
+# --- Course detail: full course tree for review screen ---
+
+class ExerciseDetail(BaseModel):
+    id: int
+    exercise_type: str
+    sentence: str = ''
+    to_sentence: str = ''
+    sentence_id: int = 0
+    to_sentence_id: int = 0
+    correct_options: list[str] = []
+    wrong_options: list[str] = []
+
+
+class LessonDetail(BaseModel):
+    id: int
+    title: str
+    exercises: list[ExerciseDetail] = []
+
+
+class ModuleDetail(BaseModel):
+    id: int
+    title: str
+    lessons: list[LessonDetail] = []
+
+
+class CourseDetail(BaseModel):
+    id: int
+    title: str
+    description: str = ''
+    lang: str
+    to_lang: str
+    modules: list[ModuleDetail] = []
+
+
+class DeleteExercisesRequest(BaseModel):
+    exercise_ids: list[int]
