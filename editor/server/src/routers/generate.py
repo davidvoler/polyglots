@@ -42,10 +42,8 @@ router = APIRouter()
 async def _get_audio_link(lang: str, sentence_id: int) -> str:
     sql = "SELECT recording FROM content_raw.audio WHERE lang = %s AND id = %s ORDER BY audio_engine LIMIT 1"
     rows = await get_query_results(sql, (lang, sentence_id))
-    return rows[0]['recording'] if rows else ''
+    return rows[0].get('recording') if rows else ""
 
-
-# --- Editor flow: course options (step 1) ---
 
 LANGUAGES = [
     LanguageOption(code="en", name="English"),
