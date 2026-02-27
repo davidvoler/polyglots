@@ -51,6 +51,8 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
   final Map<String, String> _wordStatus = {}; // 'pending' | 'generating' | 'done(N)' | 'error'
   final Map<String, List<GeneratedExercisePreview>> _wordExercises = {};
   bool _generating = false;
+  // Accumulated vocabulary from saved modules, used as distractors for identify exercises
+  final List<String> _allWordsSoFar = [];
 
   // Course summary
   int _savedModulesCount = 0;
@@ -232,33 +234,32 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
     final end = min(start + _wordsPerModule, _selectedWords.length);
     final moduleWords = _selectedWords.sublist(start, end);
 
-    for (final word in moduleWords) {
-      setState(() => _wordStatus[word.word] = 'generating');
-      try {
-        final sentences = await CourseGenerationService.getSentencesForWord(
-          lang: _langCode, toLang: _toLangCode, word: word.word, limit: 20,
-        );
-        if (sentences.sentences.isEmpty) {
-          setState(() {
-            _wordStatus[word.word] = 'done(0)';
-            _wordExercises[word.word] = [];
-          });
-          continue;
+    setState(() {
+      for (final w in moduleWords) { _wordStatus[w.word] = 'generating'; }
+    });
+
+    try {
+      final response = await CourseGenerationService.generateModuleExercises(
+        lang: _langCode,
+        toLang: _toLangCode,
+        words: moduleWords.map((w) => w.word).toList(),
+        questionTypes: _selectedQTypeIds.toList(),
+        wordsSoFar: List.unmodifiable(_allWordsSoFar),
+      );
+      setState(() {
+        for (final result in response.results) {
+          _wordExercises[result.word] = result.exercises;
+          _wordStatus[result.word] = 'done(${result.exercises.length})';
         }
-        final pairs = sentences.sentences
-            .take(20)
-            .map((s) => SentenceIdPair(sentenceId: s.id, toId: s.toId))
-            .toList();
-        final gen = await CourseGenerationService.generateQuestionsForSentences(
-          lang: _langCode, toLang: _toLangCode, word: word.word, sentences: pairs,
-        );
-        setState(() {
-          _wordExercises[word.word] = gen.exercises;
-          _wordStatus[word.word] = 'done(${gen.exercises.length})';
-        });
-      } catch (e) {
-        setState(() => _wordStatus[word.word] = 'error');
-      }
+        for (final w in moduleWords) {
+          _wordExercises.putIfAbsent(w.word, () => []);
+          _wordStatus.putIfAbsent(w.word, () => 'done(0)');
+        }
+      });
+    } catch (e) {
+      setState(() {
+        for (final w in moduleWords) { _wordStatus[w.word] = 'error'; }
+      });
     }
 
     // Detect duplicates across module
@@ -293,6 +294,14 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
     if (!mounted) return;
 
     if (result != null) {
+      // Collect identify-exercise words into the pool for future modules' distractors
+      for (final we in wordExercisesForModule) {
+        for (final ex in we.exercises) {
+          if (ex.exerciseType == 'identify_words_in_speech') {
+            _allWordsSoFar.addAll(ex.correctOptions);
+          }
+        }
+      }
       setState(() {
         _savedCourseId = result.courseId;
         _savedModulesCount++;

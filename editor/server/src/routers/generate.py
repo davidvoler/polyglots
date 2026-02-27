@@ -505,7 +505,7 @@ async def module_exercises(request: ModuleExercisesRequest):
     """Generate exercises for all words in a module at once. Flags duplicate translations."""
     sql = """
     SELECT l.id AS id, l.lang, l.text AS sentence, t.text AS translation, t.id AS to_id,
-           l.len_elm, l.word1, l.word2, l.word3, l.word4
+           l.len_elm, l.word1, l.word2, l.word3, l.word4, t.options AS options
     FROM content_raw.sentence_elements l
     JOIN content_raw.translation_links tl ON l.lang = tl.lang AND l.id = tl.id
     JOIN content_raw.sentences t ON tl.to_lang = t.lang AND tl.to_id = t.id
@@ -539,12 +539,14 @@ async def module_exercises(request: ModuleExercisesRequest):
             s_id = r.get("id", 0)
             audio_link = await _get_audio_link(request.lang, s_id)
             if not enabled or "sentence_single_choice" in enabled:
+                opts = r.get("options")
+                wrong = list(opts)[:6] if isinstance(opts, (list, tuple)) and opts else []
                 exercises.append(GeneratedExercisePreview(
                     exercise_type="sentence_single_choice",
                     sentence=sentence_text,
                     to_sentence=to_text,
                     correct_options=[to_text],
-                    wrong_options=[],
+                    wrong_options=wrong,
                     sentence_id=s_id,
                     to_sentence_id=to_id,
                     audio_link=audio_link,
@@ -566,12 +568,31 @@ async def module_exercises(request: ModuleExercisesRequest):
                 ))
         word_exercises_raw.append((word, exercises))
 
-    # Mark duplicates (same to_sentence_id across all words in the module)
+    # Build distractor pool: words_so_far from previous modules + all identify-exercise words in this module
+    distractor_pool: list[str] = list(request.words_so_far)
+    for _, exercises in word_exercises_raw:
+        for ex in exercises:
+            if ex.exercise_type == "identify_words_in_speech":
+                distractor_pool.extend(ex.correct_options)
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    distractor_pool_dedup: list[str] = []
+    for w in distractor_pool:
+        if w not in seen:
+            seen.add(w)
+            distractor_pool_dedup.append(w)
+
+    # Mark duplicates and assign wrong options for identify exercises
     results = []
     for word, exercises in word_exercises_raw:
         for ex in exercises:
             if ex.exercise_type == "sentence_single_choice" and to_id_counts.get(ex.to_sentence_id, 0) > 1:
                 ex.is_duplicate = True
+            elif ex.exercise_type == "identify_words_in_speech":
+                correct_set = set(ex.correct_options)
+                candidates = [w for w in distractor_pool_dedup if w not in correct_set]
+                if candidates:
+                    ex.wrong_options = random.sample(candidates, min(3, len(candidates)))
         results.append(WordExercisesResult(word=word, exercises=exercises))
 
     return ModuleExercisesResponse(lang=request.lang, to_lang=request.to_lang, results=results)

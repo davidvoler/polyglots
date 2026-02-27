@@ -371,9 +371,10 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: ex.correctOptions
-                .map((w) => _buildOptionCard(w, correct: true))
-                .toList(),
+            children: [
+              ...ex.correctOptions.map((w) => _buildWordChip(w, correct: true)),
+              ...ex.wrongOptions.map((w) => _buildWordChip(w, correct: false)),
+            ],
           ),
         ],
       );
@@ -423,6 +424,25 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
           ),
         ),
       ]),
+    );
+  }
+
+  Widget _buildWordChip(String text, {required bool correct}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: correct ? Colors.green[50] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: correct ? Colors.green[300]! : Colors.grey[300]!),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          color: correct ? Colors.green[800] : Colors.grey[600],
+          fontWeight: correct ? FontWeight.w500 : FontWeight.normal,
+        ),
+      ),
     );
   }
 

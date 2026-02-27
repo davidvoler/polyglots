@@ -307,6 +307,7 @@ class ModuleExercisesRequest(BaseModel):
     words: list[str]
     question_types: list[str] = []  # empty = all types
     sentences_per_word: int = 20
+    words_so_far: list[str] = []  # vocabulary from previous modules, used as distractors for identify exercises
 
 
 class WordExercisesResult(BaseModel):

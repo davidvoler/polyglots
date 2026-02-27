@@ -836,6 +836,7 @@ class CourseGenerationService {
     required List<String> words,
     List<String> questionTypes = const [],
     int sentencesPerWord = 20,
+    List<String> wordsSoFar = const [],
   }) async {
     final url = Uri.parse('$baseUrl/generate/module_exercises');
     final response = await http.post(
@@ -847,6 +848,7 @@ class CourseGenerationService {
         'words': words,
         'question_types': questionTypes,
         'sentences_per_word': sentencesPerWord,
+        'words_so_far': wordsSoFar,
       }),
     );
     if (response.statusCode != 200) {
