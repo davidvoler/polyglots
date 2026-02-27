@@ -252,115 +252,177 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
     final selected = _selected[word]?.contains(index) ?? false;
     final isDup = ex.toSentenceId > 0 && _duplicateToIds.contains('${ex.toSentenceId}|${ex.exerciseType}');
 
-    return CheckboxListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      value: selected,
-      onChanged: _saving
-          ? null
-          : (v) => setState(() {
-                if (v == true) {
-                  _selected[word]!.add(index);
-                } else {
-                  _selected[word]!.remove(index);
-                }
-              }),
-      title: Row(children: [
-        _typeBadge(ex.exerciseType),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            ex.sentence.isNotEmpty ? ex.sentence : ex.toSentence,
-            style: const TextStyle(fontSize: 13),
-            overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: InkWell(
+        onTap: _saving
+            ? null
+            : () => setState(() {
+                  if (selected) { _selected[word]!.remove(index); }
+                  else { _selected[word]!.add(index); }
+                }),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected ? Colors.blue[300]! : Colors.grey[200]!,
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header: checkbox + type badge + dup warning
+              Row(children: [
+                Checkbox(
+                  value: selected,
+                  onChanged: _saving
+                      ? null
+                      : (v) => setState(() {
+                            if (v == true) { _selected[word]!.add(index); }
+                            else { _selected[word]!.remove(index); }
+                          }),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+                const SizedBox(width: 6),
+                _typeBadge(ex.exerciseType),
+                if (isDup) ...[
+                  const SizedBox(width: 6),
+                  Tooltip(
+                    message: 'Duplicate translation',
+                    child: Icon(Icons.warning_amber_rounded, size: 14, color: Colors.orange[700]),
+                  ),
+                ],
+              ]),
+              const SizedBox(height: 8),
+
+              // Sentence card — styled like the student audio section
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (ex.audioLink.isNotEmpty) ...[
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.audio_file_rounded, size: 13, color: Colors.teal[600]),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              ex.audioLink,
+                              style: TextStyle(fontSize: 10, color: Colors.teal[700]),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                    ],
+                    if (ex.sentence.isNotEmpty)
+                      Text(
+                        ex.sentence,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.center,
+                      ),
+                    if (ex.toSentence.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        ex.toSentence,
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Answer options — styled like student choice/identify cards
+              _buildStudentOptions(ex),
+            ],
           ),
         ),
-        if (isDup) ...[
-          const SizedBox(width: 4),
-          Tooltip(
-            message: 'Duplicate translation',
-            child: Icon(Icons.warning_amber_rounded, size: 14, color: Colors.orange[700]),
-          ),
-        ],
-      ]),
-      subtitle: _buildExerciseSubtitle(ex),
+      ),
     );
   }
 
-  Widget? _buildExerciseSubtitle(GeneratedExercisePreview ex) {
-    final isIdentify = ex.exerciseType == 'identify_words_in_speech';
-    final identifyWords = isIdentify ? ex.correctOptions : <String>[];
-    final wrongOpts = isIdentify ? <String>[] : ex.wrongOptions;
-    final hasContent = identifyWords.isNotEmpty || wrongOpts.isNotEmpty || ex.toSentence.isNotEmpty;
-    if (!hasContent) return null;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (ex.toSentence.isNotEmpty)
+  Widget _buildStudentOptions(GeneratedExercisePreview ex) {
+    if (ex.exerciseType == 'identify_words_in_speech') {
+      if (ex.correctOptions.isEmpty) return const SizedBox.shrink();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text(
-            ex.toSentence,
-            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-            overflow: TextOverflow.ellipsis,
+            'Identify these words:',
+            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
           ),
-        // Identify words: show words to identify with label
-        if (identifyWords.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('identify: ', style: TextStyle(fontSize: 10, color: Colors.purple[400], fontWeight: FontWeight.w600)),
-              Expanded(
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 3,
-                  children: identifyWords.map((w) => _wordChip(w)).toList(),
-                ),
-              ),
-            ],
-          ),
-        ],
-        // Wrong options for single-choice
-        if (wrongOpts.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Wrap(
-            spacing: 4,
-            runSpacing: 3,
-            children: wrongOpts.map((opt) => _optionChip(opt, correct: false)).toList(),
+            spacing: 6,
+            runSpacing: 6,
+            children: ex.correctOptions
+                .map((w) => _buildOptionCard(w, correct: true))
+                .toList(),
           ),
         ],
+      );
+    }
+
+    // sentence_single_choice (and fallback for other types)
+    if (ex.correctOptions.isEmpty && ex.wrongOptions.isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        for (final opt in ex.correctOptions) _buildOptionCard(opt, correct: true),
+        for (final opt in ex.wrongOptions) _buildOptionCard(opt, correct: false),
       ],
     );
   }
 
-  Widget _wordChip(String text) {
+  Widget _buildOptionCard(String text, {required bool correct}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.purple[50],
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.purple[200]!),
-      ),
-      child: Text(text, style: TextStyle(fontSize: 10, color: Colors.purple[700])),
-    );
-  }
-
-  Widget _optionChip(String text, {required bool correct}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: correct ? Colors.green[50] : Colors.grey[100],
-        borderRadius: BorderRadius.circular(4),
+        color: correct ? Colors.green[50] : Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: correct ? Colors.green[300]! : Colors.grey[300]!),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          color: correct ? Colors.green[700] : Colors.grey[600],
+      child: Row(children: [
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: correct ? Colors.green[500] : Colors.grey[300],
+          ),
+          child: correct
+              ? const Icon(Icons.check, color: Colors.white, size: 12)
+              : null,
         ),
-      ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              color: correct ? Colors.green[800] : Colors.grey[700],
+              fontWeight: correct ? FontWeight.w500 : FontWeight.normal,
+            ),
+          ),
+        ),
+      ]),
     );
   }
 
