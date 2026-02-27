@@ -278,6 +278,7 @@ class GeneratedExercisePreview {
   final int toSentenceId;
   final Map<String, dynamic> extraData;
   final bool isDuplicate;
+  final String audioLink;
   GeneratedExercisePreview({
     required this.exerciseType,
     this.sentence = '',
@@ -288,6 +289,7 @@ class GeneratedExercisePreview {
     this.toSentenceId = 0,
     this.extraData = const {},
     this.isDuplicate = false,
+    this.audioLink = '',
   });
   factory GeneratedExercisePreview.fromJson(Map<String, dynamic> json) =>
       GeneratedExercisePreview(
@@ -300,6 +302,7 @@ class GeneratedExercisePreview {
         toSentenceId: json['to_sentence_id'] ?? 0,
         extraData: Map<String, dynamic>.from(json['extra_data'] as Map? ?? {}),
         isDuplicate: json['is_duplicate'] ?? false,
+        audioLink: json['audio_link'] ?? '',
       );
 }
 
@@ -600,6 +603,7 @@ class CourseGenerationService {
         'sentence_id': e.sentenceId,
         'to_sentence_id': e.toSentenceId,
         'extra_data': e.extraData,
+        'audio_link': e.audioLink,
       }).toList(),
     };
     final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));

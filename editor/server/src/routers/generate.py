@@ -38,6 +38,13 @@ from utils.db import get_query_results, run_query
 
 router = APIRouter()
 
+
+async def _get_audio_link(lang: str, sentence_id: int) -> str:
+    sql = "SELECT recording FROM content_raw.audio WHERE lang = %s AND id = %s ORDER BY audio_engine LIMIT 1"
+    rows = await get_query_results(sql, (lang, sentence_id))
+    return rows[0]['recording'] if rows else ''
+
+
 # --- Editor flow: course options (step 1) ---
 
 LANGUAGES = [
@@ -377,6 +384,7 @@ async def _load_sentence_pair(lang: str, to_lang: str, sentence_id: int, to_id: 
 async def generate_questions_for_sentences(request: GenerateQuestionsRequest):
     """Generate mostly single_choice + ~10% other type (e.g. identify_words) as preview. Plan step 4–5."""
     exercises: list[GeneratedExercisePreview] = []
+    seen_text_pairs: set[tuple[str, str]] = set()
     for pair in request.sentences:
         loaded = await _load_sentence_pair(request.lang, request.to_lang, pair.sentence_id, pair.to_id)
         if not loaded:
@@ -384,8 +392,13 @@ async def generate_questions_for_sentences(request: GenerateQuestionsRequest):
         sentence_row, to_row = loaded
         sentence_text = sentence_row.get("text") or ""
         to_text = to_row.get("text") or ""
+        text_key = (sentence_text, to_text)
+        if text_key in seen_text_pairs:
+            continue
+        seen_text_pairs.add(text_key)
         options = to_row.get("options") or []
         wrong = list(options) if isinstance(options, (list, tuple)) else []
+        audio_link = await _get_audio_link(request.lang, pair.sentence_id)
         exercises.append(GeneratedExercisePreview(
             exercise_type="sentence_single_choice",
             sentence=sentence_text,
@@ -394,6 +407,7 @@ async def generate_questions_for_sentences(request: GenerateQuestionsRequest):
             wrong_options=wrong[:6],
             sentence_id=pair.sentence_id,
             to_sentence_id=pair.to_id,
+            audio_link=audio_link,
         ))
         words = []
         for k in ("word1", "word2", "word3", "word4"):
@@ -411,6 +425,7 @@ async def generate_questions_for_sentences(request: GenerateQuestionsRequest):
                 sentence_id=pair.sentence_id,
                 to_sentence_id=pair.to_id,
                 extra_data={"words": correct},
+                audio_link=audio_link,
             ))
     return GenerateQuestionsResponse(word=request.word, exercises=exercises)
 
@@ -471,16 +486,17 @@ async def save_lesson(request: SaveLessonRequest):
         wrong_options = ex.wrong_options or []
         correct_options = ex.correct_options or [ex.to_sentence]
         sql_ex = """
-        INSERT INTO content.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, 
-        sentence_id, sentence, 
-        correct_options, to_sentence_id, wrong_options)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO content.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type,
+        sentence_id, sentence,
+        correct_options, to_sentence_id, wrong_options, audio_link)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         await run_query(
             sql_ex,
             (
                 course_id, module_id, lesson_id, lang, to_lang, ex.exercise_type,
-                ex.sentence_id, ex.sentence or "", correct_options, ex.to_sentence_id,  wrong_options,
+                ex.sentence_id, ex.sentence or "", correct_options, ex.to_sentence_id, wrong_options,
+                ex.audio_link or "",
             ),
         )
     return SaveLessonResponse(course_id=course_id, module_id=module_id, lesson_id=lesson_id)
@@ -509,12 +525,21 @@ async def module_exercises(request: ModuleExercisesRequest):
         rows = await get_query_results(
             sql, (request.lang, request.to_lang, word, word, word, word, request.sentences_per_word)
         )
-        exercises: list[GeneratedExercisePreview] = []
+        # Deduplicate rows by (sentence_text, translation_text), picking one randomly
+        seen_text_pairs: dict[tuple[str, str], dict] = {}
         for r in rows:
+            key = (r.get("sentence") or "", r.get("translation") or "")
+            if key not in seen_text_pairs or random.random() < 0.5:
+                seen_text_pairs[key] = r
+        deduped_rows = list(seen_text_pairs.values())
+
+        exercises: list[GeneratedExercisePreview] = []
+        for r in deduped_rows:
             sentence_text = r.get("sentence") or ""
             to_text = r.get("translation") or ""
             to_id = r.get("to_id", 0)
             s_id = r.get("id", 0)
+            audio_link = await _get_audio_link(request.lang, s_id)
             if not enabled or "sentence_single_choice" in enabled:
                 exercises.append(GeneratedExercisePreview(
                     exercise_type="sentence_single_choice",
@@ -524,6 +549,7 @@ async def module_exercises(request: ModuleExercisesRequest):
                     wrong_options=[],
                     sentence_id=s_id,
                     to_sentence_id=to_id,
+                    audio_link=audio_link,
                 ))
                 to_id_counts[to_id] = to_id_counts.get(to_id, 0) + 1
             words_in_s = [r.get(k) for k in ("word1", "word2", "word3", "word4") if r.get(k)]
@@ -538,6 +564,7 @@ async def module_exercises(request: ModuleExercisesRequest):
                     sentence_id=s_id,
                     to_sentence_id=to_id,
                     extra_data={"words": correct},
+                    audio_link=audio_link,
                 ))
         word_exercises_raw.append((word, exercises))
 

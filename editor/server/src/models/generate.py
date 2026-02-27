@@ -268,6 +268,7 @@ class GeneratedExercisePreview(BaseModel):
     to_sentence_id: int = 0
     extra_data: dict = {}
     is_duplicate: bool = False  # True when another exercise shares the same to_sentence_id in the module
+    audio_link: str = ''
 
 
 class GenerateQuestionsResponse(BaseModel):

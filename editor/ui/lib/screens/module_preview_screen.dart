@@ -55,8 +55,8 @@ class ModulePreviewScreen extends StatefulWidget {
 class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
   // For each word, track which exercise indices are selected (default: all)
   late final Map<String, Set<int>> _selected;
-  // Duplicate toSentenceIds (appear more than once across entire module)
-  late final Set<int> _duplicateToIds;
+  // Duplicate keys (toSentenceId|exerciseType) that appear more than once across the module
+  late final Set<String> _duplicateToIds;
 
   bool _saving = false;
   String? _saveError;
@@ -75,12 +75,13 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
     _duplicateToIds = _computeDuplicates();
   }
 
-  Set<int> _computeDuplicates() {
-    final counts = <int, int>{};
+  Set<String> _computeDuplicates() {
+    final counts = <String, int>{};
     for (final we in widget.wordExercises) {
       for (final ex in we.exercises) {
         if (ex.toSentenceId > 0) {
-          counts[ex.toSentenceId] = (counts[ex.toSentenceId] ?? 0) + 1;
+          final key = '${ex.toSentenceId}|${ex.exerciseType}';
+          counts[key] = (counts[key] ?? 0) + 1;
         }
       }
     }
@@ -94,15 +95,16 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
       widget.wordExercises.fold(0, (sum, we) => sum + we.exercises.length);
 
   int get _duplicateCount => () {
-        final seen = <int>{};
+        final seen = <String>{};
         var count = 0;
         for (final we in widget.wordExercises) {
           for (final ex in we.exercises) {
-            if (_duplicateToIds.contains(ex.toSentenceId)) {
-              if (seen.contains(ex.toSentenceId)) {
+            final key = '${ex.toSentenceId}|${ex.exerciseType}';
+            if (_duplicateToIds.contains(key)) {
+              if (seen.contains(key)) {
                 count++;
               } else {
-                seen.add(ex.toSentenceId);
+                seen.add(key);
               }
             }
           }
@@ -248,7 +250,7 @@ class _ModulePreviewScreenState extends State<ModulePreviewScreen> {
 
   Widget _buildExerciseRow(String word, int index, GeneratedExercisePreview ex) {
     final selected = _selected[word]?.contains(index) ?? false;
-    final isDup = _duplicateToIds.contains(ex.toSentenceId) && ex.toSentenceId > 0;
+    final isDup = ex.toSentenceId > 0 && _duplicateToIds.contains('${ex.toSentenceId}|${ex.exerciseType}');
 
     return CheckboxListTile(
       dense: true,
