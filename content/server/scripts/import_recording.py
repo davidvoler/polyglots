@@ -21,7 +21,7 @@ async def get_old_data_polyglots(lang:str):
 async def export_polyglot(lang:str):
     print(f"Exporting recording {lang}")
     data = await get_old_data_polyglots(lang)
-    new_client = await get_pg_con_specific(host="localhost", port="5433", db_name="polyglots", user="polyglots", password="polyglots")
+    new_client = await get_pg_con_specific(host="localhost", port="5432", db_name="polyglots", user="polyglots", password="polyglots")
     lang2 = get_lang2(lang)
     audio_engine = 'azure'
     base_path = f"/{lang2}/{lang2}"
@@ -39,7 +39,7 @@ async def export_polyglot(lang:str):
 
 async def export_tatoeba(lang:str):
     data = await get_old_data_tatoeba(lang)
-    new_client = await get_pg_con_specific(host="localhost", port="5433", db_name="polyglots", user="polyglots", password="polyglots")
+    new_client = await get_pg_con_specific(host="localhost", port="5432", db_name="polyglots", user="polyglots", password="polyglots")
     lang2 = get_lang2(lang)
     audio_engine = 'google'
     base_path = f"/{lang2}/{lang}"

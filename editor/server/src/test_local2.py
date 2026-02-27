@@ -8,7 +8,7 @@ from generators.exctract_aux import (
     )
 from question_types.gen_from_course import gen_from_course
 from question_types.create_course_from_file import create_course_from_file
-os.environ["POSTGRES_PORT"] = "5433"  
+os.environ["POSTGRES_PORT"] = "5432"  
 
 
 

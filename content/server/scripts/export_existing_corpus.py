@@ -21,7 +21,7 @@ async def get_client(old = False):
         )
     else:
         return await AsyncConnection.connect(
-            "postgresql://polyglots:polyglots@localhost:5433/polyglots",
+            "postgresql://polyglots:polyglots@localhost:5432/polyglots",
             row_factory=dict_row,
             autocommit=True,
         )

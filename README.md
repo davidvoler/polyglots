@@ -41,3 +41,11 @@ I am looking for a solution that matches student stages and increases difficulty
 How do we achieve that?
 This is an open question that should guid us when building the app.
 Also - as we are an enabler - a tool for building courses - we do not have full control of what type of course will be built.
+
+
+## Eun editor locally 
+
+```bash
+
+export uvicorn main:app --host 0.0.0.0 --port 8005 --reload
+```

@@ -17,7 +17,7 @@ docker-compose up --build
 ```
 
 Services started by docker-compose:
-- **PostgreSQL**: port 5433 (user/pass/db: `polyglots`)
+- **PostgreSQL**: port 5432 (user/pass/db: `polyglots`)
 - **Editor server**: port 8005 (`editor/server/`)
 - **Student server**: port 8004 (`student/server/`)
 - Content server is commented out
@@ -26,7 +26,7 @@ Services started by docker-compose:
 ```bash
 cd editor/server/src  # or student/server/src
 uvicorn main:app --host 0.0.0.0 --port 8005 --reload
-# Uncomment the local POSTGRES_PORT line in main.py (port 5433)
+# Uncomment the local POSTGRES_PORT line in main.py (port 5432)
 ```
 
 **Flutter UIs:**
@@ -43,7 +43,7 @@ editor/ui  (Flutter)  →  editor/server  (FastAPI, port 8005)
 student/ui (Flutter)  →  student/server (FastAPI, port 8004)
 content/ui (Flutter)  →  content/server (FastAPI, port 8001, commented out)
                                     ↓
-                             PostgreSQL (port 5433)
+                             PostgreSQL (port 5432)
 ```
 
 **Database schemas:**

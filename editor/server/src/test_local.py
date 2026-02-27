@@ -4,7 +4,7 @@ from models.generate import GeneratedCourse, GreetingModule, Module, Lesson
 import asyncio
 import os
 
-os.environ["POSTGRES_PORT"] = "5433"  
+os.environ["POSTGRES_PORT"] = "5432"  
 
 def print_course(course: GeneratedCourse):
     """Print the generated course structure for review"""

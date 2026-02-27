@@ -466,7 +466,7 @@ async def save_lesson(request: SaveLessonRequest):
     lesson_rows = await get_query_results(sql_lesson, (course_id, module_id, lang, to_lang, title, request.description or ""))
     if not lesson_rows:
         raise HTTPException(status_code=500, detail="Failed to create lesson")
-    lesson_id = lesson_rows[0]["id"]
+    lesson_id = lesson_rows[0]["lesson_id"]
     for ex in request.exercises:
         opts = ex.wrong_options or []
         to_opts = ex.correct_options or []

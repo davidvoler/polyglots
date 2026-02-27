@@ -9,7 +9,7 @@ from generators.create_course_from_file import create_course_from_file, load_all
 from generators.complete_exercise import complete_exercise
 
 
-os.environ["POSTGRES_PORT"] = "5433"  
+os.environ["POSTGRES_PORT"] = "5432"  
 
 
 

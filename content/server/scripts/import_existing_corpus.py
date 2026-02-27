@@ -15,7 +15,7 @@ async def get_old_data_polyglots(lang:str):
 
 async def export_polyglot(lang:str):
     data = await get_old_data_polyglots(lang)
-    new_client = await get_pg_con_specific(host="localhost", port="5433", db_name="polyglots", user="polyglots", password="polyglots")
+    new_client = await get_pg_con_specific(host="localhost", port="5432", db_name="polyglots", user="polyglots", password="polyglots")
     corpus = 'gen_dialogue'
     for row in data:
         text = row.get("text").strip()
@@ -28,7 +28,7 @@ async def export_polyglot(lang:str):
 
 async def export_tatoeba(lang:str):
     data = await get_old_data_tatoeba(lang)
-    new_client = await get_pg_con_specific(host="localhost", port="5433", db_name="polyglots", user="polyglots", password="polyglots")
+    new_client = await get_pg_con_specific(host="localhost", port="5432", db_name="polyglots", user="polyglots", password="polyglots")
     lang2 = get_lang2(lang)
     corpus = 'tatoeba'
     for row in data:

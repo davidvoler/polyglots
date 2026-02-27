@@ -4,7 +4,7 @@ from batch_tools.alphabet.ja import collect_words
 import os 
 import asyncio
 
-os.environ['POSTGRES_PORT'] = '5433'
+os.environ['POSTGRES_PORT'] = '5432'
 
 async def main():
     await collect_words_pos1('en')

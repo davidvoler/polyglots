@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os 
 
 #for running locally
-# os.environ["POSTGRES_PORT"] = "5433"
+# os.environ["POSTGRES_PORT"] = "5432"
 
 from routers import (
     course,
