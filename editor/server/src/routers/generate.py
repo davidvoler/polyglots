@@ -259,7 +259,7 @@ async def save_draft(request: SaveEditorDraftRequest):
     words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
     sentences_json = json.dumps(request.sentences_per_word)
     sql = """
-    INSERT INTO content.editor_draft (
+    INSERT INTO course.editor_draft (
         title, description, lang, to_lang, selected_question_type_ids,
         words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
     ) VALUES (%s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s::jsonb)
@@ -284,7 +284,7 @@ async def list_drafts():
     """List editor drafts (for resume)."""
     sql = """
     SELECT id, title, updated_at, step, lang, to_lang
-    FROM content.editor_draft
+    FROM course.editor_draft
     ORDER BY updated_at DESC
     LIMIT 50
     """
@@ -308,7 +308,7 @@ async def get_draft(draft_id: int):
     sql = """
     SELECT id, created_at, updated_at, title, description, lang, to_lang,
            selected_question_type_ids, words_with_weight, step, automate_lesson, lessons_per_module, sentences_per_word
-    FROM content.editor_draft
+    FROM course.editor_draft
     WHERE id = %s
     """
     rows = await get_query_results(sql, (draft_id,))
@@ -323,7 +323,7 @@ async def update_draft(draft_id: int, request: SaveEditorDraftRequest):
     words_json = json.dumps([w.model_dump() for w in request.words_with_weight])
     sentences_json = json.dumps(request.sentences_per_word)
     sql = """
-    UPDATE content.editor_draft SET
+    UPDATE course.editor_draft SET
         updated_at = now(),
         title = %s, description = %s, lang = %s, to_lang = %s,
         selected_question_type_ids = %s, words_with_weight = %s::jsonb, step = %s,
@@ -468,17 +468,19 @@ async def save_lesson(request: SaveLessonRequest):
         raise HTTPException(status_code=500, detail="Failed to create lesson")
     lesson_id = lesson_rows[0]["lesson_id"]
     for ex in request.exercises:
-        opts = ex.wrong_options or []
-        to_opts = ex.correct_options or []
+        wrong_options = ex.wrong_options or []
+        correct_options = ex.correct_options or [ex.to_sentence]
         sql_ex = """
-        INSERT INTO content.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, sentence_id, sentence, options, to_sentence_id, to_sentence, to_options)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO content.exercise (course_id, module_id, lesson_id, lang, to_lang, exercise_type, 
+        sentence_id, sentence, 
+        correct_options, to_sentence_id, wrong_options)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         await run_query(
             sql_ex,
             (
                 course_id, module_id, lesson_id, lang, to_lang, ex.exercise_type,
-                ex.sentence_id, ex.sentence or "", opts, ex.to_sentence_id, ex.to_sentence or "", to_opts,
+                ex.sentence_id, ex.sentence or "", correct_options, ex.to_sentence_id,  wrong_options,
             ),
         )
     return SaveLessonResponse(course_id=course_id, module_id=module_id, lesson_id=lesson_id)

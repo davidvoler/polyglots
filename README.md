@@ -47,5 +47,5 @@ Also - as we are an enabler - a tool for building courses - we do not have full 
 
 ```bash
 
-export uvicorn main:app --host 0.0.0.0 --port 8005 --reload
+uvicorn main:app --host 0.0.0.0 --port 8005 --reload
 ```
