@@ -75,9 +75,14 @@ class QuizSentence {
   });
 
   factory QuizSentence.fromJson(Map<String, dynamic> json) {
-    final typeString = (json['question_type'] ?? '').toString().toLowerCase();
+    // Support both 'question_type' (old format) and 'exercise_type' (new backend)
+    final typeString = (json['exercise_type'] ?? json['question_type'] ?? '').toString().toLowerCase();
     QuizQuestionType questionType = QuizQuestionType.singleChoice;
-    if (typeString == 'multiple' ||
+    if (typeString == 'sentence_single_choice' ||
+        typeString == 'single' ||
+        typeString == 'single_choice') {
+      questionType = QuizQuestionType.singleChoice;
+    } else if (typeString == 'multiple' ||
         typeString == 'multiple_choice' ||
         typeString == 'multi' ||
         typeString == 'multiple-select' ||
@@ -89,13 +94,18 @@ class QuizSentence {
       questionType = QuizQuestionType.explanation;
     } else if (typeString == 'word_search' ||
         typeString == 'wordsearch' ||
-        typeString == 'word-search') {
+        typeString == 'word-search' ||
+        typeString == 'words_in_grid') {
       questionType = QuizQuestionType.wordSearch;
-    } else if (typeString == 'typing' || typeString == 'type' || typeString == 'write') {
+    } else if (typeString == 'typing' ||
+        typeString == 'type' ||
+        typeString == 'write' ||
+        typeString == 'type_question') {
       questionType = QuizQuestionType.typing;
     } else if (typeString == 'identify_words' ||
         typeString == 'identifywords' ||
-        typeString == 'identify') {
+        typeString == 'identify' ||
+        typeString == 'identify_words_in_speech') {
       questionType = QuizQuestionType.identifyWords;
     }
 

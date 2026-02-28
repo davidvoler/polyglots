@@ -618,9 +618,9 @@ async def get_course_detail(course_id: int):
         lessons = []
         for lesson in lesson_rows:
             ex_rows = await get_query_results(
-                """SELECT id, exercise_type, sentence, to_sentence, sentence_id, to_sentence_id,
-                          options, to_options
-                   FROM content.exercise WHERE lesson_id = %s ORDER BY id""",
+                """SELECT exercise_id AS id, exercise_type, sentence, sentence_id, to_sentence_id,
+                          correct_options, wrong_options
+                   FROM content.exercise WHERE lesson_id = %s ORDER BY exercise_id""",
                 (lesson["id"],),
             )
             exercises = [
@@ -628,11 +628,11 @@ async def get_course_detail(course_id: int):
                     id=r["id"],
                     exercise_type=r.get("exercise_type") or "",
                     sentence=r.get("sentence") or "",
-                    to_sentence=r.get("to_sentence") or "",
+                    to_sentence="",
                     sentence_id=r.get("sentence_id") or 0,
                     to_sentence_id=r.get("to_sentence_id") or 0,
-                    correct_options=list(r.get("to_options") or []),
-                    wrong_options=list(r.get("options") or []),
+                    correct_options=list(r.get("correct_options") or []),
+                    wrong_options=list(r.get("wrong_options") or []),
                 )
                 for r in ex_rows
             ]

@@ -1,6 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
 from enum import Enum
 
 
@@ -12,8 +10,8 @@ class QuizType(Enum):
 
 
 class QuizRequest(BaseModel):
-    lang:str = ''
-    to_lang:str = ''
+    lang: str = ''
+    to_lang: str = ''
     user_id: str = ''
     quiz_type: QuizType = QuizType.lesson
     course_id: int = 0
@@ -26,36 +24,23 @@ class Option(BaseModel):
     correct: bool = False
     selected: bool = False
 
+
 class Sentence(BaseModel):
     sentence: str
     options: list[Option] = []
-    words:list = []
+    words: list = []
     sentence_id: str
-    sound:str = ''
+    sound: str = ''
     annotated_sentence: dict = {}
-    
+    exercise_type: str = 'sentence_single_choice'
+
 
 class Quiz(BaseModel):
-    lang:str
-    to_lang:str
-    user_id: str
-    quiz_type: QuizType = QuizType.lesson    
+    lang: str = ''
+    to_lang: str = ''
+    user_id: str = ''
+    quiz_type: QuizType = QuizType.lesson
     course_id: int = 0
     module_id: int = 0
     lesson_id: int = 0
     sentences: list[Sentence] = []
-
-
-
-
-class QuizRequestBranch(QuizRequest):
-    lang:str
-    to_lang:str
-    user_id: str
-    quiz_type: QuizType = QuizType.lesson    
-    course_id: int = 0
-    module_id: int = 0
-    lesson_id: int = 0
-
-
-

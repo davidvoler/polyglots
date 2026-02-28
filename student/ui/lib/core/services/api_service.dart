@@ -121,6 +121,102 @@ class ApiService {
     }
   }
   
+  /// Load quiz for a specific lesson from the student backend.
+  static Future<Quiz> getQuizForLesson({
+    required int courseId,
+    required int lessonId,
+    required int moduleId,
+    required String lang,
+    required String toLang,
+    String userId = '',
+  }) async {
+    try {
+      final url = _getUri('/api/v1/quiz/get_quiz');
+      final client = http.Client();
+
+      final data = {
+        'lang': lang,
+        'to_lang': toLang,
+        'user_id': userId,
+        'quiz_type': 'lesson',
+        'course_id': courseId,
+        'lesson_id': lessonId,
+        'module_id': moduleId,
+      };
+
+      final response = await client.post(
+        url,
+        body: json.encode(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ).timeout(
+        Duration(seconds: _timeoutSeconds),
+        onTimeout: () {
+          throw TimeoutException('Connection timeout');
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData =
+            json.decode(utf8.decode(response.bodyBytes));
+        return Quiz.fromJson(responseData);
+      } else {
+        throw ApiException(
+          'API error: Status ${response.statusCode}',
+          response.statusCode,
+          response.body,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e', 0, e.toString());
+    }
+  }
+
+  /// Save a single exercise result to the student backend.
+  static Future<void> saveResult({
+    required String userId,
+    required String lang,
+    required String toLang,
+    required int courseId,
+    required int moduleId,
+    required int lessonId,
+    required int exerciseId,
+    required String exerciseType,
+    required bool correct,
+    required int attempts,
+    int answerDelayMs = 0,
+  }) async {
+    try {
+      final url = _getUri('/api/v1/results/save_results');
+      final client = http.Client();
+      await client.post(
+        url,
+        body: json.encode({
+          'user_id': userId,
+          'lang': lang,
+          'to_lang': toLang,
+          'course_id': courseId,
+          'module_id': moduleId,
+          'lesson_id': lessonId,
+          'exercise_id': exerciseId,
+          'exercise_type': exerciseType,
+          'correct': correct,
+          'attempts': attempts,
+          'answer_delay_ms': answerDelayMs,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      print('Failed to save result: $e');
+    }
+  }
+
   // Fallback method to create a demo quiz when API fails
   static Quiz createDemoQuiz({
     required String lang,

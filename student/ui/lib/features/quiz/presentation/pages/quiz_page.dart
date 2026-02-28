@@ -11,6 +11,9 @@ class QuizPage extends ConsumerStatefulWidget {
   final bool showText;
   final bool autoPlaySound;
   final bool showTransliteration;
+  final int? courseId;
+  final int? lessonId;
+  final int? moduleId;
 
   const QuizPage({
     super.key,
@@ -19,6 +22,9 @@ class QuizPage extends ConsumerStatefulWidget {
     required this.showText,
     required this.autoPlaySound,
     required this.showTransliteration,
+    this.courseId,
+    this.lessonId,
+    this.moduleId,
   });
 
   @override
@@ -29,9 +35,18 @@ class _QuizPageState extends ConsumerState<QuizPage> {
   @override
   void initState() {
     super.initState();
-    // Load quiz when page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(quizProvider.notifier).loadQuiz();
+      if (widget.lessonId != null && widget.lessonId! > 0) {
+        ref.read(quizProvider.notifier).loadQuizForLesson(
+          courseId: widget.courseId ?? 0,
+          lessonId: widget.lessonId!,
+          moduleId: widget.moduleId ?? 0,
+          lang: widget.selectedLanguage,
+          toLang: widget.nativeLanguage,
+        );
+      } else {
+        ref.read(quizProvider.notifier).loadQuiz();
+      }
     });
   }
 

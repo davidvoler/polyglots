@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/services/course_service.dart';
 import '../../../../shared/models/course_model.dart';
+import '../../../quiz/presentation/pages/quiz_page.dart';
 
 class CourseDetailPage extends StatelessWidget {
   final int courseId;
@@ -90,6 +91,24 @@ class CourseDetailPage extends StatelessWidget {
                           subtitle: lesson.description.isNotEmpty
                               ? Text(lesson.description)
                               : null,
+                          trailing: const Icon(Icons.play_arrow, color: Colors.green),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => QuizPage(
+                                  selectedLanguage: course.lang,
+                                  nativeLanguage: course.toLang,
+                                  showText: true,
+                                  autoPlaySound: false,
+                                  showTransliteration: false,
+                                  courseId: course.id,
+                                  lessonId: lesson.id,
+                                  moduleId: module.id,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                   ],
