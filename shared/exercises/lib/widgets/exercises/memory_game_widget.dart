@@ -35,7 +35,7 @@ class MemoryGameWidget extends StatelessWidget {
                           .map(
                             (cell) => Padding(
                               padding: const EdgeInsets.all(8),
-                              child: Center(child: Text('$cell')),
+                              child: Center(child: Text(cell)),
                             ),
                           )
                           .toList(),

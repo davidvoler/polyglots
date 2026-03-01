@@ -730,7 +730,7 @@ class _EditorFlowScreenState extends State<EditorFlowScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
-          '${_moduleCount} module${_moduleCount == 1 ? '' : 's'} · '
+          '$_moduleCount module${_moduleCount == 1 ? '' : 's'} · '
           '${_selectedWords.length} word${_selectedWords.length == 1 ? '' : 's'}',
           style: TextStyle(color: Colors.grey[600]),
         ),

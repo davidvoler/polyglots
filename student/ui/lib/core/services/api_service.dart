@@ -15,7 +15,7 @@ class ApiService {
     // }
     final base =  dotenv.env['BASE_PATH'] ?? 'https://polyglots.social';
     print('🔗 API Configuration:');
-    print('   Base URL: ${base}');
+    print('   Base URL: $base');
     print('   HTTPS: $_isHttps');
     return base;
   }
@@ -78,7 +78,7 @@ class ApiService {
       final client = http.Client();
 
       print('🔗 API Configuration:');
-      print('   Base URL: ${_baseUrl}');
+      print('   Base URL: $_baseUrl');
       print('   HTTPS: $_isHttps');
       print('   Full URL: $url');
       print('📤 Request data: ${request.toJson()}');

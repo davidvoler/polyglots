@@ -754,7 +754,7 @@ class _GenerateCourseWizardScreenState extends State<GenerateCourseWizardScreen>
 
   Widget _buildDropdownField(String label, String? value, Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(

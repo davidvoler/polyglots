@@ -5,16 +5,12 @@ class TypeQuestionExercise extends Exercise {
   const TypeQuestionExercise({
     required this.word,
     required this.keyboard,
-    String title = '',
-    String instruction = '',
-    String audioLink = '',
-    Map<String, dynamic> extraData = const {},
+    super.title,
+    super.instruction,
+    super.audioLink,
+    super.extraData,
   }) : super(
           type: ExerciseType.typeQuestion,
-          title: title,
-          instruction: instruction,
-          audioLink: audioLink,
-          extraData: extraData,
         );
 
   final String word;

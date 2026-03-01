@@ -6,16 +6,12 @@ class IdentifyWordsInSpeechExercise extends Exercise {
     required this.text,
     required this.correctOptions,
     required this.incorrectOptions,
-    String title = '',
-    String instruction = '',
-    String audioLink = '',
-    Map<String, dynamic> extraData = const {},
+    super.title,
+    super.instruction,
+    super.audioLink,
+    super.extraData,
   }) : super(
           type: ExerciseType.identifyWordsInSpeech,
-          title: title,
-          instruction: instruction,
-          audioLink: audioLink,
-          extraData: extraData,
         );
 
   final String text;

@@ -9,14 +9,14 @@ class SettingsToggle extends StatelessWidget {
   final MaterialColor color;
 
   const SettingsToggle({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.value,
     required this.onChanged,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class SettingsToggle extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: color.shade600,
+          activeThumbColor: color.shade600,
         ),
       ],
     );

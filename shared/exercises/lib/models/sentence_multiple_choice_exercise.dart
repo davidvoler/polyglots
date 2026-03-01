@@ -5,16 +5,12 @@ class SentenceMultipleChoiceExercise extends Exercise {
   const SentenceMultipleChoiceExercise({
     required this.word,
     required this.options,
-    String title = '',
-    String instruction = '',
-    String audioLink = '',
-    Map<String, dynamic> extraData = const {},
+    super.title,
+    super.instruction,
+    super.audioLink,
+    super.extraData,
   }) : super(
           type: ExerciseType.sentenceMultipleChoice,
-          title: title,
-          instruction: instruction,
-          audioLink: audioLink,
-          extraData: extraData,
         );
 
   final String word;

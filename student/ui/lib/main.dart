@@ -54,6 +54,8 @@ class LanguageLearningApp extends ConsumerWidget {
 }
 
 class MainScreen extends ConsumerStatefulWidget {
+  const MainScreen({super.key});
+
   @override
   ConsumerState<MainScreen> createState() => _MainScreenState();
 }

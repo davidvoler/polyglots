@@ -8,9 +8,9 @@ class ProgressPage extends StatefulWidget {
   final int questionsToday;
 
   const ProgressPage({
-    Key? key,
+    super.key,
     required this.questionsToday,
-  }) : super(key: key);
+  });
 
   @override
   State<ProgressPage> createState() => _ProgressPageState();

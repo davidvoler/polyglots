@@ -6,16 +6,12 @@ class SentenceSingleChoiceExercise extends Exercise {
     required this.sentence,
     required this.correctOption,
     required this.wrongOptions,
-    String title = '',
-    String instruction = '',
-    String audioLink = '',
-    Map<String, dynamic> extraData = const {},
+    super.title,
+    super.instruction,
+    super.audioLink,
+    super.extraData,
   }) : super(
           type: ExerciseType.sentenceSingleChoice,
-          title: title,
-          instruction: instruction,
-          audioLink: audioLink,
-          extraData: extraData,
         );
 
   final String sentence;

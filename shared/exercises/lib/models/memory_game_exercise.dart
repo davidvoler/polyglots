@@ -4,16 +4,12 @@ import 'exercise_type.dart';
 class MemoryGameExercise extends Exercise {
   const MemoryGameExercise({
     required this.grid,
-    String title = '',
-    String instruction = '',
-    String audioLink = '',
-    Map<String, dynamic> extraData = const {},
+    super.title,
+    super.instruction,
+    super.audioLink,
+    super.extraData,
   }) : super(
           type: ExerciseType.memoryGame,
-          title: title,
-          instruction: instruction,
-          audioLink: audioLink,
-          extraData: extraData,
         );
 
   final List<List<String>> grid;

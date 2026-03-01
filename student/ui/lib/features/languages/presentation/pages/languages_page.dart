@@ -9,11 +9,11 @@ class LanguagesPage extends ConsumerStatefulWidget {
   final Function(String) onLanguageChanged;
 
   const LanguagesPage({
-    Key? key,
+    super.key,
     required this.selectedLanguage,
     required this.nativeLanguage,
     required this.onLanguageChanged,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<LanguagesPage> createState() => _LanguagesPageState();
